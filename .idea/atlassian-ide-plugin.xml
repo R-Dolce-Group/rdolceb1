@@ -1,0 +1,14 @@
+<atlassian-ide-plugin>
+  <project-configuration id="1">
+    <servers id="2">
+      <jira id="3">
+        <server-id id="4">cb8d682e-a000-4f9f-80a7-d922b0edc52f</server-id>
+        <name>R. Dolce Group</name>
+        <url>https://rdolcegroup.atlassian.net/login</url>
+        <shared>false</shared>
+        <useSessionCookies>false</useSessionCookies>
+      </jira>
+    </servers>
+    <default-jira-server reference="4" />
+  </project-configuration>
+</atlassian-ide-plugin>

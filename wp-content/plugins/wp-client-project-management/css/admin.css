@@ -1,0 +1,2072 @@
+ .wpc_left_column {
+    float: left;
+    width: 65%;
+}
+
+.wpc_right_column {
+    float: left;
+    width: 35%;
+}
+
+.wpc_pm_project {
+    width: 200px;
+    height: 200px;
+    border: 1px solid #aaaaaa;
+    margin: 10px;
+    float: left;
+    padding: 5px;
+    position: relative;
+    background: #fff;
+}
+
+ .wpc_pm_project_items > a {
+     outline: none;
+     box-shadow: none;
+ }
+
+.wpc_pm_project_items .edit_project, .wpc_pm_project_items .duplicate_project, .wpc_pm_project_items .archive_project, .wpc_pm_project_items .restore_project, .wpc_pm_project_items .delete_project {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #eee;
+}
+
+.wpc_pm_project .edit_project, .wpc_pm_project .duplicate_project, .wpc_pm_project .archive_project, .wpc_pm_project .restore_project, .wpc_pm_project .delete_project {
+    position: absolute;
+    top: 5px;
+    display: none;
+}
+
+.wpc_pm_project p.description {
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+    text-align: justify;
+    word-wrap: break-word;
+}
+
+.add_project .description {
+    width: 100%;
+}
+
+.wpc_pm_project:hover .edit_project, .wpc_pm_project:hover .duplicate_project, .wpc_pm_project:hover .archive_project, .wpc_pm_project:hover .restore_project, .wpc_pm_project:hover .delete_project {
+    display: block;
+}
+
+.wpc_pm_project_items .edit_project {
+    background: #fff url(../images/icons.png) no-repeat 0px 0px;
+}
+
+.wpc_pm_project_items .duplicate_project {
+    background: #fff url(../images/zero_copy.png) no-repeat 0px 0px;
+}
+
+.wpc_pm_project_items .archive_project {
+    background: #fff url(../images/icons.png) no-repeat -36px 0px;
+}
+
+.wpc_pm_project_items .restore_project {
+    background: #fff url(../images/icons.png) no-repeat -54px 0px;
+}
+
+.wpc_pm_project_items .delete_project {
+    background: #fff url(../images/icons.png) no-repeat -18px 0px;
+}
+
+.wpc_pm_project .edit_project {
+    right: 68px;
+}
+
+.wpc_pm_project .duplicate_project {
+    right: 47px;
+}
+
+.wpc_pm_project .archive_project {
+    right: 26px;
+}
+
+.wpc_pm_project .restore_project {
+    right: 47px;
+}
+
+.wpc_pm_project .delete_project {
+    right: 5px;
+}
+
+.wpc_pm_project > a.main_block {
+    display: block;
+    width: 100%;
+    height: 100%;
+    float: left;
+}
+
+.wpc_pm_project .progress_bar_outer {
+    position: absolute;
+    bottom: -9px;
+    left: -1px;
+    height: 20px;
+    width: 100%;
+}
+
+.wpc_pm_project_items .progress_bar {
+    height: 20px;
+    width: 100%;
+    float: left;
+    position: relative;
+    background-color:#f7f7f7;
+    background-image:-moz-linear-gradient(top, #f5f5f5, #f9f9f9);
+    background-image:-webkit-gradient(linear, 0 0, 0 100%, from(#f5f5f5), to(#f9f9f9));
+    background-image:-webkit-linear-gradient(top, #f5f5f5, #f9f9f9);
+    background-image:-o-linear-gradient(top, #f5f5f5, #f9f9f9);
+    background-image:linear-gradient(to bottom, #f5f5f5, #f9f9f9);
+    background-repeat:repeat-x;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5', endColorstr='#fff9f9f9', GradientType=0);
+    -webkit-box-shadow:inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow:inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow:inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.wpc_pm_project_items .progress_bar .progress-label {
+    font-size: 10px;
+    position: absolute;
+    left: 10px;
+    top: 1px;
+    font-weight: bold;
+}
+
+.wpc_pm_project_items .progress_bar .bar_counter {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.milestone_table .milestone_progress_bar .progress-label {
+    font-size: 11px;
+    position: absolute;
+    left: 10px;
+    top: 0px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
+}
+
+.milestone_table .milestone_progress_bar .bar_counter {
+    position: absolute;
+    top: -2px;
+    right: 5px;
+    font-size: 11px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
+}
+
+.wpc_pm_project.full_information {
+    height: 421px;
+}
+
+.add_new_project {
+    height: 200px;
+    text-align: center;
+}
+
+.wpc_pm_project .title {
+    font-weight: bold;
+    font-size: 16px;
+    word-wrap: break-word;
+}
+
+.wpc_pm_project .assign {
+    width: 96%;
+    position: absolute;
+    left: 2%;
+    bottom: 40px;
+    height: 50px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.wpc_pm_project .wpc_pm_more_users {
+    display: block;
+    background-position: 0px 0;
+    position: absolute;
+    left: 49%;
+    bottom: 30px;
+    margin: 0 !important;
+    background: url(../images/multiple-select.png) no-repeat 1px -8px;
+    width: 20px;
+    height: 10px;
+}
+
+.wpc_pm_project .wpc_pm_more_users.active {
+    background-position: -16px -8px;
+}
+
+.wpc_pm_project .assign .object_img {
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    width: 19%;
+    display: block;
+    float: left;
+    font-size: 32px;
+    margin: 0 1% 1% 0;
+}
+
+.wpc_pm_project.full_data {
+    height: 421px;
+}
+
+.wpc_pm_project.full_data .assign {
+    height: 260px;
+    overflow-y: auto;
+}
+
+#add_project {
+    width: 200px;
+}
+
+ul.menu li {
+    display: block;
+    float: left;
+    background: #efefef;
+    margin-bottom: -1px;
+    border: 1px solid #d0ccc9;
+    border-width: 1px 1px 1px 1px;
+    position: relative;
+}
+
+ul.menu li a {
+    font-weight: 700;
+    display: block;
+    padding: 5px 10px 5px 10px;
+    color: #898989;
+    cursor: pointer;
+}
+
+ul.menu li.active {
+    background: #fff;
+    top: 1px;
+    border-bottom: 0;
+    color: #5f95ef;
+    z-index: 1;
+}
+
+ul.wpc_pm_main_menu li.active {
+    z-index: 2;
+}
+
+ul.menu li.active a {
+    color: #5f95ef;
+}
+
+.wpc_pm_main_block {
+    width: 100%;
+    float: left;
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 10px;
+    padding-bottom: 20px;
+    font-size: 11px;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    margin-right: 20px;
+    position: relative;
+    overflow:hidden;
+}
+
+.teams_list {
+    display: block;
+    width: 100%;
+    float: left;
+    list-style: none;
+}
+
+.teams_list li {
+    display: block;
+    width: 100%;
+    float: left;
+    position: relative;
+}
+
+.teams_list li a.team {
+    display: block;
+    width: 90%;
+    float: left;
+    padding: 5px 5%;
+    border: 1px solid #d0ccc9;
+    font-size: 14px;
+    color: #898989;
+    background: #efefef;
+}
+
+.teams_list li:hover a.team, .teams_list li a.team.active {
+    color: #5f95ef;
+    background: #fff;
+}
+
+.teams_list li .close_button {
+    width: 16px;
+    height: 16px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: url(../images/close.png) no-repeat 0px 0px;
+}
+
+.teams_list li a.close_button:hover, .teams_list li a.close_button.active {
+    background-position: -16px 0;
+}
+
+.add_new_team:hover, add_new_sector:hover {
+    color: #5f95ef;
+    background: #fff;
+}
+
+.team_data, .sector_data {
+    display: block;
+    width: 100%;
+    font-size: 14px;
+}
+
+.team_data #team_name, .team_data #description, .sector_data #sector_name, .sector_data #description {
+    width: 100%;
+    resize: vertical;
+}
+
+.wpc_pm_user_list {
+    width: 100%;
+    float: left;
+    margin: 10px 0;
+    max-height: 500px;
+    height: expression( this.scrollHeight > 500 ? "500px" : "auto" );
+    overflow-y: auto;
+    padding-top: 10px;
+    display: block;
+}
+
+.wpc_pm_user_list .wpc_user {
+    width: 100px;
+    height: 100px;
+    padding: 3px;
+    margin: 0 10px 10px 0;
+    float: left;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    font-size: 12px;
+    word-wrap: break-word;
+    border-radius: 7px;
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+/*.wpc_user .avatar {
+
+}*/
+
+/*.wpc_pm_user_list .wpc_user img {
+    border: 1px solid #d0ccc9;
+}*/
+
+.wpc_pm_user_list .wpc_pm_user_checkbox {
+    display: none;
+}
+
+.add-new-user, .add-new-task, .add-new-milestone,
+.add_new_team, .add_new_sector {
+    font-family: sans-serif;
+    margin-left: 4px;
+    padding: 3px 8px;
+    position: relative;
+    top: -3px;
+    text-decoration: none;
+    font-size: 12px;
+    background: #f1f1f1;
+    border: 1px solid #aaa;
+    color: #898989;
+}
+
+.wpc_user.wpc_project_manager {
+    border: 5px solid #84b4ef;
+    background: #84b4ef;
+}
+
+.wpc_user.wpc_teammate {
+    border: 5px solid #ffb170;
+    background: #ffb170;
+}
+
+.wpc_user.wpc_freelancer {
+    border: 5px solid #a9ffc4;
+    background: #a9ffc4;
+}
+
+.wpc_user.wpc_team {
+    border: 5px solid #ccc;
+    background: #eee;
+}
+
+/*.wpc_user.wpc_project_manager {
+    border: 5px solid #77dd77;
+    background: #77dd77;
+}
+
+.wpc_user.wpc_teammate {
+    border: 5px solid #3399cc;
+    background: #3399cc;
+}
+
+.wpc_user.wpc_freelancer {
+    border: 5px solid #ffff66;
+    background: #ffff66;
+}   */
+
+.wpc_user .checkbox {
+    display: none;
+    width: 40px;
+    height: 36px;
+    position: absolute;
+    top: -20px;
+    right: -18px;
+    background: url(../images/check.png) no-repeat top left;
+}
+
+.wpc_user.checked .checkbox {
+    display: block;
+}
+
+.teams_page .wpc_right_column {
+    padding-right: 3%;
+}
+
+.teams_page .wpc_left_column {
+    padding-left: 3%;
+    border-left: 1px solid #ccc;
+    width: 58%;
+}
+
+.add_project {
+    font-size: 14px;
+}
+
+.task_table, .milestone_table {
+    float: left;
+    width: 100%;
+    border: 1px solid #eee;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #fff;
+}
+
+.task_table {
+    height: 600px;
+    margin-bottom: 15px;
+}
+
+.task_row, .milestone_row {
+    float: left;
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    position: relative;
+}
+
+.task_row:hover .task_tag, .task_row.active .task_tag {
+    background: #dde4ea;
+}
+
+.task_row.completed_task, .task_row.closed_task {
+    background: #efefef;
+}
+
+.task_row.active, .task_row:hover, .milestone_row.active, .milestone_row:hover {
+    background: #dde4ea;
+}
+
+.task_row.active .task_title, .milestone_row.active .task_title {
+    font-weight: bold;
+}
+
+.task_row .task_priority {
+    display: block;
+    width: 1%;
+    height: 100%;
+    float: left;
+}
+
+ .dhx_cal_event_clear > a > span, .dhtmlXTooltip > span {
+     display: inline-block;
+     width: 5px;
+     height: 15px;
+     margin-right: 5px;
+ }
+
+.task_row .task_priority.urgent, .dhx_cal_event_clear > a > span.urgent, .dhtmlXTooltip > span.urgent {
+    background: #FF00FF;
+}
+
+.task_row .task_priority.high, .dhx_cal_event_clear > a > span.high, .dhtmlXTooltip > span.high {
+    background: #DF050E;
+}
+
+.task_row .task_priority.normal, .dhx_cal_event_clear > a > span.normal, .dhtmlXTooltip > span.normal {
+    background: #F9DF28;
+}
+
+.task_row .task_priority.low, .dhx_cal_event_clear > a > span.low, .dhtmlXTooltip > span.low {
+    background: #54910C;
+}
+
+.task_row .task_id {
+    width: 7%;
+    text-align: center;
+    height: 100%;
+    float: left;
+}
+
+.task_row .task_title {
+    width: 80%;
+    height: 100%;
+    float: left;
+    overflow: hidden;
+}
+
+.milestone_row .milestone_title {
+    width: 40%;
+    height: 100%;
+    float: left;
+    overflow: hidden;
+    padding: 0 2%;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.milestone_row .milestone_die_date {
+    width: 20%;
+    height: 100%;
+    float: left;
+    overflow: hidden;
+    text-align: center;
+}
+
+.milestone_row .milestone_progress_bar  {
+    width: 35%;
+    height: 90%;
+    float: left;
+    overflow: hidden;
+    position: relative;
+}
+
+.task_row .task_assign {
+    width: 5%;
+    height: 100%;
+    float: left;
+}
+
+.task_row .task_assign .user, .assign_dropdown .icon {
+    float: left;
+    padding: 0 3px;
+    font-size: 11px;
+    height: 16px;
+    margin-right: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    line-height: 16px;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.task_row .task_tag {
+    /*max-width: 30%;*/
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 5px;
+}
+
+.task_row .task_tag .tag {
+    border: 1px solid #e5e5e5;
+    background: #f2f2f2;
+    float: left;
+    padding: 0 3px;
+    margin-left: 3px;
+    font-size: 11px;
+    height: 16px;
+    margin-top: 8px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    line-height: 16px;
+    /*max-width: 35%;*/
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space:nowrap;
+}
+
+.add-new-task, .add-new-milestone {
+    float: left;
+    margin-top: 1px !important;
+    text-align: center;
+}
+
+.add-new-task {
+    width: 15%;
+}
+
+.wpc_pm_task, .wpc_pm_milestone {
+    width: 100%;
+    float: left;
+    border: 1px solid #f3f3f3;
+    min-height: 300px;
+    position: relative;
+    background: #fff;
+}
+
+.wpc_pm_milestone {
+    width: 96%;
+    padding: 0 2%;
+}
+
+.task_top_bar {
+    width: 100%;
+    height: 32px;
+    float: left;
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #f2f2f2;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(white), color-stop(100%, #f2f2f2));
+    background-image: -moz-linear-gradient(90deg, #f2f2f2 0%, white);
+    background-image: -ms-linear-gradient(90deg, #f2f2f2 0%, white);
+    box-shadow: 0px 1px #e5e5e5;
+    -moz-box-shadow: 0px 1px #e5e5e5;
+    -webkit-box-shadow: 0px 1px #e5e5e5;
+    padding: 0 !important;
+}
+
+.task_top_bar .die_date_link, .task_top_bar .customSelect.status {
+    /*height: 32px;*/
+    float: left;
+    display: block;
+    text-align: center;
+    /*line-height: 32px;*/
+    padding: 0 10px;
+    color: black;
+    margin: 0 !important;
+}
+
+.task_top_bar .nav > li {
+    border-right: 1px solid #ccc;
+}
+
+.task_top_bar .customSelect.status {
+    background-image: url(../images/open_select.png);
+    background-position: center bottom;
+    background-repeat: no-repeat;
+}
+
+.task_top_bar .assign_dropdown .close-but, .task_top_bar .die_date_link .close-but , .task_top_bar .die_date_outer .close-but {
+    width: 12px;
+    height: 12px;
+    display: none;
+    background: #ccc url(../images/close2.png) no-repeat top left;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+.task_top_bar .assign_dropdown:hover .close-but, .task_top_bar .die_date_link:hover .close-but, .task_top_bar .die_date_outer:hover .close-but {
+    display: block;
+}
+
+.task_top_bar .assign_dropdown .close-but:hover, .task_top_bar .die_date_link .close-but:hover, .task_top_bar .die_date_outer .close-but:hover {
+    background: #ddd url(../images/close2.png) no-repeat top left;
+}
+
+.task_top_bar .die_date_link {
+    padding-left: 30px !important;
+    background-image: url( ../images/calendar.png ) !important;
+    background-position: 10px center !important;
+    background-repeat: no-repeat !important;
+    position: relative;
+}
+
+.die_date_outer {
+    position: relative;
+}
+
+.additional_actions .dropdown-menu, .status .dropdown-menu {
+    min-width: 80px !important;
+}
+
+.task_form {
+    float: left;
+    width: 96%;
+    padding: 2%;
+    margin: 0;
+}
+
+.task_form .title, .wpc_pm_milestone .title {
+    position: relative;
+}
+
+.task_form .edit_title_link,
+.task_form .edit_description_link,
+.wpc_pm_milestone .edit_title_link,
+.wpc_pm_milestone .edit_description_link,
+.task_form .submit_description_link,
+.wpc_pm_milestone .submit_description_link {
+    width: 16px;
+    height: 16px;
+    display: none;
+    position: absolute;
+    background: url(../images/icons.png) no-repeat top left #fff;
+    border: 1px solid #eee;
+}
+
+.task_form .submit_description_link,
+.wpc_pm_milestone .submit_description_link {
+    background-position: -68px 0px;
+}
+
+.task_form .title:hover .edit_title_link,
+.wpc_pm_milestone .title:hover .edit_title_link {
+    display: block;
+}
+
+#div_task_description_tab:hover .edit_description_link,
+.wpc_pm_milestone .description:hover .edit_description_link,
+#div_task_description_tab:hover .submit_description_link,
+.wpc_pm_milestone .description:hover .submit_description_link {
+    display: block;
+}
+
+.task_form .edit_title_link {
+    top: 0;
+    right: 10px;
+}
+
+.wpc_pm_milestone .edit_title_link {
+    top: 6px;
+    right: 0;
+}
+
+.wpc_pm_milestone .edit_task_list_link {
+    padding: 3px 8px;
+    position: absolute;
+    text-decoration: none;
+    font-size: 12px;
+    background: #f1f1f1;
+    border: 1px solid #aaa;
+    color: #898989;
+    right: 0px;
+    top: -30px;
+}
+
+.wpc_pm_milestone .description {
+    position: relative;
+    display: block;
+    float: left;
+    width: 100%;
+    margin: 0 0 5px;
+}
+
+.wpc_pm_milestone .die_date_outer {
+    display: block;
+    float: left;
+    width: 100%;
+    margin: 0 0 5px;
+}
+
+.wpc_pm_milestone .task_list_outer {
+    float: left;
+    width: 100%;
+    margin: 0 0 10px 0;
+    position: relative;
+}
+
+.wpc_pm_milestone .task_list {
+    display: block;
+    float: left;
+    width: 100%;
+    list-style: none;
+    margin: 0 0 10px 0;
+    padding: 5px 0;
+    border: 1px solid #ccc;
+    height: 300px;
+    overflow-y: auto;
+}
+
+.wpc_pm_milestone .task_list li {
+    display: block;
+    float: left;
+    width: 96%;
+    padding: 0 2%;
+}
+
+.wpc_pm_milestone .edit_description_link {
+    top: 0;
+    right: 0;
+}
+
+.wpc_pm_milestone .submit_description_link {
+    top: 4px;
+    right: 2px;
+}
+
+#title_textarea, #description_textarea {
+    width: 100%;
+}
+
+.task_form .edit_description_link {
+    top: 10px;
+    right: 10px;
+}
+
+.task_form .submit_description_link {
+    top: 12px;
+    right: 10px;
+}
+
+.task_form .title, .wpc_pm_milestone .title {
+    padding: 0;
+    margin: 5px 0;
+    font-size: 24px;
+    line-height: 30px;
+    width: 100%;
+    display: block;
+    float: left;
+    word-wrap: break-word;
+}
+
+.task_form .tags_label {
+    width: 100%;
+    display: block;
+    float: left;
+    margin-top: 10px;
+}
+
+.task_form .tags {
+    width: 100%;
+}
+
+.task_form .task_details_menu {
+    width: 100%;
+    display: block;
+    float: left;
+    margin: 0 !important;
+    padding-bottom: 0;
+}
+
+.task_form .task_tabs_content {
+    border: 1px solid #d0ccc9;
+    width: 100%;
+    float: left;
+    /*min-height: 500px;*/
+    min-height: 365px;
+    height: expression( this.scrollHeight < 501 ? "500px" : "auto" );
+}
+
+.task_form .task_submit_button {
+    position: absolute;
+    bottom: 48px;
+    right: 10px;
+}
+
+.task_folowers {
+    width: 100%;
+    min-height: 38px;
+    background: #fafafa;
+    border: 1px solid #fafafa;
+    float: left;
+    margin-top: 10px;
+}
+
+.task_folowers .my_follow {
+    width: 15px;
+    height: 15px;
+    display: block;
+    /*float: left;*/
+    margin: 0 5px;
+    background: url(../images/rss_icon16.png) no-repeat top left;
+}
+
+.task_folowers .my_follow:hover {
+    background: url(../images/rss_icon16.png) 15px 0;
+}
+
+.task_folowers .follow_link {
+    /*height: 38px;
+    line-height: 38px;
+    display: block;
+    float: left;
+    padding: 0 10px;*/
+    color: #000;
+    margin-right: 10px;
+}
+
+.task_tabs_content .message_form {
+    width: 90%;
+    float: left;
+    margin: 2% 5%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.task_tabs_content .task_message, #wpc_pm_messages .message {
+    width: 100%;
+    height: 90px;
+    display: block;
+    float: left;
+    margin-bottom: 10px;
+}
+
+.task_tabs_content .task_message_send, #wpc_pm_messages .message_send {
+    display: block;
+    float: right;
+}
+
+.task_tabs_content .task_messages_list, #wpc_pm_messages .messages_list {
+    width: 100%;
+    float: left;
+    margin: 2% 0;
+    overflow-y: auto;
+    max-height: 500px;
+    height: expression( this.scrollHeight > 500 ? "500px" : "auto" );
+}
+
+.task_messages_list .task_msg_block, #wpc_pm_messages .msg_block, #wpc_pm_file_list .task_msg_block {
+    width: 100%;
+    float: left;
+    margin-bottom: 5px;
+}
+
+ .task_messages_list .task_msg_block  .message_image .object_img, .task_msg_block .message_image .object_img {
+     width: 40%;
+     clear: both;
+     font-size: 96px;
+     margin: 0 auto;
+ }
+
+.messages_list .message_image .object_img {
+    width: 80%;
+    clear: both;
+    font-size: 96px;
+    margin: 0 auto;
+ }
+.wpc_pm_user_list>.wpc_user>.avatar {
+    width: 40px;
+    margin: 0 auto;
+    font-size: 45px;
+}
+
+.messages_list .message_image {
+    text-align: center;
+    width: 10%;
+ }
+
+.task_messages_list .task_msg_block.left .message_image, #wpc_pm_messages .msg_block.left .message_image, #wpc_pm_file_list .task_msg_block.left .message_image {
+    float: left;
+    text-align: center;
+}
+
+.task_messages_list .task_msg_block.right .message_image, #wpc_pm_messages .msg_block.right .message_image, #wpc_pm_file_list .task_msg_block.right .message_image {
+    float: right;
+}
+
+/*.task_messages_list .task_msg_block .message_image img, #wpc_pm_messages .msg_block .message_image img, #wpc_pm_file_list .task_msg_block .message_image img {
+    width: 50%;
+    height: 50%;
+}*/
+
+ .task_messages_list .task_msg_block.left .message_image {
+     width: 23%;
+ }
+
+.task_messages_list .task_msg_block .msg_inner, #wpc_pm_file_list .task_msg_block .msg_inner {
+    width: 67%;
+    border: 1px solid #eee;
+    float: right;
+    padding: 5px;
+    margin: 0 2%;
+}
+
+.task_messages_list .task_msg_block.left .msg_inner, #wpc_pm_messages .msg_block.left .msg_inner, #wpc_pm_file_list .msg_block.left .msg_inner {
+    float: right;
+}
+
+.task_messages_list .task_msg_block.right .msg_inner, #wpc_pm_messages .msg_block.right .msg_inner, #wpc_pm_file_list .msg_block.right .msg_inner {
+    float: left;
+}
+
+#div_task_activity_tab {
+    display: block;
+    float: left;
+    width: 100%;
+    overflow-y: auto;
+    list-style: none;
+    margin: 0 !important;
+}
+
+#div_task_activity_tab li {
+    display: block;
+    float: left;
+    width: 96%;
+    margin: 2%;
+}
+
+#div_task_activity_tab li a {
+    color: blue;
+    text-decoration: underline;
+}
+#div_task_activity_tab li a:hover {
+    text-decoration: none;
+}
+
+#div_task_description_tab {
+    position: relative;
+}
+
+#div_task_description_tab, #div_task_files_tab {
+    overflow-y: hidden;
+    width: 96%;
+    padding: 2%;
+    overflow-y: auto;
+    word-wrap: break-word;
+}
+
+.assign_dropdown .icon, .task_assign .user {
+    font-weight: bold;
+}
+
+.task_assign .user {
+    margin-top: 7px;
+}
+
+.task_folowers .as-selection-item.color-0, .assign_dropdown .color-0, .task_assign .user.color-0 {
+    color: #B13F94 !important;
+    background: #F4B6DB !important;
+}
+.task_folowers .as-selection-item.color-1, .assign_dropdown .color-1, .task_assign .user.color-1 {
+    color: #427E53 !important;
+    background: #B7D086 !important;
+}
+.task_folowers .as-selection-item.color-2, .assign_dropdown .color-2, .task_assign .user.color-2 {
+    color: #3C68BB !important;
+    background: #B6C3DB !important;
+}
+.task_folowers .as-selection-item.color-3, .assign_dropdown .color-3, .task_assign .user.color-3 {
+    color: #C73F27 !important;
+    background: #EFBDBD !important;
+}
+.task_folowers .as-selection-item.color-4, .assign_dropdown .color-4, .task_assign .user.color-4 {
+    color: #008EAA !important;
+    background: #AAD1EB !important;
+}
+.task_folowers .as-selection-item.color-5, .assign_dropdown .color-5, .task_assign .user.color-5 {
+    color: #906461 !important;
+    background: #FFEDA4 !important;
+}
+.task_folowers .as-selection-item.color-6, .assign_dropdown .color-6, .task_assign .user.color-6 {
+    color: #E17000 !important;
+    background: #FACDAA !important;
+}
+.task_folowers .as-selection-item.color-7, .assign_dropdown .color-7, .task_assign .user.color-7 {
+    color: #6743B3 !important;
+    background: #D7BEE4 !important;
+}
+.task_folowers .as-selection-item.color-8, .assign_dropdown .color-8, .task_assign .user.color-8 {
+    color: #493C3D !important;
+    background: #CEC5C6 !important;
+}
+
+.task_folowers .as-selections {
+    margin: 5px;
+}
+
+.menu {
+    margin: 0 !important;
+}
+
+#add_task_box, #add_milestone_box {
+    width: 400px;
+}
+
+#add_task_box .title {
+    width: 400px;
+}
+
+#add_task_box input[type=text], #add_task_box textarea, #add_milestone_box input[type=text], #add_milestone_box textarea {
+    width: 95%;
+}
+
+#add_milestone_box .milestone_die_date {
+    width: 100px !important;
+}
+
+.wpc_rail_task_block {
+    float: right;
+}
+
+.assign_dropdown .dropdown-toggle, .milestone_dropdown .dropdown-toggle {
+    height: 14px;
+    line-height: 14px;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space:nowrap;
+}
+
+.assign_dropdown .dropdown-toggle .icon {
+    height: 14px;
+}
+
+.dropdown.assign_dropdown, .dropdown.milestone_dropdown, .dropdown.task_priority_select, .dropdown.task_status, .dropdown.additional_actions {
+    cursor: pointer;
+}
+
+#wpc_pm_scheduler {
+    padding: 0;
+    height: 300px;
+}
+
+.full_screen_calendar #wpc_pm_scheduler {
+    z-index: 100000;
+}
+
+#wpc_pm_scheduler .item {
+    margin: 0 !important;
+}
+
+.milestone_row .detele_milestone {
+    background: #fff url(../images/icons.png) no-repeat -18px 0px;
+    border: 1px solid #eee;
+    width: 16px;
+    height: 16px;
+    display: none;
+    position: absolute;
+    top: 7px;
+    right: 7px;
+}
+
+.milestone_row:hover .detele_milestone {
+    display: block;
+}
+
+.cancel_task_list, .submit_task_list {
+    float: right;
+    margin-right: 10px !important;
+}
+
+.task_list_row, .task_list_header {
+    width: 100%;
+    float: left;
+    height: 16px;
+    overflow: hidden;
+}
+
+.task_list_row {
+    border-bottom: 1px solid #eee;
+}
+
+.task_list_row .id_in_project, .task_list_header .id_in_project {
+    width: 9%;
+    float: left;
+    padding-left: 1%;
+    overflow: hidden;
+}
+
+.task_list_row .task_title, .task_list_header .task_title {
+    width: 70%;
+    float: left;
+    overflow: hidden;
+}
+
+.task_list_row .task_status, .task_list_header .task_status {
+    width: 20%;
+    float: left;
+    overflow: hidden;
+}
+
+.task_list_header > div {
+    font-weight: bold;
+}
+
+#wpc_pm_messages {
+    width: 100%;
+    display: block;
+    float: left;
+}
+
+#wpc_pm_messages .message_form {
+    width: 100%;
+    float: left;
+    margin: 2% 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+#wpc_pm_messages .msg_block .msg_inner {
+    width: 86%;
+    border: 1px solid #eee;
+    float: right;
+    padding: 5px;
+    margin: 0 2% 0 0;
+}
+
+#add_file {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    background: url(../images/plus.png) no-repeat top left;
+}
+
+.wpc_pm_search_box {
+    float: right;
+    display: block;
+}
+
+#wpc_pm_search-input {
+    float: left;
+    height: 28px;
+    margin: 0 4px 0 0;
+}
+
+.uploader_block {
+    width: 100%;
+    float: left;
+    display: none;
+    margin: 10px 0;
+}
+
+.add-new-file {
+    margin: 10px 0;
+    display: block;
+    float: left;
+}
+
+#queue, #queue_messages {
+    height: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    clear: both;
+    overflow-y: auto;
+}
+
+#div_task_activity_tab .wpc_pm_activities {
+    height: 400px;
+}
+
+.wpc_pm_activities b {
+    color: #6B6B6B;
+}
+
+.subtask_row {
+    margin-left: 3%;
+    width: 97%;
+}
+
+.bulk_checkbox {
+    float: left;
+    width: 16px;
+    height: 16px;
+    padding: 8px 2px 8px 7px;
+    margin: 0;
+    display: block;
+}
+
+.bulk_checkbox input {
+    display: block;
+    float: left;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+}
+
+.project_form .title_field, .project_form #business_sector_select, .project_form .description_field {
+    width: 100%;
+}
+
+.task_tag .tag.overdue {
+    color: red;
+}
+
+.wpc_pm_task_filters {
+    width: 100%;
+    float: left;
+    margin-bottom: 10px;
+}
+
+.wpc_pm_task_filters .ms-parent > * {
+    width: 100% !important;
+}
+
+.assigned_user_filter, .priority_filter, .status_filter, .tags_filter {
+    width: 20% !important;
+}
+
+ .wpc_pm_task_filters .ms-parent {
+     margin-left: 2%;
+     float: left;
+     width: 18% !important;
+ }
+
+.due_date_from_filter_block, .due_date_to_filter_block {
+    float: right;
+    width: 25%;
+    display: block;
+    margin-left: 10px;
+    text-align: right;
+}
+
+.due_date_from_filter_block input, .due_date_to_filter_block input {
+    width: 100%;
+}
+
+.ui-datepicker-month, .ui-datepicker-year {
+    padding: 0px !important;
+    line-height: 20px !important;
+    height: 20px !important;
+}
+
+.task_order_by_select {
+    width: 130px;
+}
+
+.task_order_dir_select {
+    width: 80px;
+}
+
+.wpc_pm_header_button {
+    padding: 5px 10px;
+    background: #666;
+    border: 1px solid #000;
+    color: #fff !important;
+    display: block;
+    float: left;
+    margin-right: 10px;
+    line-height: 23px;
+    font-size: 23px;
+}
+
+.to_do_tasks .task_assign {
+    width: 12%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.to_do_tasks .task_assign .project_name {
+    width: 80%;
+    padding: 0 3px;
+    font-size: 11px;
+    height: 16px;
+    line-height: 16px;
+    margin-top: 8px;
+    display: block;
+    float: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #000 !important;
+    border: 1px solid #e5e5e5;
+    background: #f2f2f2;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.to_do_tasks .task_title {
+    width: 74%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wpc_pm_settings_table td {
+    padding: 5px 0;
+    vertical-align: middle;
+}
+
+.custom_avatars img {
+    border: 4px solid #fff;
+}
+.custom_avatars img:hover {
+    border: 4px solid #ccc;
+}
+.custom_avatars img.selected {
+    border: 4px solid #333;
+}
+
+#all_projects ul {
+    display: none;
+    position: absolute;
+    top: 35px;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    border: 3px solid #eee;
+    background: #fff;
+    z-index: 5;
+    font-size: 13px;
+    min-width: 250px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#all_projects ul li {
+    display: block;
+    clear: both;
+    padding: 10px;
+    line-height: 15px;
+    margin: 0;
+}
+
+#all_projects ul li a {
+    color: #000;
+    text-decoration: none;
+}
+
+#all_projects ul li:hover a {
+    text-decoration: underline;
+}
+
+#all_projects:hover ul, #all_projects ul:hover {
+    display: block;
+}
+
+#wpc_pm_file_list li {
+    display: block;
+    float: left;
+    clear: both;
+}
+
+#wpc_pm_file_list li a {
+    font-size: 14px;
+    line-height: 16px;
+    display: block;
+    float: left;
+    padding: 0 20px 0 0;
+}
+
+#wpc_pm_file_list .remove_task_files {
+    display: block;
+    float: right;
+    width: 16px;
+    height: 16px;
+    background: url(../images/close.png) no-repeat top left;
+    margin-left: -16px;
+    padding: 0;
+}
+
+.wpc_pm_digest_visibility, .wpc_pm_outlooks_visibility {
+    margin-left: 25px;
+}
+
+.wpc_team_legend {
+    float: left;
+    width: 100%;
+}
+
+.wpc_team_legend .wpc_user {
+    width: 10px;
+    height: 10px;
+    float: left;
+    margin: 0 0 0 15px;
+    padding: 0;
+}
+
+.wpc_team_legend .legend_label {
+    height: 20px;
+    float: left;
+    margin: 0 0 0 5px;
+    line-height: 20px;
+}
+
+.note_field {
+    width: 100%;
+}
+
+#wpc_pm_file_list {
+    float: left;
+    margin-top: 20px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.custom_avatar_image {
+    width: 100%;
+    clear: both;
+    text-align: center;
+}
+
+.wpc_pm_avatar_preview {
+    width: 96px;
+    height: 96px;
+    clear: both;
+}
+
+.dropdown-block {
+    display: inline-block;
+    width: 100px;
+    position: relative;
+    height: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #888;
+}
+
+.dropdown-block .dropdown-menu {
+    display: none;
+    width: 100px;
+    position: absolute;
+    top: 25px;
+    left: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    z-index: 10;
+    margin: 0;
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+.dropdown-block .dropdown-menu.active {
+    display: block;
+}
+
+.dhx_cal_tab {
+    width: auto !important;
+    padding: 0 10px;
+}
+
+.full_screen #wpc_pm_scheduler {
+    z-index: 99999 !important;
+}
+
+.full_screen #wpc_pm_scheduler > div {
+    border: 1px solid #CECECE;
+}
+
+.full_screen .dhx_cal_cover {
+    z-index: 100000 !important;
+}
+
+.full_screen .dhx_cal_light {
+    z-index: 100001 !important;
+}
+
+.full_screen .dhx_combo_list, .full_screen .dhx_minical_popup {
+    z-index: 100002 !important;
+}
+
+.plupload_filelist li {
+    background: #f5f5f5 !important;
+}
+
+#request_type_popup label {
+    width: 100%;
+}
+
+#request_type_popup input[type=text],  #request_type_popup select {
+    width: 90%;
+    height: 26px;
+    display: block;
+    float: left;
+}
+
+#request_type_popup #price_input, #request_type_popup #currency_select,
+#request_type_popup #price_edit_input, #request_type_popup #currency_edit_select {
+    width: 43%;
+    margin-right: 5%;
+}
+
+.task_tabs_content .wpc_st_button_addfile, .task_tabs_content #queue, .task_tabs_content .task_files_submit {
+    float: left;
+}
+
+.task_tabs_content #wpc_pm_file_list {
+    float: left;
+    width: 100%;
+}
+
+.placeholder {
+    outline: none !important;
+}
+
+.wpc_pm_main_block .filters-block {
+    width: 100%;
+    float: left;
+    margin: 10px 0;
+    padding-left: 9px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.wpc_pm_main_block .icons a {
+    width: 16px;
+    height: 16px;
+    display: block;
+    float: left;
+    margin: 4px 5px;
+    background: url(../images/payments_icons.png) repeat;
+}
+
+.wpc_pm_main_block .icons .day {
+    background-position: 0px 0px;
+}
+
+.wpc_pm_main_block .icons .day:hover,
+.wpc_pm_main_block .icons .day.active {
+    background-position: 0px 16px;
+}
+
+.wpc_pm_main_block .icons .week {
+    background-position: -16px 0px;
+}
+
+.wpc_pm_main_block .icons .week:hover,
+.wpc_pm_main_block .icons .week.active {
+    background-position: -16px 16px;
+}
+
+.wpc_pm_main_block .icons .month {
+    background-position: -32px 0px;
+}
+
+.wpc_pm_main_block .icons .month:hover,
+.wpc_pm_main_block .icons .month.active {
+    background-position: -32px 16px;
+}
+
+.wpc_pm_main_block .icons .quarter {
+    background-position: -64px 0px;
+}
+
+.wpc_pm_main_block .icons .quarter:hover,
+.wpc_pm_main_block .icons .quarter.active {
+    background-position: -64px 16px;
+}
+
+.wpc_pm_main_block .icons .year {
+    background-position: -80px 0px;
+}
+
+.wpc_pm_main_block .icons .year:hover,
+.wpc_pm_main_block .icons .year.active {
+    background-position: -80px 16px;
+}
+
+.wpc_pm_main_block .icons .dates {
+    background-position: -48px 0px;
+}
+
+.wpc_pm_main_block .icons .dates:hover,
+.wpc_pm_main_block .icons .dates.active {
+    background-position: -48px 16px;
+}
+
+.wpc_pm_main_block .icons .prev,
+.wpc_pm_main_block .icons .today,
+.wpc_pm_main_block .icons .next {
+    margin: 4px 2px;
+}
+
+.wpc_pm_main_block .icons .prev {
+    background-position: 48px 0px;
+}
+.wpc_pm_main_block .icons .prev.active, .wpc_pm_main_block .icons .prev:hover {
+    background-position: 48px 16px;
+}
+
+.wpc_pm_main_block .icons .today {
+    margin-left: 20px;
+    background-position: 17px 0px;
+}
+.wpc_pm_main_block .icons .today.active, .wpc_pm_main_block .icons .today:hover {
+    margin-left: 20px;
+    background-position: 17px 16px;
+}
+
+.wpc_pm_main_block .icons .next {
+    background-position: 32px 0px;
+}
+
+.wpc_pm_main_block .icons .next.active, .wpc_pm_main_block .icons .next:hover {
+    background-position: 32px 16px;
+}
+
+.wpc_pm_main_block .dates_block {
+    max-width: 350px;
+    width:expression(document.body.clientWidth < 350? "350px": "auto" );
+    height: 24px;
+    float: left;
+    margin: 0 0 0 10px;
+    line-height: 24px;
+    display: none;
+}
+
+.wpc_pm_main_block .date_description {
+    height: 24px;
+    float: left;
+    margin: 0 0 0 10px;
+    line-height: 24px;
+}
+
+.wpc_pm_main_block .dates_block * {
+    float: left;
+    display: block;
+    height: 24px;
+    line-height: 24px;
+    margin-left: 5px;
+}
+
+.blocks_sortable {
+    width: 98%;
+    float: left;
+    box-sizing: border-box;
+    height: 450px;
+    overflow-y: auto;
+}
+
+.wpc_pm_show_load_bg {
+    position: relative;
+    background: #fff;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+    filter: alpha(opacity=50);
+    -moz-opacity: 0.5;
+    -khtml-opacity: 0.5;
+    opacity: 0.5;
+}
+
+.wpc_pm_show_load_bg img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -32px 0 0 -32px;
+}
+
+#filter_by {
+    display: block;
+    float: left;
+    margin-right: 10px;
+}
+
+#project_filter_ajax_loading {
+    display: block;
+    float: left;
+    margin-right: 10px;
+}
+
+#filter_object {
+    min-width: 150px;
+    display: block;
+    float: left;
+    margin-right: 10px;
+}
+
+#filter_projects {
+    display: block;
+    float: left;
+    margin-right: 10px;
+}
+
+#graphic-icons {
+    display: block;
+    float: left;
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+.wpc_pm_activities_block {
+    width: 450px;
+    position: absolute;
+    top: 0;
+    right: -450px;
+    bottom: 0;
+    background: #fff;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.wpc_pm_activities {
+    color: #888;
+    overflow-y: auto;
+    width: 100%;
+    top: 50px;
+    left: 0px;
+    right: 15px;
+    bottom: 0;
+    position: absolute !important;
+    padding-left: 10px;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.task_form .wpc_pm_activities {
+    position: static !important;
+    float: left;
+}
+
+.activity_show_border {
+    position: absolute;
+    top: 0;
+    left: -10px;
+    bottom: 0;
+    width: 10px;
+    background: #f1f1f1;
+    border-color: #d0ccc9;
+    border-style: solid;
+    border-width: 0 1px;
+    box-sizing: border-box;
+}
+
+.activity_show_button {
+    color: #898989;
+    font-size: 17px;
+    line-height: 14px;
+    text-align: center;
+    background: #f1f1f1;
+    cursor: pointer;
+    z-index: 10;
+    border: 1px solid #d0ccc9;
+    border-right: none;
+    width: 25px;
+    height: 160px;
+    top: 50%;
+    margin-top: -80px;
+    left: -25px;
+    position: absolute;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    padding: 8px;
+    box-sizing: border-box;
+    font-family: "Open Sans",sans-serif;
+}
+
+ .wpc_pm_activities_block.show .activity_show_border,
+ .wpc_pm_activities_block.show .activity_show_button {
+     background: #fff;
+     border-right: none;
+ }
+
+.pm_view_icon, .pm_download_icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+.pm_view_icon {
+    background: url(../../wp-client/images/file-view.png) no-repeat top left;
+}
+
+.pm_download_icon {
+    background: url(../../wp-client/images/files_download.png) no-repeat top left;
+}
+
+.view_type {
+    display: inline-block;
+    float: right;
+    width: 100px;
+}
+
+.view_type_tile, .view_type_list {
+    display: block;
+    float: right;
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+    border: 2px solid #fff;
+}
+
+.view_type_tile.active, .view_type_list.active {
+    border: 2px solid gray;
+}
+
+.view_type_tile {
+    background: url(../images/tile-icon.png) no-repeat center;
+}
+
+.view_type_list {
+    background: url(../images/list-icon.png) no-repeat center;
+}
+
+.wpc_pm_project_list_item {
+    width: 99%;
+    height: auto;
+    float: left;
+    margin-bottom: 5px;
+    border: 1px solid #eee;
+    padding: 5px;
+    position: relative;
+    background: #fff;
+}
+
+.wpc_pm_project_list_item.add_new_project {
+    height: 24px;
+}
+
+.wpc_pm_project_list_item > div {
+    float: left;
+    height: auto;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 0 5px;
+    min-height: 10px;
+}
+
+.wpc_pm_project_list_item .first_column {
+    width: 20%;
+}
+
+.wpc_pm_project_list_item .second_column {
+    width: 40%;
+}
+
+.wpc_pm_project_list_item .third_column {
+    width: 20%;
+}
+
+.wpc_pm_project_list_item .forth_column {
+    width: 20%;
+}
+
+.wpc_pm_project_list_item .action_icons {
+    visibility: hidden;
+    height: 20px;
+}
+
+.wpc_pm_project_list_item .action_icons a {
+    display: block;
+    float: left;
+    margin-right: 5px;
+}
+
+.wpc_pm_project_list_item:hover .action_icons {
+    visibility: visible;
+}
+
+.wpc_pm_project_list_item .assign {
+    width: 100%;
+    padding: 0 5px;
+    height: 34px;
+    overflow: hidden;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/*.project_assign_popup_list .wpc_user .avatar {
+    width: 100%;
+    float: left;
+    text-align: center;
+}*/
+
+ .project_assign_popup_list .wpc_user .object_img {
+     width: 70px;
+     margin: 0 auto;
+     font-size: 64px;
+ }/*.wpc_pm_activities*/
+
+.wpc_pm_project_list_item .assign .object_img {
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    width: 32px;
+    display: block;
+    float: left;
+    font-size: 32px;
+    margin: 0 1% 1% 0;
+}
+
+/*.project_assign_popup_list .wpc_user .avatar .object_img {
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    width: 50px;
+    float: none;
+    font-size: 32px;
+}*/
+
+.wpc_pm_project_list_item .assign .wpc_pm_more_users {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 34px;
+    height: 34px;
+    background: url(../images/more_users_icon.png) no-repeat center #fff;
+}
+
+.project_assign_popup_list {
+    max-width: 800px;
+    min-width: 400px;
+    max-height: 500px;
+    position: relative;
+    padding-bottom: 30px;
+}
+
+.project_assign_popup_list .wpc_team_legend {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: 30px;
+    background: #fff;
+}
+
+ .dhx_cal_navline div.dhx_minical_icon {
+     left: auto !important;
+ }
+
+ .dhx_minical_popup {
+    z-index: 100100 !important;
+ }
+
+ .dhx_cal_event_clear {
+     line-height: 15px !important;
+     height: 15px !important;
+     border-radius: 0 !important;
+ }
+
+ .dhx_cal_event_clear > a {
+     display: inline-block;
+     width: 100%;
+     overflow: hidden;
+     text-overflow: ellipsis;
+     -o-text-overflow: ellipsis;
+     white-space: nowrap;
+ }
+
+ .dhtmlXTooltip {
+     z-index: 100101 !important;
+     line-height: 22px !important;
+ }
+
+ .dhx_scale_bar {
+     background: #eee !important;
+     border-left-color: #eee !important;
+     color: #3F454C !important;
+     font-size: 14px !important;
+ }
+
+ .dhx_before > * {
+     background: #f6f7f8 !important;
+ }

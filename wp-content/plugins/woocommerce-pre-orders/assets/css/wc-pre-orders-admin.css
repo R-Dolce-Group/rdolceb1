@@ -1,0 +1,39 @@
+/*
+Error: Invalid US-ASCII character "\xEF"
+        on line 31 of /Users/mj163/Local Sites/martidolce/app/public/wp-content/plugins/woocommerce-pre-orders/assets/css/wc-pre-orders-admin.scss
+
+26: // Product tab
+27: #woocommerce-product-data {
+28: 	ul.product_data_tabs {
+29: 		li.wc_pre_orders_tab a {
+30: 			&:before {
+31: 				content: "";
+32: 			}
+33: 		}
+34: 	}
+35: }
+36: 
+
+Backtrace:
+/Users/mj163/Local Sites/martidolce/app/public/wp-content/plugins/woocommerce-pre-orders/assets/css/wc-pre-orders-admin.scss:31
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/util.rb:1296:in `rescue in block in find_encoding_error'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/util.rb:1293:in `block in find_encoding_error'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/util.rb:1292:in `each'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/util.rb:1292:in `each_with_index'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/util.rb:1292:in `find_encoding_error'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/util.rb:901:in `check_sass_encoding'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/engine.rb:433:in `check_encoding!'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/engine.rb:389:in `_to_tree'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/engine.rb:278:in `render'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/exec/sass_scss.rb:420:in `run'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/exec/sass_scss.rb:63:in `process_result'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/exec/base.rb:52:in `parse'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/lib/sass/exec/base.rb:19:in `parse!'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/rubygems/gems/sass-3.4.19/bin/sass:13:in `<top (required)>'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/bin/sass:30:in `load'
+/Applications/Adobe Dreamweaver Prerelease/Adobe Dreamweaver Prerelease.app/Contents/Resources/gems/bin/sass:30:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Error: Invalid US-ASCII character \"\xEF\"\A         on line 31 of /Users/mj163/Local Sites/martidolce/app/public/wp-content/plugins/woocommerce-pre-orders/assets/css/wc-pre-orders-admin.scss\A \A 26: // Product tab\A 27: #woocommerce-product-data {\A 28: 	ul.product_data_tabs {\A 29: 		li.wc_pre_orders_tab a {\A 30: 			&:before {\A 31: 				content: \"\";\A 32: 			}\A 33: 		}\A 34: 	}\A 35: }\A 36: "; }

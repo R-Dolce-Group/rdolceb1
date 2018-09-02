@@ -508,8 +508,3 @@ function change_social_login_text_option( $login_text ) {
  	return $login_text;
 }
 add_filter( 'pre_option_wc_social_login_text', 'change_social_login_text_option' );
-
-function listable_force_allow_upload_via_ajax() {
-	return true;
-}
-add_filter( 'job_manager_user_can_upload_file_via_ajax', 'listable_force_allow_upload_via_ajax' );

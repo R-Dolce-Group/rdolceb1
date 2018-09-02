@@ -67,6 +67,8 @@ global $job_manager;
 			<?php do_action( 'submit_job_form_company_fields_end' ); ?>
 		<?php endif; ?>
 
+		<?php do_action( 'submit_job_form_end' ); ?>
+
 		<p>
 			<input type="hidden" name="job_manager_form" value="<?php echo $form; ?>" />
 			<input type="hidden" name="job_id" value="<?php echo esc_attr( $job_id ); ?>" />

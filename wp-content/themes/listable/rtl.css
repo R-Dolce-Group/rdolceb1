@@ -5,7 +5,7 @@ Theme URI: https://demos.pixelgrade.com/listable/
 Author: Pixelgrade
 Author URI: https://pixelgrade.com/
 Description: A directory WordPress theme that will help you create and manage a local or global listings site.
-Version: 1.9.3
+Version: 1.9.4
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: listable
@@ -6982,8 +6982,8 @@ ul.secondary-menu .lwa {
 		padding-right: 20px;
 	}
 	.nav-is-open .menu-wrapper {
-		-webkit-box-shadow: 0px 0 40px 2px rgba(0, 0, 0, 0.3);
-		box-shadow: 0px 0 40px 2px rgba(0, 0, 0, 0.3); 
+		-webkit-box-shadow: 0 0 40px 2px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 0 40px 2px rgba(0, 0, 0, 0.3); 
 		-webkit-transform: translateZ(0);
 		transform: translateZ(0);
 	}
@@ -7015,11 +7015,10 @@ ul.secondary-menu .lwa {
 	}
 	ul.primary-menu .menu-item-has-children > a:before,
 	.primary-menu > ul .page_item_has_children > a:before {
-		border-left: 1px solid currentColor;
+		border-left: 1px solid rgba(0, 0, 0, 0.075); 
 		content: "";
 		display: block;
 		height: 100%;
-		opacity: 0.2; 
 		position: absolute;
 		left: 50px;
 		top: 0;
@@ -7028,7 +7027,7 @@ ul.secondary-menu .lwa {
 	ul.primary-menu .menu-item-has-children > a:after,
 	.primary-menu > ul .page_item_has_children > a:after {
 		border: 4px solid transparent;
-		border-top: 5px solid #919191; 
+		border-top: 5px solid currentColor; 
 		content: "";
 		display: block;
 		height: 0;
@@ -7045,7 +7044,6 @@ ul.secondary-menu .lwa {
 	}
 	ul.primary-menu .hover.menu-item-has-children > a:after,
 	.primary-menu > ul .hover.page_item_has_children > a:after {
-		border-top-color: #ff4d55;
 		-webkit-transform: translateY(-100%) rotate(-180deg);
 		transform: translateY(-100%) rotate(-180deg);
 	}
@@ -7221,8 +7219,8 @@ ul.secondary-menu .lwa {
 	.primary-menu > ul .children,
 	ul.primary-menu .sub-menu {
 		background-color: white;
-		-webkit-box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
-		box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+		-webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2);
+		box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2);
 		font-size: 14.95px;
 		right: 0;
 		min-width: 13.75rem;

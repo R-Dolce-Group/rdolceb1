@@ -8,6 +8,17 @@
 
 add_filter( 'customify_filter_fields', 'pixelgrade_add_customify_style_manager_section', 12, 1 );
 
+// Color Constants
+define( 'SM_COLOR_PRIMARY', '#FF4D58' );
+define( 'SM_COLOR_SECONDARY', '#28acab' );
+define( 'SM_COLOR_TERTIARY', '#8fcc80' );
+define( 'SM_DARK_PRIMARY', '#484848' );
+define( 'SM_DARK_SECONDARY', '#2F2929' );
+define( 'SM_DARK_TERTIARY', '#919191' );
+define( 'SM_LIGHT_PRIMARY', '#FFFFFF' );
+define( 'SM_LIGHT_SECONDARY', '#F9F9F9' );
+define( 'SM_LIGHT_TERTIARY', '#F9F9F9' );
+
 /**
  * Add the Style Manager cross-theme Customizer section.
  *
@@ -29,55 +40,60 @@ function pixelgrade_add_customify_style_manager_section( $options ) {
 	$options['sections']['style_manager_section'] = array_replace_recursive( $options['sections']['style_manager_section'], array(
 		'options' => array(
 			'sm_color_primary' => array(
-                'default' => '#FF4D58',
+                'default' => SM_COLOR_PRIMARY,
 				'connected_fields' => array(
+                    // always colored
                     'cards_title_color',            // #FF4D55
                     'buttons_color',                // #FF4D55
+
+                    // low
 					'pin_icon_color',               // #FF4D5A
 					'accent_color',                 // #FF4D58
-				),
-			),
-			'sm_color_secondary' => array(
-				'default' => '#F53C48',
-				'connected_fields' => array(
 					'cards_icon_color',             // #FF4D5A
 					'cards_icon_border_color',      // #FF4D5A
                     'nav_active_color',             // #FF4D55
-                ),
-			),
-			'sm_color_tertiary' => array(
-                'default' => '#FF4D58',
-				'connected_fields' => array(
 				),
 			),
+			'sm_color_secondary' => array(
+				'default' => SM_COLOR_SECONDARY,
+			),
+			'sm_color_tertiary' => array(
+                'default' => SM_COLOR_TERTIARY,
+			),
 			'sm_dark_primary' => array(
-                'default' => '#484848',
+                'default' => SM_DARK_PRIMARY,
 				'connected_fields' => array(
+                    // high / striking
                     'site_title_color',             // #484848
-                    'search_color',                 // #484848
                     'page_titles_color',            // #484848
-                    'text_color',                   // #484848
+
+                    // always dark
+                    'search_color',                 // #484848
                     'footer_background',            // #261E1E
+                    'text_color',                   // #484848
 				),
 			),
 			'sm_dark_secondary' => array(
-                'default' => '#2F2929',
+                'default' => SM_DARK_SECONDARY,
 				'connected_fields' => array(
 					'prefooter_background',         // #2F2929
 				),
 			),
 			'sm_dark_tertiary' => array(
-                'default' => '#919191',
+                'default' => SM_DARK_TERTIARY,
 				'connected_fields' => array(
-					'nav_link_color',               // #919191
+                    // medium
+					'micro_color',                  // #ABABAB
 					'page_subtitles_color',         // #919191
+                    // striking
+					'nav_link_color',               // #919191
+                    // always dark
 					'fields_color',                 // #919191
 					'cards_text_color',             // #ABABAB
-					'micro_color',                  // #ABABAB
 				),
 			),
 			'sm_light_primary' => array(
-                'default' => '#FFFFFF',
+                'default' => SM_LIGHT_PRIMARY,
 				'connected_fields' => array(
                     'header_background_color',      // #FFFFFF
                     'content_background',           // #FFFFFF
@@ -88,7 +104,7 @@ function pixelgrade_add_customify_style_manager_section( $options ) {
 				),
 			),
 			'sm_light_secondary' => array(
-                'default' => '#F9F9F9',
+                'default' => SM_LIGHT_SECONDARY,
 				'connected_fields' => array(
                     'nav_button_color',             // #EBEBEB
 					'page_background',              // #F9F9F9
@@ -97,9 +113,7 @@ function pixelgrade_add_customify_style_manager_section( $options ) {
 				),
 			),
 			'sm_light_tertiary' => array(
-                'default' => '#F9F9F9',
-				'connected_fields' => array(
-				),
+                'default' => SM_LIGHT_TERTIARY,
 			),
 		),
 	) );
@@ -1131,7 +1145,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => esc_html__( 'Header Background Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FFFFFF',
+							'default' => SM_LIGHT_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'background-color',
@@ -1171,7 +1185,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Site Title Color', 'listable' ),
 							'live'    => true,
-							'default' => '#484848',
+							'default' => SM_DARK_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1184,7 +1198,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Search Color', 'listable' ),
 							'live'    => true,
-							'default' => '#484848',
+							'default' => SM_DARK_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1197,7 +1211,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Nav Link Color', 'listable' ),
 							'live'    => true,
-							'default' => '#919191',
+							'default' => SM_DARK_TERTIARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1232,7 +1246,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Nav Active Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FF4D55',
+							'default' => SM_COLOR_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'border-top-color',
@@ -1240,11 +1254,6 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 													ul.primary-menu.primary-menu .menu-item-has-children:hover:after,
 													.hover.menu-item-has-children > a:after, .hover.page_item_has_children > a:after,
 													.page-template-front_page .is--active .search-field-wrapper:after',
-								),
-								array(
-									'property' => 'border-top-color',
-									'selector' => 'ul.primary-menu .hover.menu-item-has-children > a:after, .primary-menu > ul .hover.page_item_has_children > a:after',
-									'media'    => 'not screen and (min-width: 900px)'
 								),
 								array(
 									'property' => 'border-left-color',
@@ -1263,14 +1272,19 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 									'property' => 'background-color',
 									'selector' => '.page-template-front_page .search-suggestions-menu > .menu-item:hover > a,
 									.search_jobs--frontpage .chosen-container .chosen-results li:hover'
-								)
+								),
+                                array(
+                                    'media' => 'not screen and (min-width: 900px)',
+                                    'selector' => 'ul.primary-menu .hover.menu-item-has-children > a, .primary-menu > ul .hover.page_item_has_children > a',
+                                    'property' => 'color',
+                                ),
 							)
 						),
 						'nav_button_color'        => array(
 							'type'    => 'color',
 							'label'   => __( 'Nav Button Color', 'listable' ),
 							'live'    => true,
-							'default' => '#EBEBEB',
+							'default' => SM_LIGHT_SECONDARY,
 							'css'     => array(
 								array(
 									'property' => 'border-color',
@@ -1292,7 +1306,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Content Background', 'listable' ),
 							'live'    => true,
-							'default' => '#FFFFFF',
+							'default' => SM_LIGHT_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'background-color',
@@ -1400,7 +1414,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Page Background', 'listable' ),
 							'live'    => true,
-							'default' => '#F9F9F9',
+							'default' => SM_LIGHT_SECONDARY,
 							'css'     => array(
 								array(
 									'property' => 'background-color',
@@ -1451,7 +1465,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Page Titles Color', 'listable' ),
 							'live'    => true,
-							'default' => '#484848',
+							'default' => SM_DARK_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1476,7 +1490,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Page Subtitles Color', 'listable' ),
 							'live'    => true,
-							'default' => '#919191',
+							'default' => SM_DARK_TERTIARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1488,7 +1502,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Text Color', 'listable' ),
 							'live'    => true,
-							'default' => '#484848',
+							'default' => SM_DARK_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1649,7 +1663,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Buttons Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FF4D55',
+							'default' => SM_COLOR_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'background-color',
@@ -1700,7 +1714,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Cards Background', 'listable' ),
 							'live'    => true,
-							'default' => '#FFFFFF',
+							'default' => SM_LIGHT_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'background-color',
@@ -1759,7 +1773,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Title Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FF4D55',
+							'default' => SM_COLOR_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1775,7 +1789,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Text Color', 'listable' ),
 							'live'    => true,
-							'default' => '#ababab',
+							'default' => SM_DARK_TERTIARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1800,7 +1814,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Icons Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FF4D5A',
+							'default' => SM_COLOR_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1815,7 +1829,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Icons Border Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FF4D5A',
+							'default' => SM_COLOR_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'border-color',
@@ -1838,7 +1852,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Icon Background Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FFFFFF',
+							'default' => SM_LIGHT_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'background-color',
@@ -1852,7 +1866,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Pin Background Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FFFFFF',
+							'default' => SM_LIGHT_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'fill',
@@ -1868,7 +1882,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Pin Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FF4D5A',
+							'default' => SM_COLOR_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'fill',
@@ -1892,7 +1906,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Background', 'listable' ),
 							'live'    => true,
-							'default' => '#2F2929',
+							'default' => SM_DARK_SECONDARY,
 							'css'     => array(
 								array(
 									'property' => 'background-color',
@@ -1904,7 +1918,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Text Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FFFFFF',
+							'default' => SM_LIGHT_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1922,7 +1936,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Background', 'listable' ),
 							'live'    => true,
-							'default' => '#261E1E',
+							'default' => SM_DARK_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'background-color',
@@ -1934,7 +1948,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Text Color', 'listable' ),
 							'live'    => true,
-							'default' => '#ADADB2',
+							'default' => SM_LIGHT_SECONDARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1946,7 +1960,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Credits Color', 'listable' ),
 							'live'    => true,
-							'default' => '#706C6C',
+							'default' => SM_LIGHT_SECONDARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -1964,7 +1978,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Accent Color', 'listable' ),
 							'live'    => true,
-							'default' => '#FF4D58',
+							'default' => SM_COLOR_PRIMARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -2038,7 +2052,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Meta Fields Color', 'listable' ),
 							'live'    => true,
-							'default' => '#919191',
+							'default' => SM_DARK_TERTIARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -2126,7 +2140,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'type'    => 'color',
 							'label'   => __( 'Micro Elements', 'listable' ),
 							'live'    => true,
-							'default' => '#ABABAB',
+							'default' => SM_DARK_TERTIARY,
 							'css'     => array(
 								array(
 									'property' => 'color',
@@ -2768,15 +2782,15 @@ function listable_add_default_color_palette( $color_palettes ) {
 				'background_image_url' => 'https://cloud.pixelgrade.com/wp-content/uploads/2018/06/listable-palette.jpg',
 			),
             'options' => array(
-                'sm_color_primary' => '#FF4D58',
-                'sm_color_secondary' => '#FF4D58',
-                'sm_color_tertiary' => '#F53C48',
-                'sm_dark_primary' => '#484848',
-                'sm_dark_secondary' => '#2F2929',
-                'sm_dark_tertiary' => '#919191',
-                'sm_light_primary' => '#FFFFFF',
-                'sm_light_secondary' => '#F9F9F9',
-                'sm_light_tertiary' => '#F9F9F9',
+                'sm_color_primary' => SM_COLOR_PRIMARY,
+                'sm_color_secondary' => SM_COLOR_SECONDARY,
+                'sm_color_tertiary' => SM_COLOR_TERTIARY,
+                'sm_dark_primary' => SM_DARK_PRIMARY,
+                'sm_dark_secondary' => SM_DARK_SECONDARY,
+                'sm_dark_tertiary' => SM_DARK_TERTIARY,
+                'sm_light_primary' => SM_LIGHT_PRIMARY,
+                'sm_light_secondary' => SM_LIGHT_SECONDARY,
+                'sm_light_tertiary' => SM_LIGHT_TERTIARY,
             ),
         ),
     ), $color_palettes);

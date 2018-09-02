@@ -1,11 +1,23 @@
 <?php
 /**
- * Single view Job meta box
+ * Single view job meta box.
  *
  * Hooked into single_job_listing_start priority 20
  *
- * @since  1.14.0
+ * This template can be overridden by copying it to yourtheme/job_manager/content-single-job_listing-meta.php.
+ *
+ * @see         https://wpjobmanager.com/document/template-overrides/
+ * @author      Automattic
+ * @package     WP Job Manager
+ * @category    Template
+ * @since       1.14.0
+ * @version     1.28.0
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 global $post;
 
 do_action( 'single_job_listing_meta_before' ); ?>
@@ -14,12 +26,17 @@ do_action( 'single_job_listing_meta_before' ); ?>
 	<?php do_action( 'single_job_listing_meta_start' ); ?>
 
 	<?php if ( get_option( 'job_manager_enable_types' ) ) { ?>
-	<li class="job-type <?php echo get_the_job_type() ? sanitize_title( get_the_job_type()->slug ) : ''; ?>" itemprop="employmentType"><?php the_job_type(); ?></li>
+		<?php $types = wpjm_get_the_job_types(); ?>
+		<?php if ( ! empty( $types ) ) : foreach ( $types as $type ) : ?>
+
+			<li class="job-type <?php echo esc_attr( sanitize_title( $type->slug ) ); ?>"><?php echo esc_html( $type->name ); ?></li>
+
+		<?php endforeach; endif; ?>
 	<?php } ?>
 
-	<li class="location" itemprop="jobLocation"><?php the_job_location(); ?></li>
+	<li class="location"><?php the_job_location(); ?></li>
 
-	<li class="date-posted" itemprop="datePosted"><?php the_job_publish_date(); ?></li>
+	<li class="date-posted"><?php the_job_publish_date(); ?></li>
 
 	<?php if ( is_position_filled() ) : ?>
 		<li class="position-filled"><?php _e( 'This position has been filled', 'wp-job-manager' ); ?></li>

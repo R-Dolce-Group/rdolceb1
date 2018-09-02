@@ -1,24 +1,17 @@
 <div
-	class="<?php echo 'negative' === $instance['color-scheme'] ? 'negative ' : '';
-	?>hide-on-<?php echo esc_attr( $instance['hide'] ); ?>"
+	class="<?php echo implode( ' ', $classes ); ?>"
 	data-hide-timeout="<?php echo intval( $instance['hide-timeout'] ); ?>"
+	data-consent-expiration="<?php echo intval( $instance['consent-expiration'] ); ?>"
 	id="eu-cookie-law"
 >
 	<form method="post">
-		<?php wp_nonce_field( 'eucookielaw' ); ?>
-		<input type="hidden" name="eucookielaw" value="accept" />
-		<input type="hidden" name="redirect_url" value="<?php echo esc_attr( $_SERVER['REQUEST_URI'] ); ?>" />
 		<input type="submit" value="<?php echo esc_attr( $instance['button'] ); ?>" class="accept" />
 	</form>
 
 	<?php if ( 'default' == $instance['text'] || empty( $instance['customtext'] ) ) {
-		echo $instance['default-text'];
-		?>
-		<br />
-		<?php
-		esc_html_e( 'To find out more, as well as how to remove or block these, see here:', 'jetpack' );
+		echo nl2br( $instance['default-text'] );
 	} else {
-		echo esc_html( $instance['customtext'] );
+		echo nl2br( esc_html( $instance['customtext'] ) );
 	} ?>
 
 	<a href="<?php

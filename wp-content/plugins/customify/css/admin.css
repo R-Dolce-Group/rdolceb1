@@ -1,49 +1,38 @@
 /* This stylesheet is used to style the admin option form of the plugin. */
-.extendable_options
-{
-    overflow: hidden; 
-
-    height: 0;
+.extendable_options {
+  height: 0;
+  overflow: hidden;
 }
 
-fieldset.group
-{
-    padding-left: 20px; 
-
-    border-left: 1px solid #333;
+fieldset.group {
+  border-left: 1px solid #333;
+  padding-left: 20px;
 }
 
-.postbox h3.hndle
-{
-    font-size: 15px; 
-
-    padding: 7px;
+.postbox h3.hndle {
+  padding: 7px;
+  font-size: 15px;
 }
 
-.postbox .row
-{
-    display: inline-block;
-
-    width: 100%;
-    padding: 5px 0;
-}
-.postbox .row .field
-{
-    display: inline-block;
-
-    width: 100%;
-    padding: 5px 0;
-}
-.postbox .row .group
-{
-    margin-left: 5px; 
-    padding-left: 15px;
-
-    border: 1px solid rgba(203, 203, 203, .2);
-    background-color: rgba(203, 203, 203, .2);
+.postbox .row {
+  width: 100%;
+  display: inline-block;
+  padding: 5px 0;
 }
 
-.postbox .uninstall_area
-{
-    margin-top: 15px;
+.postbox .row .field {
+  width: 100%;
+  display: inline-block;
+  padding: 5px 0;
+}
+
+.postbox .row .group {
+  border: 1px solid rgba(203, 203, 203, 0.2);
+  background-color: rgba(203, 203, 203, 0.2);
+  padding-left: 15px;
+  margin-left: 5px;
+}
+
+.postbox .uninstall_area {
+  margin-top: 15px;
 }

@@ -1,8 +1,9 @@
 <?php
 /**
- * The template for displaying the WP Job Manager frontend listing submission form
+ * Content for job submission (`[submit_job_form]`) shortcode.
  *
  * @package Listable
+ * @version     1.30.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -12,6 +13,12 @@ global $job_manager;
 
 <form action="<?php echo esc_url( $action ); ?>" method="post" id="submit-job-form" class="job-manager-form" enctype="multipart/form-data">
 
+	<?php
+	if ( isset( $resume_edit ) && $resume_edit ) {
+		printf( '<p><strong>' . __( "You are editing an existing job. %s", 'wp-job-manager' ) . '</strong></p>', '<a href="?new=1&key=' . $resume_edit . '">' . __( 'Create A New Job', 'wp-job-manager' ) . '</a>' );
+	}
+	?>
+
 	<?php do_action( 'submit_job_form_start' ); ?>
 
 	<?php if ( apply_filters( 'submit_job_form_show_signin', true ) ) : ?>
@@ -20,7 +27,7 @@ global $job_manager;
 
 	<?php endif; ?>
 
-	<?php if ( job_manager_user_can_post_job() ) : ?>
+	<?php if ( job_manager_user_can_post_job() || job_manager_user_can_edit_job( $job_id ) ) : ?>
 
 		<!-- Job Information Fields -->
 		<?php do_action( 'submit_job_form_job_fields_start' );

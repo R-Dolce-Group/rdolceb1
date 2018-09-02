@@ -61,7 +61,7 @@ if ( post_password_required() ) {
 			wp_list_comments( array(
 				'style'      => 'ol',
 				'short_ping' => true,
-				'callback'   => 'shape_comment',
+				'callback'   => 'listable_shape_comment',
 			) );
 			?>
 		</ol><!-- .comment-list -->
@@ -86,7 +86,9 @@ if ( post_password_required() ) {
 		<p class="no-comments"><?php esc_html_e( 'Comments are closed.', 'listable' ); ?></p>
 	<?php }
 
-	$comment_args = array();
+	$comment_args = array(
+		'title_reply_to'       => __( 'Leave a Reply to %s', 'woocommerce' ),
+	);
 	if ( 'job_listing' === get_post_type() && class_exists( 'PixReviewsPlugin' ) ) {
 		$comment_args['title_reply'] = esc_html__( 'Rate and write a review', 'listable' );
 	}

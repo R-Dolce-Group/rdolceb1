@@ -4,70 +4,73 @@
  *
  * Template functions specifically created for job listings
  *
- * @author 		Mike Jolley
- * @category 	Core
- * @package 	Job Manager/Template
+ * @author      Mike Jolley
+ * @category    Core
+ * @package     Job Manager/Template
  * @version     1.25.3
  */
 
 /**
- * Get and include template files.
+ * Gets and includes template files.
  *
- * @param mixed $template_name
- * @param array $args (default: array())
- * @param string $template_path (default: '')
- * @param string $default_path (default: '')
- * @return void
+ * @since 1.0.0
+ * @param mixed  $template_name
+ * @param array  $args (default: array()).
+ * @param string $template_path (default: '').
+ * @param string $default_path (default: '').
  */
 function get_job_manager_template( $template_name, $args = array(), $template_path = 'job_manager', $default_path = '' ) {
 	if ( $args && is_array( $args ) ) {
-		extract( $args );
+		// Please, forgive us.
+		extract( $args ); // phpcs:ignore WordPress.Functions.DontExtract.extract_extract
 	}
-	include( locate_job_manager_template( $template_name, $template_path, $default_path ) );
+	include locate_job_manager_template( $template_name, $template_path, $default_path );
 }
 
 /**
- * Locate a template and return the path for inclusion.
+ * Locates a template and return the path for inclusion.
  *
  * This is the load order:
  *
- *		yourtheme		/	$template_path	/	$template_name
- *		yourtheme		/	$template_name
- *		$default_path	/	$template_name
+ *      yourtheme       /   $template_path  /   $template_name
+ *      yourtheme       /   $template_name
+ *      $default_path   /   $template_name
  *
- * @param string $template_name
- * @param string $template_path (default: 'job_manager')
- * @param string|bool $default_path (default: '') False to not load a default
+ * @since 1.0.0
+ * @param string      $template_name
+ * @param string      $template_path (default: 'job_manager').
+ * @param string|bool $default_path (default: '') False to not load a default.
  * @return string
  */
 function locate_job_manager_template( $template_name, $template_path = 'job_manager', $default_path = '' ) {
-	// Look within passed path within the theme - this is priority
+	// Look within passed path within the theme - this is priority.
 	$template = locate_template(
 		array(
 			trailingslashit( $template_path ) . $template_name,
-			$template_name
+			$template_name,
 		)
 	);
 
-	// Get default template
-	if ( ! $template && $default_path !== false ) {
+	// Get default template.
+	if ( ! $template && false !== $default_path ) {
 		$default_path = $default_path ? $default_path : JOB_MANAGER_PLUGIN_DIR . '/templates/';
 		if ( file_exists( trailingslashit( $default_path ) . $template_name ) ) {
 			$template = trailingslashit( $default_path ) . $template_name;
 		}
 	}
 
-	// Return what we found
+	// Return what we found.
 	return apply_filters( 'job_manager_locate_template', $template, $template_name, $template_path );
 }
 
 /**
- * Get template part (for templates in loops).
+ * Gets template part (for templates in loops).
  *
- * @param string $slug
- * @param string $name (default: '')
- * @param string $template_path (default: 'job_manager')
- * @param string|bool $default_path (default: '') False to not load a default
+ * @since 1.0.0
+ * @param string      $slug
+ * @param string      $name (default: '').
+ * @param string      $template_path (default: 'job_manager').
+ * @param string|bool $default_path (default: '') False to not load a default.
  */
 function get_job_manager_template_part( $slug, $name = '', $template_path = 'job_manager', $default_path = '' ) {
 	$template = '';
@@ -76,7 +79,7 @@ function get_job_manager_template_part( $slug, $name = '', $template_path = 'job
 		$template = locate_job_manager_template( "{$slug}-{$name}.php", $template_path, $default_path );
 	}
 
-	// If template file doesn't exist, look in yourtheme/slug.php and yourtheme/job_manager/slug.php
+	// If template file doesn't exist, look in yourtheme/slug.php and yourtheme/job_manager/slug.php.
 	if ( ! $template ) {
 		$template = locate_job_manager_template( "{$slug}.php", $template_path, $default_path );
 	}
@@ -87,7 +90,9 @@ function get_job_manager_template_part( $slug, $name = '', $template_path = 'job
 }
 
 /**
- * Add custom body classes
+ * Adds custom body classes.
+ *
+ * @since 1.16.0
  * @param  array $classes
  * @return array
  */
@@ -101,27 +106,40 @@ function job_manager_body_class( $classes ) {
 add_filter( 'body_class', 'job_manager_body_class' );
 
 /**
- * Get jobs pagination for [jobs] shortcode
- * @return [type] [description]
+ * Get jobs pagination for [jobs] shortcode.
+ *
+ * @since 1.13.0
+ * @param int $max_num_pages
+ * @param int $current_page
+ * @return string
  */
 function get_job_listing_pagination( $max_num_pages, $current_page = 1 ) {
 	ob_start();
-	get_job_manager_template( 'job-pagination.php', array( 'max_num_pages' => $max_num_pages, 'current_page' => absint( $current_page ) ) );
+	get_job_manager_template(
+		'job-pagination.php',
+		array(
+			'max_num_pages' => $max_num_pages,
+			'current_page'  => absint( $current_page ),
+		)
+	);
 	return ob_get_clean();
 }
 
 /**
- * Outputs the jobs status
+ * Displays the jobs status.
  *
- * @return void
+ * @since 1.0.0
+ * @param int|WP_Post $post
  */
 function the_job_status( $post = null ) {
-	echo get_the_job_status( $post );
+	echo wp_kses_post( get_the_job_status( $post ) );
 }
 
 /**
- * Gets the jobs status
+ * Gets the jobs status.
  *
+ * @since 1.
+ * @param int|WP_Post $post
  * @return string
  */
 function get_the_job_status( $post = null ) {
@@ -132,60 +150,64 @@ function get_the_job_status( $post = null ) {
 	if ( isset( $statuses[ $status ] ) ) {
 		$status = $statuses[ $status ];
 	} else {
-		$status = __( 'Inactive', 'wp-job-manager' );
+		$status = esc_html__( 'Inactive', 'wp-job-manager' );
 	}
 
 	return apply_filters( 'the_job_status', $status, $post );
 }
 
 /**
- * Return whether or not the position has been marked as filled
+ * Checks whether or not the position has been marked as filled.
  *
- * @param  object $post
+ * @since 1.0.0
+ * @param  WP_Post|int $post
  * @return boolean
  */
 function is_position_filled( $post = null ) {
 	$post = get_post( $post );
-	return $post->_filled ? true : false;
+	return (bool) $post->_filled;
 }
 
 /**
- * Return whether or not the position has been featured
+ * Checks whether or not the position has been featured.
  *
- * @param  object $post
+ * @since 1.2.0
+ * @param  WP_Post|int $post
  * @return boolean
  */
 function is_position_featured( $post = null ) {
 	$post = get_post( $post );
-	return $post->_featured ? true : false;
+	return (bool) $post->_featured;
 }
 
 /**
- * Return whether or not applications are allowed
+ * Checks whether or not applications are allowed.
  *
- * @param  object $post
+ * @since 1.21.0
+ * @param  WP_Post|int $post
  * @return boolean
  */
 function candidates_can_apply( $post = null ) {
 	$post = get_post( $post );
-	return apply_filters( 'job_manager_candidates_can_apply', ( ! is_position_filled() && ! in_array( $post->post_status, array( 'preview', 'expired' ) ) ), $post );
+	return apply_filters( 'job_manager_candidates_can_apply', ( ! is_position_filled() && ! in_array( $post->post_status, array( 'preview', 'expired' ), true ) ), $post );
 }
 
 /**
- * the_job_permalink function.
+ * Displays the permalink for the job listing post.
  *
- * @access public
+ * @since 1.0.0
+ * @param int|WP_Post $post (default: null).
  * @return void
  */
 function the_job_permalink( $post = null ) {
-	echo get_the_job_permalink( $post );
+	echo esc_url( get_the_job_permalink( $post ) );
 }
 
 /**
- * get_the_job_permalink function.
+ * Gets the permalink for a job listing.
  *
- * @access public
- * @param mixed $post (default: null)
+ * @since 1.0.0
+ * @param int|WP_Post $post (default: null).
  * @return string
  */
 function get_the_job_permalink( $post = null ) {
@@ -196,125 +218,577 @@ function get_the_job_permalink( $post = null ) {
 }
 
 /**
- * get_the_job_application_method function.
+ * Gets the application method for the job listing.
  *
- * @access public
- * @param mixed $post (default: null)
- * @return object
+ * @since 1.0.0
+ * @param int|WP_Post $post (default: null).
+ * @return stdClass|bool|null
  */
 function get_the_job_application_method( $post = null ) {
 	$post = get_post( $post );
 
-	if ( $post && $post->post_type !== 'job_listing' ) {
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
 		return;
 	}
 
 	$method = new stdClass();
 	$apply  = $post->_application;
 
-	if ( empty( $apply ) )
-		return false;
+	if ( empty( $apply ) ) {
+		return apply_filters( 'the_job_application_method', false, $post );
+	}
 
 	if ( strstr( $apply, '@' ) && is_email( $apply ) ) {
 		$method->type      = 'email';
 		$method->raw_email = $apply;
 		$method->email     = antispambot( $apply );
-		$method->subject   = apply_filters( 'job_manager_application_email_subject', sprintf( __( 'Application via "%s" listing on %s', 'wp-job-manager' ), $post->post_title, home_url() ), $post );
+
+		// translators: %1$s is the job listing title; %2$s is the URL for the current WordPress instance.
+		$method->subject = apply_filters( 'job_manager_application_email_subject', sprintf( esc_html__( 'Application via "%1$s" listing on %2$s', 'wp-job-manager' ), esc_html( $post->post_title ), esc_url( home_url() ) ), $post );
 	} else {
-		if ( strpos( $apply, 'http' ) !== 0 )
+		if ( strpos( $apply, 'http' ) !== 0 ) {
 			$apply = 'http://' . $apply;
+		}
 		$method->type = 'url';
 		$method->url  = $apply;
 	}
 
 	return apply_filters( 'the_job_application_method', $method, $post );
 }
+
 /**
- * the_job_type function.
+ * Get the employment types for the job listing.
  *
- * @access public
- * @return void
+ * @since 1.28.0
+ *
+ * @param WP_Post|int|null $post
+ * @return bool|array
  */
-function the_job_type( $post = null ) {
-	if ( ! get_option( 'job_manager_enable_types' ) ) {
-		return '';
+function wpjm_get_job_employment_types( $post = null ) {
+	if ( ! wpjm_job_listing_employment_type_enabled() ) {
+		return false;
 	}
-	if ( $job_type = get_the_job_type( $post ) ) {
-		echo $job_type->name;
+	$employment_types = array();
+	$job_types        = wpjm_get_the_job_types( $post );
+
+	if ( ! empty( $job_types ) ) {
+		foreach ( $job_types as $job_type ) {
+			$employment_type = get_term_meta( $job_type->term_id, 'employment_type', true );
+			if ( ! empty( $employment_type ) ) {
+				$employment_types[] = $employment_type;
+			}
+		}
+	}
+
+	/**
+	 * Filter the employment types for a job listing.
+	 *
+	 * @since 1.28.0
+	 *
+	 * @param array            $employment_types Employment types.
+	 * @param WP_Post|int|null $post
+	 */
+	return apply_filters( 'wpjm_get_job_employment_types', array_unique( $employment_types ), $post );
+}
+
+/**
+ * Returns if we allow indexing of a job listing.
+ *
+ * @since 1.28.0
+ *
+ * @param WP_Post|int|null $post
+ * @return bool
+ */
+function wpjm_allow_indexing_job_listing( $post = null ) {
+	$post = get_post( $post );
+
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return true;
+	}
+
+	// Only index job listings that are un-filled and published.
+	$index_job_listing = ! is_position_filled( $post ) && 'publish' === $post->post_status;
+
+	/**
+	 * Filter if we should allow indexing of job listing.
+	 *
+	 * @since 1.28.0
+	 *
+	 * @param bool             $index_job_listing True if we should allow indexing of job listing.
+	 * @param WP_Post|int|null $post
+	 */
+	return apply_filters( 'wpjm_allow_indexing_job_listing', $index_job_listing, $post );
+}
+
+/**
+ * Returns if we output job listing structured data for a post.
+ *
+ * @since 1.28.0
+ *
+ * @param WP_Post|int|null $post
+ * @return bool
+ */
+function wpjm_output_job_listing_structured_data( $post = null ) {
+	$post = get_post( $post );
+
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return false;
+	}
+
+	// Only show structured data for un-filled and published job listings.
+	$output_structured_data = ! is_position_filled( $post ) && 'publish' === $post->post_status;
+
+	/**
+	 * Filter if we should output structured data.
+	 *
+	 * @since 1.28.0
+	 *
+	 * @param bool             $output_structured_data True if we should show structured data for post.
+	 * @param WP_Post|int|null $post
+	 */
+	return apply_filters( 'wpjm_output_job_listing_structured_data', $output_structured_data, $post );
+}
+
+/**
+ * Gets the structured data for the job listing.
+ *
+ * @since 1.28.0
+ * @see https://developers.google.com/search/docs/data-types/job-postings
+ *
+ * @param WP_Post|int|null $post
+ * @return bool|array False if functionality is disabled; otherwise array of structured data.
+ */
+function wpjm_get_job_listing_structured_data( $post = null ) {
+	$post = get_post( $post );
+
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return false;
+	}
+
+	$data               = array();
+	$data['@context']   = 'http://schema.org/';
+	$data['@type']      = 'JobPosting';
+	$data['datePosted'] = get_post_time( 'c', false, $post );
+
+	$job_expires = get_post_meta( $post->ID, '_job_expires', true );
+	if ( ! empty( $job_expires ) ) {
+		$data['validThrough'] = date( 'c', strtotime( $job_expires ) );
+	}
+
+	$data['title']       = wp_strip_all_tags( wpjm_get_the_job_title( $post ) );
+	$data['description'] = wpjm_get_the_job_description( $post );
+
+	$employment_types = wpjm_get_job_employment_types();
+	if ( ! empty( $employment_types ) ) {
+		$data['employmentType'] = $employment_types;
+	}
+
+	$data['hiringOrganization']          = array();
+	$data['hiringOrganization']['@type'] = 'Organization';
+	$data['hiringOrganization']['name']  = get_the_company_name( $post );
+
+	$company_website = get_the_company_website( $post );
+	if ( $company_website ) {
+		$data['hiringOrganization']['sameAs'] = $company_website;
+		$data['hiringOrganization']['url']    = $company_website;
+	}
+
+	$company_logo = get_the_company_logo( $post, 'full' );
+	if ( $company_logo ) {
+		$data['hiringOrganization']['logo'] = $company_logo;
+	}
+
+	$data['identifier']          = array();
+	$data['identifier']['@type'] = 'PropertyValue';
+	$data['identifier']['name']  = get_the_company_name( $post );
+	$data['identifier']['value'] = get_the_guid( $post );
+
+	$location = get_the_job_location( $post );
+	if ( ! empty( $location ) ) {
+		$data['jobLocation']            = array();
+		$data['jobLocation']['@type']   = 'Place';
+		$data['jobLocation']['address'] = wpjm_get_job_listing_location_structured_data( $post );
+		if ( empty( $data['jobLocation']['address'] ) ) {
+			$data['jobLocation']['address'] = $location;
+		}
+	}
+
+	/**
+	 * Filter the structured data for a job listing.
+	 *
+	 * @since 1.28.0
+	 *
+	 * @param bool|array $structured_data False if functionality is disabled; otherwise array of structured data.
+	 * @param WP_Post    $post
+	 */
+	return apply_filters( 'wpjm_get_job_listing_structured_data', $data, $post );
+}
+
+/**
+ * Gets the job listing location data.
+ *
+ * @see http://schema.org/PostalAddress
+ *
+ * @param WP_Post $post
+ * @return array|bool
+ */
+function wpjm_get_job_listing_location_structured_data( $post ) {
+	$post = get_post( $post );
+
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return false;
+	}
+
+	$mapping                    = array();
+	$mapping['streetAddress']   = array( 'street_number', 'street' );
+	$mapping['addressLocality'] = 'city';
+	$mapping['addressRegion']   = 'state_short';
+	$mapping['postalCode']      = 'postcode';
+	$mapping['addressCountry']  = 'country_short';
+
+	$address          = array();
+	$address['@type'] = 'PostalAddress';
+	foreach ( $mapping as $schema_key => $geolocation_key ) {
+		if ( is_array( $geolocation_key ) ) {
+			$values = array();
+			foreach ( $geolocation_key as $sub_geo_key ) {
+				$geo_value = get_post_meta( $post->ID, 'geolocation_' . $sub_geo_key, true );
+				if ( ! empty( $geo_value ) ) {
+					$values[] = $geo_value;
+				}
+			}
+			$value = implode( ' ', $values );
+		} else {
+			$value = get_post_meta( $post->ID, 'geolocation_' . $geolocation_key, true );
+		}
+		if ( ! empty( $value ) ) {
+			$address[ $schema_key ] = $value;
+		}
+	}
+
+	// No address parts were found.
+	if ( 1 === count( $address ) ) {
+		$address = false;
+	}
+
+	/**
+	 * Gets the job listing location structured data.
+	 *
+	 * @since 1.28.0
+	 *
+	 * @param array|bool $address Array of address data.
+	 * @param WP_Post    $post
+	 */
+	return apply_filters( 'wpjm_get_job_listing_location_structured_data', $address, $post );
+}
+
+/**
+ * Displays the job title for the listing.
+ *
+ * @since 1.27.0
+ * @param int|WP_Post $post
+ */
+function wpjm_the_job_title( $post = null ) {
+	$job_title = wpjm_get_the_job_title( $post );
+	if ( $job_title ) {
+		echo wp_kses_post( $job_title );
 	}
 }
 
 /**
- * get_the_job_type function.
+ * Gets the job title for the listing.
  *
- * @access public
- * @param mixed $post (default: null)
- * @return void
+ * @since 1.27.0
+ * @param int|WP_Post $post (default: null).
+ * @return string|bool|null
  */
-function get_the_job_type( $post = null ) {
+function wpjm_get_the_job_title( $post = null ) {
 	$post = get_post( $post );
-	if ( $post->post_type !== 'job_listing' ) {
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return null;
+	}
+
+	$title = wp_strip_all_tags( get_the_title( $post ) );
+
+	/**
+	 * Filter for the job title.
+	 *
+	 * @since 1.27.0
+	 * @param string      $title Title to be filtered.
+	 * @param int|WP_Post $post
+	 */
+	return apply_filters( 'wpjm_the_job_title', $title, $post );
+}
+
+/**
+ * Displays the job description for the listing.
+ *
+ * @since 1.28.0
+ * @param int|WP_Post $post
+ */
+function wpjm_the_job_description( $post = null ) {
+	$job_description = wpjm_get_the_job_description( $post );
+	if ( $job_description ) {
+		echo wp_kses_post( $job_description );
+	}
+}
+
+/**
+ * Gets the job description for the listing.
+ *
+ * @since 1.28.0
+ * @param int|WP_Post $post (default: null).
+ * @return string|bool|null
+ */
+function wpjm_get_the_job_description( $post = null ) {
+	$post = get_post( $post );
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return null;
+	}
+
+	$description = apply_filters( 'the_job_description', get_the_content( $post ) );
+
+	/**
+	 * Filter for the job description.
+	 *
+	 * @since 1.28.0
+	 * @param string      $title Title to be filtered.
+	 * @param int|WP_Post $post
+	 */
+	return apply_filters( 'wpjm_the_job_description', $description, $post );
+}
+
+/**
+ * Displays multiple job types for the listing.
+ *
+ * @since 1.27.0
+ *
+ * @param int|WP_Post $post Current post object.
+ * @param string      $separator String to join the term names with.
+ */
+function wpjm_the_job_types( $post = null, $separator = ', ' ) {
+	if ( ! get_option( 'job_manager_enable_types' ) ) {
 		return;
 	}
 
-	$types = wp_get_post_terms( $post->ID, 'job_listing_type' );
+	$job_types = wpjm_get_the_job_types( $post );
 
-	if ( $types ) {
-		$type = current( $types );
-	} else {
-		$type = false;
+	if ( $job_types ) {
+		$names = wp_list_pluck( $job_types, 'name' );
+
+		echo esc_html( implode( $separator, $names ) );
 	}
-
-	return apply_filters( 'the_job_type', $type, $post );
 }
 
+/**
+ * Gets the job type for the listing.
+ *
+ * @since 1.27.0
+ *
+ * @param int|WP_Post $post (default: null).
+ * @return bool|array
+ */
+function wpjm_get_the_job_types( $post = null ) {
+	$post = get_post( $post );
+
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return false;
+	}
+
+	$types = get_the_terms( $post->ID, 'job_listing_type' );
+
+	if ( empty( $types ) || is_wp_error( $types ) ) {
+		$types = array();
+	}
+
+	// Return single if not enabled.
+	if ( ! empty( $types ) && ! job_manager_multi_job_type() ) {
+		$types = array( current( $types ) );
+	}
+
+	/**
+	 * Filter the returned job types for a post.
+	 *
+	 * @since 1.27.0
+	 *
+	 * @param array   $types
+	 * @param WP_Post $post
+	 */
+	return apply_filters( 'wpjm_the_job_types', $types, $post );
+}
 
 /**
- * the_job_publish_date function.
- * @param mixed $post (default: null)
- * @return [type]
+ * Displays job categories for the listing.
+ *
+ * @since 1.31.0
+ *
+ * @param int|WP_Post $post      Current post object.
+ * @param string      $separator String to join the term names with.
+ */
+function wpjm_the_job_categories( $post = null, $separator = ', ' ) {
+	if ( ! get_option( 'job_manager_enable_categories' ) ) {
+		return;
+	}
+
+	$job_categories = wpjm_get_the_job_categories( $post );
+
+	if ( $job_categories ) {
+		$names = wp_list_pluck( $job_categories, 'name' );
+
+		echo esc_html( implode( $separator, $names ) );
+	}
+}
+
+/**
+ * Gets the job type for the listing.
+ *
+ * @since 1.31.0
+ *
+ * @param int|WP_Post $post (default: null).
+ * @return bool|array
+ */
+function wpjm_get_the_job_categories( $post = null ) {
+	$post = get_post( $post );
+
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return false;
+	}
+
+	$categories = get_the_terms( $post->ID, 'job_listing_category' );
+
+	if ( empty( $categories ) || is_wp_error( $categories ) ) {
+		$categories = array();
+	}
+
+	/**
+	 * Filter the returned job categories for a post.
+	 *
+	 * @since 1.31.0
+	 *
+	 * @param array   $types
+	 * @param WP_Post $post
+	 */
+	return apply_filters( 'wpjm_the_job_categories', $categories, $post );
+}
+
+/**
+ * Returns the registration fields used when an account is required.
+ *
+ * @since 1.27.0
+ *
+ * @return array $registration_fields.
+ */
+function wpjm_get_registration_fields() {
+	$generate_username_from_email      = job_manager_generate_username_from_email();
+	$use_standard_password_setup_email = wpjm_use_standard_password_setup_email();
+	$account_required                  = job_manager_user_requires_account();
+
+	$registration_fields = array();
+	if ( job_manager_enable_registration() ) {
+		if ( ! $generate_username_from_email ) {
+			$registration_fields['create_account_username'] = array(
+				'type'     => 'text',
+				'label'    => esc_html__( 'Username', 'wp-job-manager' ),
+				'required' => $account_required,
+				'value'    => isset( $_POST['create_account_username'] ) ? $_POST['create_account_username'] : '',
+			);
+		}
+		if ( ! $use_standard_password_setup_email ) {
+			$registration_fields['create_account_password'] = array(
+				'type'         => 'password',
+				'label'        => esc_html__( 'Password', 'wp-job-manager' ),
+				'autocomplete' => false,
+				'required'     => $account_required,
+			);
+			$password_hint                                  = wpjm_get_password_rules_hint();
+			if ( $password_hint ) {
+				$registration_fields['create_account_password']['description'] = $password_hint;
+			}
+			$registration_fields['create_account_password_verify'] = array(
+				'type'         => 'password',
+				'label'        => esc_html__( 'Verify Password', 'wp-job-manager' ),
+				'autocomplete' => false,
+				'required'     => $account_required,
+			);
+		}
+		$registration_fields['create_account_email'] = array(
+			'type'        => 'text',
+			'label'       => esc_html__( 'Your email', 'wp-job-manager' ),
+			'placeholder' => __( 'you@yourdomain.com', 'wp-job-manager' ),
+			'required'    => $account_required,
+			'value'       => isset( $_POST['create_account_email'] ) ? $_POST['create_account_email'] : '',
+		);
+	}
+
+	/**
+	 * Filters the fields used at registration.
+	 *
+	 * @since 1.27.0
+	 *
+	 * @param array $registration_fields
+	 */
+	return apply_filters( 'wpjm_get_registration_fields', $registration_fields );
+}
+
+/**
+ * Displays the published date of the job listing.
+ *
+ * @since 1.25.3
+ * @param int|WP_Post $post (default: null).
  */
 function the_job_publish_date( $post = null ) {
 	$date_format = get_option( 'job_manager_date_format' );
 
-	if ( $date_format === 'default' ) {
-		$display_date = __( 'Posted on ', 'wp-job-manager' ) . get_post_time( get_option( 'date_format' ) );
+	if ( 'default' === $date_format ) {
+		$display_date = esc_html__( 'Posted on ', 'wp-job-manager' ) . date_i18n( get_option( 'date_format' ), get_post_time( 'U' ) );
 	} else {
-		$display_date = sprintf( __( 'Posted %s ago', 'wp-job-manager' ), human_time_diff( get_post_time( 'U' ), current_time( 'timestamp' ) ) );
+		// translators: Placeholder %s is the relative, human readable time since the job listing was posted.
+		$display_date = sprintf( esc_html__( 'Posted %s ago', 'wp-job-manager' ), human_time_diff( get_post_time( 'U' ), current_time( 'timestamp' ) ) );
 	}
 
-	echo '<time datetime="' . get_post_time( 'Y-m-d' ) . '">' . $display_date . '</time>';
+	echo '<time datetime="' . esc_attr( get_post_time( 'Y-m-d' ) ) . '">' . wp_kses_post( $display_date ) . '</time>';
 }
 
 
 /**
- * get_the_job_publish_date function.
- * @param mixed $post (default: null)
- * @return [type]
+ * Gets the published date of the job listing.
+ *
+ * @since 1.25.3
+ * @param int|WP_Post $post (default: null).
+ * @return string|int|false
  */
 function get_the_job_publish_date( $post = null ) {
 	$date_format = get_option( 'job_manager_date_format' );
 
-	if ( $date_format === 'default' ) {
+	if ( 'default' === $date_format ) {
 		return get_post_time( get_option( 'date_format' ) );
 	} else {
+		// translators: Placeholder %s is the relative, human readable time since the job listing was posted.
 		return sprintf( __( 'Posted %s ago', 'wp-job-manager' ), human_time_diff( get_post_time( 'U' ), current_time( 'timestamp' ) ) );
 	}
 }
 
 
 /**
- * the_job_location function.
- * @param  boolean $map_link whether or not to link to google maps
- * @return [type]
+ * Displays the location for the job listing.
+ *
+ * @since 1.0.0
+ * @param  bool        $map_link whether or not to link to Google Maps.
+ * @param int|WP_Post $post
  */
 function the_job_location( $map_link = true, $post = null ) {
 	$location = get_the_job_location( $post );
 
 	if ( $location ) {
 		if ( $map_link ) {
-			// If linking to google maps, we don't want anything but text here
-			echo apply_filters( 'the_job_location_map_link', '<a class="google_map_link" href="' . esc_url( 'http://maps.google.com/maps?q=' . urlencode( strip_tags( $location ) ) . '&zoom=14&size=512x512&maptype=roadmap&sensor=false' ) . '" target="_blank">' . esc_html( strip_tags( $location ) ) . '</a>', $location, $post );
+			// If linking to google maps, we don't want anything but text here.
+			echo wp_kses_post(
+				apply_filters(
+					'the_job_location_map_link',
+					'<a class="google_map_link" href="' . esc_url( 'http://maps.google.com/maps?q=' . rawurlencode( wp_strip_all_tags( $location ) ) . '&zoom=14&size=512x512&maptype=roadmap&sensor=false' ) . '" target="_blank">' . esc_html( wp_strip_all_tags( $location ) ) . '</a>',
+					$location, $post
+				)
+			);
 		} else {
 			echo wp_kses_post( $location );
 		}
@@ -324,54 +798,55 @@ function the_job_location( $map_link = true, $post = null ) {
 }
 
 /**
- * get_the_job_location function.
+ * Gets the location for the job listing.
  *
- * @access public
- * @param mixed $post (default: null)
- * @return void
+ * @since 1.0.0
+ * @param int|WP_Post $post (default: null).
+ * @return string|null
  */
 function get_the_job_location( $post = null ) {
 	$post = get_post( $post );
-	if ( $post->post_type !== 'job_listing' ) {
-		return;
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return null;
 	}
 
 	return apply_filters( 'the_job_location', $post->_job_location, $post );
 }
 
 /**
- * the_company_logo function.
+ * Displays the company logo.
  *
- * @access public
- * @param string $size (default: 'full')
- * @param mixed $default (default: null)
- * @return void
+ * @since 1.0.0
+ * @param string      $size (default: 'full').
+ * @param mixed       $default (default: null).
+ * @param int|WP_Post $post (default: null).
  */
 function the_company_logo( $size = 'thumbnail', $default = null, $post = null ) {
 	$logo = get_the_company_logo( $post, $size );
 
 	if ( has_post_thumbnail( $post ) ) {
-		echo '<img class="company_logo" src="' . esc_attr( $logo ) . '" alt="' . esc_attr( get_the_company_name( $post ) ) . '" />';
+		echo '<img class="company_logo" src="' . esc_url( $logo ) . '" alt="' . esc_attr( get_the_company_name( $post ) ) . '" />';
 
-	// Before 1.24.0, logo URLs were stored in post meta.
+		// Before 1.24.0, logo URLs were stored in post meta.
 	} elseif ( ! empty( $logo ) && ( strstr( $logo, 'http' ) || file_exists( $logo ) ) ) {
-		if ( $size !== 'full' ) {
+		if ( 'full' !== $size ) {
 			$logo = job_manager_get_resized_image( $logo, $size );
 		}
-		echo '<img class="company_logo" src="' . esc_attr( $logo ) . '" alt="' . esc_attr( get_the_company_name( $post ) ) . '" />';
+		echo '<img class="company_logo" src="' . esc_url( $logo ) . '" alt="' . esc_attr( get_the_company_name( $post ) ) . '" />';
 	} elseif ( $default ) {
-		echo '<img class="company_logo" src="' . esc_attr( $default ) . '" alt="' . esc_attr( get_the_company_name( $post ) ) . '" />';
+		echo '<img class="company_logo" src="' . esc_url( $default ) . '" alt="' . esc_attr( get_the_company_name( $post ) ) . '" />';
 	} else {
-		echo '<img class="company_logo" src="' . esc_attr( apply_filters( 'job_manager_default_company_logo', JOB_MANAGER_PLUGIN_URL . '/assets/images/company.png' ) ) . '" alt="' . esc_attr( get_the_company_name( $post ) ) . '" />';
+		echo '<img class="company_logo" src="' . esc_url( apply_filters( 'job_manager_default_company_logo', JOB_MANAGER_PLUGIN_URL . '/assets/images/company.png' ) ) . '" alt="' . esc_attr( get_the_company_name( $post ) ) . '" />';
 	}
 }
 
 /**
- * get_the_company_logo function.
+ * Gets the company logo.
  *
- * @access public
- * @param mixed $post (default: null)
- * @return string Image SRC
+ * @since 1.0.0
+ * @param int|WP_Post $post (default: null).
+ * @param string      $size
+ * @return string Image SRC.
  */
 function get_the_company_logo( $post = null, $size = 'thumbnail' ) {
 	$post = get_post( $post );
@@ -388,8 +863,9 @@ function get_the_company_logo( $post = null, $size = 'thumbnail' ) {
 }
 
 /**
- * Resize and get url of the image
+ * Resizes and returns the url of an image.
  *
+ * @since 1.5.1
  * @param  string $logo
  * @param  string $size
  * @return string
@@ -397,9 +873,12 @@ function get_the_company_logo( $post = null, $size = 'thumbnail' ) {
 function job_manager_get_resized_image( $logo, $size ) {
 	global $_wp_additional_image_sizes;
 
-	if ( $size !== 'full' && strstr( $logo, WP_CONTENT_URL ) && ( isset( $_wp_additional_image_sizes[ $size ] ) || in_array( $size, array( 'thumbnail', 'medium', 'large' ) ) ) ) {
+	if ( 'full' !== $size
+		 && strstr( $logo, WP_CONTENT_URL )
+		 && ( isset( $_wp_additional_image_sizes[ $size ] ) || in_array( $size, array( 'thumbnail', 'medium', 'large' ), true ) )
+	) {
 
-		if ( in_array( $size, array( 'thumbnail', 'medium', 'large' ) ) ) {
+		if ( in_array( $size, array( 'thumbnail', 'medium', 'large' ), true ) ) {
 			$img_width  = get_option( $size . '_size_w' );
 			$img_height = get_option( $size . '_size_h' );
 			$img_crop   = get_option( $size . '_size_crop' );
@@ -428,9 +907,9 @@ function job_manager_get_resized_image( $logo, $size ) {
 
 				$resize = $image->resize( $img_width, $img_height, $img_crop );
 
-			   	if ( ! is_wp_error( $resize ) ) {
+				if ( ! is_wp_error( $resize ) ) {
 
-			   		$save = $image->save( $resized_logo_path );
+					$save = $image->save( $resized_logo_path );
 
 					if ( ! is_wp_error( $save ) ) {
 						$logo = dirname( $logo ) . '/' . basename( $resized_logo_path );
@@ -448,18 +927,21 @@ function job_manager_get_resized_image( $logo, $size ) {
 }
 
 /**
- * Output the company video
+ * Displays the company video.
+ *
+ * @since 1.14.0
+ * @param int|WP_Post $post
  */
 function the_company_video( $post = null ) {
 	$video_embed = false;
 	$video       = get_the_company_video( $post );
 	$filetype    = wp_check_filetype( $video );
 
-	if( ! empty( $video ) ){
-		// FV Wordpress Flowplayer Support for advanced video formats
+	if ( ! empty( $video ) ) {
+		// FV WordPress Flowplayer Support for advanced video formats.
 		if ( shortcode_exists( 'flowplayer' ) ) {
-			$video_embed = '[flowplayer src="' . esc_attr( $video ) . '"]';
-		} elseif ( ! empty( $filetype[ 'ext' ] ) ) {
+			$video_embed = '[flowplayer src="' . esc_url( $video ) . '"]';
+		} elseif ( ! empty( $filetype['ext'] ) ) {
 			$video_embed = wp_video_shortcode( array( 'src' => $video ) );
 		} else {
 			$video_embed = wp_oembed_get( $video );
@@ -469,56 +951,63 @@ function the_company_video( $post = null ) {
 	$video_embed = apply_filters( 'the_company_video_embed', $video_embed, $post );
 
 	if ( $video_embed ) {
-		echo '<div class="company_video">' . $video_embed . '</div>';
+		echo '<div class="company_video">' . $video_embed . '</div>'; // WPCS: XSS ok.
 	}
 }
 
 /**
- * Get the company video URL
+ * Gets the company video URL.
  *
- * @param mixed $post (default: null)
- * @return string
+ * @since 1.14.0
+ * @param int|WP_Post $post (default: null).
+ * @return string|null
  */
 function get_the_company_video( $post = null ) {
 	$post = get_post( $post );
-	if ( $post->post_type !== 'job_listing' ) {
-		return;
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return null;
 	}
 	return apply_filters( 'the_company_video', $post->_company_video, $post );
 }
 
 /**
- * Display or retrieve the current company name with optional content.
+ * Displays or retrieves the current company name with optional content.
  *
- * @access public
- * @param mixed $id (default: null)
- * @return void
+ * @since 1.0.0
+ * @since 1.0.1 Add the `$post` argument.
+ * @param string           $before (default: '').
+ * @param string           $after (default: '').
+ * @param bool             $echo (default: true).
+ * @param int|WP_Post|null $post (default: null).
+ * @return string|null
  */
 function the_company_name( $before = '', $after = '', $echo = true, $post = null ) {
 	$company_name = get_the_company_name( $post );
 
-	if ( strlen( $company_name ) == 0 )
-		return;
+	if ( 0 === strlen( $company_name ) ) {
+		return null;
+	}
 
-	$company_name = esc_attr( strip_tags( $company_name ) );
+	$company_name = esc_attr( wp_strip_all_tags( $company_name ) );
 	$company_name = $before . $company_name . $after;
 
-	if ( $echo )
-		echo $company_name;
-	else
+	if ( $echo ) {
+		echo wp_kses_post( $company_name );
+	} else {
 		return $company_name;
+	}
 }
 
 /**
- * get_the_company_name function.
+ * Gets the company name.
  *
- * @access public
- * @param int $post (default: null)
+ * @since 1.0.0
+ * @param int $post (default: null).
  * @return string
  */
 function get_the_company_name( $post = null ) {
 	$post = get_post( $post );
-	if ( $post->post_type !== 'job_listing' ) {
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
 		return '';
 	}
 
@@ -526,17 +1015,18 @@ function get_the_company_name( $post = null ) {
 }
 
 /**
- * get_the_company_website function.
+ * Gets the company website.
  *
- * @access public
- * @param int $post (default: null)
- * @return void
+ * @since 1.0.0
+ * @param int $post (default: null).
+ * @return null|string
  */
 function get_the_company_website( $post = null ) {
 	$post = get_post( $post );
 
-	if ( $post->post_type !== 'job_listing' )
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
 		return;
+	}
 
 	$website = $post->_company_website;
 
@@ -548,136 +1038,129 @@ function get_the_company_website( $post = null ) {
 }
 
 /**
- * Display or retrieve the current company tagline with optional content.
+ * Displays or retrieves the current company tagline with optional content.
  *
- * @access public
- * @param mixed $id (default: null)
- * @return void
+ * @since 1.0.0
+ * @param string           $before (default: '').
+ * @param string           $after (default: '').
+ * @param bool             $echo (default: true).
+ * @param int|WP_Post|null $post (default: null).
+ * @return string|void
  */
 function the_company_tagline( $before = '', $after = '', $echo = true, $post = null ) {
 	$company_tagline = get_the_company_tagline( $post );
 
-	if ( strlen( $company_tagline ) == 0 )
+	if ( 0 === strlen( $company_tagline ) ) {
 		return;
+	}
 
-	$company_tagline = esc_attr( strip_tags( $company_tagline ) );
+	$company_tagline = esc_attr( wp_strip_all_tags( $company_tagline ) );
 	$company_tagline = $before . $company_tagline . $after;
 
-	if ( $echo )
-		echo $company_tagline;
-	else
+	if ( $echo ) {
+		echo wp_kses_post( $company_tagline );
+	} else {
 		return $company_tagline;
+	}
 }
 
 /**
- * get_the_company_tagline function.
+ * Gets the company tagline.
  *
- * @access public
- * @param int $post (default: 0)
- * @return void
+ * @since 1.0.0
+ * @param int|WP_Post|null $post (default: null).
+ * @return string|null
  */
 function get_the_company_tagline( $post = null ) {
 	$post = get_post( $post );
 
-	if ( $post->post_type !== 'job_listing' )
-		return;
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return null;
+	}
 
 	return apply_filters( 'the_company_tagline', $post->_company_tagline, $post );
 }
 
 /**
- * Display or retrieve the current company twitter link with optional content.
+ * Displays or retrieves the current company Twitter link with optional content.
  *
- * @access public
- * @param mixed $id (default: null)
- * @return void
+ * @since 1.0.0
+ * @param string           $before (default: '').
+ * @param string           $after (default: '').
+ * @param bool             $echo (default: true).
+ * @param int|WP_Post|null $post (default: null).
+ * @return string|null
  */
 function the_company_twitter( $before = '', $after = '', $echo = true, $post = null ) {
 	$company_twitter = get_the_company_twitter( $post );
 
-	if ( strlen( $company_twitter ) == 0 )
-		return;
+	if ( 0 === strlen( $company_twitter ) ) {
+		return null;
+	}
 
-	$company_twitter = esc_attr( strip_tags( $company_twitter ) );
-	$company_twitter = $before . '<a href="http://twitter.com/' . $company_twitter . '" class="company_twitter" target="_blank">' . $company_twitter . '</a>' . $after;
+	$company_twitter = $before . '<a href="' . esc_url( 'https://twitter.com/' . $company_twitter ) . '" class="company_twitter" target="_blank">' . esc_html( wp_strip_all_tags( $company_twitter ) ) . '</a>' . $after;
 
-	if ( $echo )
-		echo $company_twitter;
-	else
+	if ( $echo ) {
+		echo wp_kses_post( $company_twitter );
+	} else {
 		return $company_twitter;
+	}
 }
 
 /**
- * get_the_company_twitter function.
+ * Gets the company Twitter link.
  *
- * @access public
- * @param int $post (default: 0)
- * @return void
+ * @since 1.0.0
+ * @param int|WP_Post|null $post (default: null).
+ * @return string|null
  */
 function get_the_company_twitter( $post = null ) {
 	$post = get_post( $post );
-	if ( $post->post_type !== 'job_listing' )
-		return;
+	if ( ! $post || 'job_listing' !== $post->post_type ) {
+		return null;
+	}
 
 	$company_twitter = $post->_company_twitter;
 
-	if ( strlen( $company_twitter ) == 0 )
-		return;
+	if ( 0 === strlen( $company_twitter ) ) {
+		return null;
+	}
 
-	if ( strpos( $company_twitter, '@' ) === 0 )
+	if ( 0 === strpos( $company_twitter, '@' ) ) {
 		$company_twitter = substr( $company_twitter, 1 );
+	}
 
 	return apply_filters( 'the_company_twitter', $company_twitter, $post );
 }
 
 /**
- * job_listing_class function.
+ * Outputs the job listing class.
  *
- * @access public
- * @param string $class (default: '')
- * @param mixed $post_id (default: null)
- * @return void
+ * @since 1.0.0
+ * @param string      $class (default: '').
+ * @param int|WP_Post $post_id (default: null).
  */
 function job_listing_class( $class = '', $post_id = null ) {
-	// Separates classes with a single space, collates classes for post DIV
-	echo 'class="' . join( ' ', get_job_listing_class( $class, $post_id ) ) . '"';
+	// Separates classes with a single space, collates classes for post DIV.
+	echo 'class="' . esc_attr( join( ' ', get_job_listing_class( $class, $post_id ) ) ) . '"';
 }
 
 /**
- * get_job_listing_class function.
+ * Gets the job listing class.
  *
- * @access public
+ * @since 1.0.0
+ * @param string      $class
+ * @param int|WP_Post $post_id (default: null).
  * @return array
  */
 function get_job_listing_class( $class = '', $post_id = null ) {
-	if ( ! get_option( 'job_manager_enable_types' ) ) {
-		return get_post_class( array( 'job_classes' ), $post_id );
-	}
-
 	$post = get_post( $post_id );
 
-	if ( $post->post_type !== 'job_listing' ) {
+	if ( empty( $post ) || 'job_listing' !== $post->post_type ) {
 		return array();
 	}
 
 	$classes = array();
-
-	if ( empty( $post ) ) {
-		return $classes;
-	}
-
-	$classes[] = 'job_listing';
-	if ( $job_type = get_the_job_type() ) {
-		$classes[] = 'job-type-' . sanitize_title( $job_type->name );
-	}
-
-	if ( is_position_filled( $post ) ) {
-		$classes[] = 'job_position_filled';
-	}
-
-	if ( is_position_featured( $post ) ) {
-		$classes[] = 'job_position_featured';
-	}
 
 	if ( ! empty( $class ) ) {
 		if ( ! is_array( $class ) ) {
@@ -690,7 +1173,49 @@ function get_job_listing_class( $class = '', $post_id = null ) {
 }
 
 /**
- * Displays job meta data on the single job page
+ * Adds post classes with meta info and the status of the job listing.
+ *
+ * @since 1.27.0
+ *
+ * @param array $classes An array of post classes.
+ * @param array $class   An array of additional classes added to the post.
+ * @param int   $post_id The post ID.
+ * @return array
+ */
+function wpjm_add_post_class( $classes, $class, $post_id ) {
+	$post = get_post( $post_id );
+
+	if ( empty( $post ) || 'job_listing' !== $post->post_type ) {
+		return $classes;
+	}
+
+	$classes[] = 'job_listing';
+
+	if ( get_option( 'job_manager_enable_types' ) ) {
+		$job_types = wpjm_get_the_job_types( $post );
+		if ( ! empty( $job_types ) ) {
+			foreach ( $job_types as $job_type ) {
+				$classes[] = 'job-type-' . sanitize_title( $job_type->name );
+			}
+		}
+	}
+
+	if ( is_position_filled( $post ) ) {
+		$classes[] = 'job_position_filled';
+	}
+
+	if ( is_position_featured( $post ) ) {
+		$classes[] = 'job_position_featured';
+	}
+
+	return $classes;
+}
+add_action( 'post_class', 'wpjm_add_post_class', 10, 3 );
+
+/**
+ * Displays job meta data on the single job page.
+ *
+ * @since 1.14.0
  */
 function job_listing_meta_display() {
 	get_job_manager_template( 'content-single-job_listing-meta.php', array() );
@@ -698,7 +1223,9 @@ function job_listing_meta_display() {
 add_action( 'single_job_listing_start', 'job_listing_meta_display', 20 );
 
 /**
- * Displays job company data on the single job page
+ * Displays job company data on the single job page.
+ *
+ * @since 1.14.0
  */
 function job_listing_company_display() {
 	get_job_manager_template( 'content-single-job_listing-company.php', array() );

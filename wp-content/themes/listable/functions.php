@@ -99,6 +99,22 @@ if ( ! function_exists( 'listable_setup' ) ) :
 		 * Also enqueue the custom Google Fonts and self-hosted ones
 		 */
 		add_editor_style( array( 'editor-style.css' ) );
+
+		/**
+		 * Pixelgrade Care Helper Plugin
+		 */
+		add_theme_support( 'pixelgrade_care', array(
+				'support_url'   => 'https://pixelgrade.com/docs/listable/',
+				'changelog_url' => 'https://wupdates.com/listable-changelog',
+				'ock'           => 'Lm12n034gL19',
+				'ocs'           => '6AU8WKBK1yZRDerL57ObzDPM7SGWRp21Csi5Ti5LdVNG9MbP'
+			)
+		);
+
+		/**
+		 * Enable support for the Style Manager Customizer section (via Customify).
+		 */
+		add_theme_support( 'customizer_style_manager' );
 	}
 endif; // listable_setup
 add_action( 'after_setup_theme', 'listable_setup' );
@@ -130,13 +146,20 @@ add_filter( 'gallery_widget_content_width', 'listable_gallery_widget_width', 10,
 function listable_scripts() {
 	$theme = wp_get_theme();
 
-	$google_maps_key = pixelgrade_option( 'google_maps_api_key' );
+	// Add an API key if available in Listings -> Settings Google Maps API Key.
+	$google_maps_key = get_option( 'job_manager_google_maps_api_key' );
+
+	// back-compat with the old Listable field Google Maps API Key.
+	if ( empty( $google_maps_key ) ) {
+		$google_maps_key = pixelgrade_option( 'google_maps_api_key' );
+	}
 
 	if ( ! empty( $google_maps_key ) ) {
 		$google_maps_key = '&key=' . $google_maps_key;
 	} else {
 		$google_maps_key = '';
 	}
+
 	//if there is no mapbox token use Google Maps instead
 	if ( '' == pixelgrade_option( 'mapbox_token', '' ) ) {
 		wp_deregister_script('google-maps');
@@ -190,13 +213,16 @@ function listable_scripts() {
 	
 	wp_enqueue_script( 'listable-scripts', get_template_directory_uri() . '/assets/js/main.js', $listable_scripts_deps, $theme->get( 'Version' ), true );
 
-	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
+	if ( is_singular( array( 'post', 'job_listing' ) ) && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
 
-	wp_localize_script( 'listable-scripts', 'listable_params', array(
+	wp_localize_script( 'listable-scripts', 'listable_params', apply_filters( 'listable_js_params', array(
 		'login_url' => rtrim( esc_url( wp_login_url() ) , '/'),
 		'listings_page_url' => listable_get_listings_page_url(),
+		'mapbox' => array(
+			'maxZoom' => 19
+		),
 		'strings' => array(
 			'wp-job-manager-file-upload' => esc_html__( 'Add Photo', 'listable' ),
 			'no_job_listings_found' => esc_html__( 'No results', 'listable' ),
@@ -204,8 +230,9 @@ function listable_scripts() {
 			'select_some_options' => esc_html__( 'Select Some Options', 'listable' ),
 			'select_an_option' => esc_html__( 'Select an Option', 'listable' ),
 			'no_results_match' => esc_html__( 'No results match', 'listable' ),
+			'social_login_string' => esc_html__( 'or', 'listable' ),
 		)
-	) );
+	) ) );
 
 }
 
@@ -232,24 +259,7 @@ function listable_admin_scripts() {
 	wp_enqueue_script( 'listable-admin-general-scripts', get_template_directory_uri() . '/assets/js/admin/admin-general.js', array( 'jquery' ), '1.0.0', true );
 
 	$translation_array = array (
-			'import_failed' => esc_html__( 'The import didn\'t work completely!', 'listable') . '<br/>' . esc_html__( 'Check out the errors given. You might want to try reloading the page and try again.', 'listable'),
-			'import_confirm' => esc_html__( 'Importing the demo data will overwrite your current site content and options. Proceed anyway?', 'listable'),
-			'import_phew' => esc_html__( 'Phew...that was a hard one!', 'listable'),
-			'import_success_note' => esc_html__( 'The demo data was imported without a glitch! Awesome! ', 'listable') . '<br/><br/>',
-			'import_success_reload' => esc_html__( '<i>We have reloaded the page on the right, so you can see the brand new data!</i>', 'listable'),
-			'import_success_warning' => '<p>' . esc_html__( 'Remember to update the passwords and roles of imported users.', 'listable') . '</p><br/>',
-			'import_all_done' => esc_html__( "All done!", 'listable'),
-			'import_working' => esc_html__( "Working...", 'listable'),
-			'import_widgets_failed' => esc_html__( "The setting up of the demo widgets failed...", 'listable'),
-			'import_widgets_error' => esc_html__( 'The setting up of the demo widgets failed', 'listable') . '</i><br />' . esc_html__( '(The script returned the following message', 'listable'),
-			'import_widgets_done' => esc_html__( 'Finished setting up the demo widgets...', 'listable'),
-			'import_theme_options_failed' => esc_html__( "The importing of the theme options has failed...", 'listable'),
-			'import_theme_options_error' => esc_html__( 'The importing of the theme options has failed', 'listable') . '</i><br />' . esc_html__( '(The script returned the following message', 'listable'),
-			'import_theme_options_done' => esc_html__( 'Finished importing the demo theme options...', 'listable'),
-			'import_posts_failed' => esc_html__( "The importing of the theme options has failed...", 'listable'),
-			'import_posts_step' => esc_html__( 'Importing posts | Step', 'listable'),
-			'import_error' =>  esc_html__( "Error:", 'listable'),
-			'import_try_reload' =>  esc_html__( "You can reload the page and try again.", 'listable'),
+
 	);
 	wp_localize_script( 'listable-admin-general-scripts', 'listable_admin_js_texts', $translation_array );
 }
@@ -393,14 +403,14 @@ function wupdates_check_Kv7Br( $transient ) {
 	$http_args = array (
 		'body' => array(
 			'slug' => $slug,
-			'url' => home_url(), //the site's home URL
+			'url' => home_url( '/' ), //the site's home URL
 			'version' => 0,
 			'locale' => get_locale(),
 			'phpv' => phpversion(),
 			'child_theme' => is_child_theme(),
 			'data' => null, //no optional data is sent by default
 		),
-		'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url()
+		'user-agent' => 'WordPress/' . $wp_version . '; ' . home_url( '/' )
 	);
 
 	// If the theme has been checked for updates before, get the checked version
@@ -457,228 +467,16 @@ function wupdates_check_Kv7Br( $transient ) {
 add_filter( 'pre_set_site_transient_update_themes', 'wupdates_check_Kv7Br' );
 
 function wupdates_add_id_Kv7Br( $ids = array() ) {
+	// First get the theme directory name (unique)
 	$slug = basename( get_template_directory() );
-	$ids[ $slug ] = array( 'id' => 'Kv7Br', 'type' => 'theme', );
+
+	// Now add the predefined details about this product
+	// Do not tamper with these please!!!
+	$ids[ $slug ] = array( 'name' => 'Listable', 'slug' => 'listable', 'id' => 'Kv7Br', 'type' => 'theme', 'digest' => '4c004db72b5605c95eaeb22966e2de89', );
 
 	return $ids;
 }
 add_filter( 'wupdates_gather_ids', 'wupdates_add_id_Kv7Br', 10, 1 );
-
-/* Only allow theme updates with a valid Envato purchase code */
-function wupdates_add_purchase_code_field_Kv7Br( $themes ) {
-	$output = '';
-	// First get the theme directory name (the theme slug - unique)
-	$slug = basename( get_template_directory() );
-	if ( ! is_multisite() && isset( $themes[ $slug ] ) ) {
-		$output .= "<br/><br/>"; //put a little space above
-
-		//get errors so we can show them
-		$errors = get_option( strtolower( $slug ) . '_wup_errors', array() );
-		delete_option( strtolower( $slug ) . '_wup_errors' ); //delete existing errors as we will handle them next
-
-		//check if we have a purchase code saved already
-		$purchase_code = sanitize_text_field( get_option( strtolower( $slug ) . '_wup_purchase_code', '' ) );
-		//in case there is an update available, tell the user that it needs a valid purchase code
-		if ( empty( $purchase_code ) && ! empty( $themes[ $slug ]['hasUpdate'] ) ) {
-			$output .= '<div class="notice notice-error notice-alt notice-large">' . __( 'A <strong>valid purchase code</strong> is required for automatic updates.', 'wupdates' ) . '</div>';
-		}
-		//output errors and notifications
-		if ( ! empty( $errors ) ) {
-			foreach ( $errors as $key => $error ) {
-				$output .= '<div class="error"><p>' . wp_kses_post( $error ) . '</p></div>';
-			}
-		}
-		if ( ! empty( $purchase_code ) ) {
-			if ( ! empty( $errors ) ) {
-				//since there is already a purchase code present - notify the user
-				$output .= '<div class="notice notice-warning notice-alt"><p>' . esc_html__( 'Purchase code not updated. We will keep the existing one.', 'wupdates' ) . '</p></div>';
-			} else {
-				//this means a valid purchase code is present and no errors were found
-				$output .= '<div class="notice notice-success notice-alt notice-large">' . __( 'Your <strong>purchase code is valid</strong>. Thank you! Enjoy one-click automatic updates.', 'wupdates' ) . '</div>';
-			}
-		}
-		$purchase_code_key = esc_attr( strtolower( str_replace( array(' ', '.'), '_', $slug ) ) ) . '_wup_purchase_code';
-		$output .= '<form class="wupdates_purchase_code" action="" method="post">' .
-		           '<input type="hidden" name="wupdates_pc_theme" value="' . esc_attr( $slug ) . '" />' .
-		           '<input type="text" id="' . $purchase_code_key . '" name="' . $purchase_code_key . '"
-			        value="' . esc_attr( $purchase_code ) . '" placeholder="' . esc_html__( 'Purchase code ( e.g. 9g2b13fa-10aa-2267-883a-9201a94cf9b5 )', 'wupdates' ) . '" style="width:100%"/>' .
-		           '<p>' . __( 'Enter your purchase code and <strong>hit return/enter</strong>.', 'wupdates' ) . '</p>' .
-		           '<p class="theme-description">' .
-		           __( 'Find out how to <a href="https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code-" target="_blank">get your purchase code</a>.', 'wupdates' ) .
-		           '</p>
-			</form>';
-	}
-	//finally put the markup after the theme tags
-	if ( ! isset( $themes[ $slug ]['tags'] ) ) {
-		$themes[ $slug ]['tags'] = '';
-	}
-	$themes[ $slug ]['tags'] .= $output;
-
-	return $themes;
-}
-add_filter( 'wp_prepare_themes_for_js' ,'wupdates_add_purchase_code_field_Kv7Br' );
-
-/* Handle the purchase code input for multisite installations */
-function wupdates_ms_theme_list_purchase_code_field_Kv7Br( $theme, $r ) {
-	$output = '<br/>';
-	$slug = $theme->get_template();
-	//get errors so we can show them
-	$errors = get_option( strtolower( $slug ) . '_wup_errors', array() );
-	delete_option( strtolower( $slug ) . '_wup_errors' ); //delete existing errors as we will handle them next
-
-	//check if we have a purchase code saved already
-	$purchase_code = sanitize_text_field( get_option( strtolower( $slug ) . '_wup_purchase_code', '' ) );
-	//in case there is an update available, tell the user that it needs a valid purchase code
-	if ( empty( $purchase_code ) ) {
-		$output .=  '<p>' . __( 'A <strong>valid purchase code</strong> is required for automatic updates.', 'wupdates' ) . '</p>';
-	}
-	//output errors and notifications
-	if ( ! empty( $errors ) ) {
-		foreach ( $errors as $key => $error ) {
-			$output .= '<div class="error"><p>' . wp_kses_post( $error ) . '</p></div>';
-		}
-	}
-	if ( ! empty( $purchase_code ) ) {
-		if ( ! empty( $errors ) ) {
-			//since there is already a purchase code present - notify the user
-			$output .= '<p>' . esc_html__( 'Purchase code not updated. We will keep the existing one.', 'wupdates' ) . '</p>';
-		} else {
-			//this means a valid purchase code is present and no errors were found
-			$output .= '<p><span class="notice notice-success notice-alt">' . __( 'Your <strong>purchase code is valid</strong>. Thank you! Enjoy one-click automatic updates.', 'wupdates' ) . '</span></p>';
-		}
-	}
-	$purchase_code_key = esc_attr( strtolower( str_replace( array(' ', '.'), '_', $slug ) ) ) . '_wup_purchase_code';
-	$output .= '<form class="wupdates_purchase_code" action="" method="post">' .
-	           '<input type="hidden" name="wupdates_pc_theme" value="' . esc_attr( $slug ) . '" />' .
-	           '<input type="text" id="' . $purchase_code_key . '" name="' . $purchase_code_key . '"
-		        value="' . esc_attr( $purchase_code ) . '" placeholder="' . esc_html__( 'Purchase code ( e.g. 9g2b13fa-10aa-2267-883a-9201a94cf9b5 )', 'wupdates' ) . '"/>' . ' ' .
-	           __( 'Enter your purchase code and <strong>hit return/enter</strong>.', 'wupdates' ) . ' ' .
-	           __( 'Find out how to <a href="https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code-" target="_blank">get your purchase code</a>.', 'wupdates' ) .
-	           '</form>';
-
-	echo $output;
-}
-add_action( 'in_theme_update_message-' . basename( get_template_directory() ), 'wupdates_ms_theme_list_purchase_code_field_Kv7Br', 10, 2 );
-
-function wupdates_purchase_code_needed_notice_Kv7Br() {
-	global $current_screen;
-
-	$output = '';
-	$slug = basename( get_template_directory() );
-	//check if we have a purchase code saved already
-	$purchase_code = sanitize_text_field( get_option( strtolower( $slug ) . '_wup_purchase_code', '' ) );
-	//if the purchase code doesn't pass the prevalidation, show notice
-	if ( in_array( $current_screen->id, array( 'update-core', 'update-core-network') ) && true !== wupdates_prevalidate_purchase_code_Kv7Br( $purchase_code ) ) {
-		$output .= '<div class="updated"><p>' . sprintf( __( '<a href="%s">Please enter your purchase code</a> to get automatic updates for <b>%s</b>.', 'wupdates' ), network_admin_url( 'themes.php?theme=' . $slug ), wp_get_theme( $slug ) ) . '</p></div>';
-	}
-
-	echo $output;
-}
-add_action( 'admin_notices', 'wupdates_purchase_code_needed_notice_Kv7Br' );
-add_action( 'network_admin_notices', 'wupdates_purchase_code_needed_notice_Kv7Br' );
-
-function wupdates_process_purchase_code_Kv7Br() {
-	//in case the user has submitted the purchase code form
-	if ( ! empty( $_POST['wupdates_pc_theme'] ) ) {
-		$errors = array();
-		$slug = sanitize_text_field( $_POST['wupdates_pc_theme'] ); // get the theme's slug
-		//PHP doesn't allow dots or spaces in $_POST keys - it converts them into underscore; so we do also
-		$purchase_code_key = esc_attr( strtolower( str_replace( array(' ', '.'), '_', $slug ) ) ) . '_wup_purchase_code';
-		$purchase_code = false;
-		if ( ! empty( $_POST[ $purchase_code_key ] ) ) {
-			//get the submitted purchase code and sanitize it
-			$purchase_code = sanitize_text_field( $_POST[ $purchase_code_key ] );
-			//do a prevalidation; no need to make the API call if the format is not right
-			if ( true !== wupdates_prevalidate_purchase_code_Kv7Br( $purchase_code ) ) {
-				$purchase_code = false;
-			}
-		}
-		if ( ! empty( $purchase_code ) ) {
-			//check if this purchase code represents a sale of the theme
-			$http_args = array (
-				'body' => array(
-					'slug' => $slug, //the theme's slug
-					'url' => home_url(), //the site's home URL
-					'purchase_code' => $purchase_code,
-				)
-			);
-
-			//make sure that we use a protocol that this hosting is capable of
-			$url = $http_url = set_url_scheme( 'https://wupdates.com/wp-json/wup/v1/front/check_envato_purchase_code/Kv7Br', 'http' );
-			if ( $ssl = wp_http_supports( array( 'ssl' ) ) ) {
-				$url = set_url_scheme( $url, 'https' );
-			}
-			//make the call to the purchase code check API
-			$raw_response = wp_remote_post( $url, $http_args );
-			if ( $ssl && is_wp_error( $raw_response ) ) {
-				$raw_response = wp_remote_post( $http_url, $http_args );
-			}
-			// In case the server hasn't responded properly, show error
-			if ( is_wp_error( $raw_response ) || 200 != wp_remote_retrieve_response_code( $raw_response ) ) {
-				$errors[] = __( 'We are sorry but we couldn\'t connect to the verification server. Please try again later.', 'wupdates' ) . '<span class="hidden">' . print_r( $raw_response, true ) . '</span>';
-			} else {
-				$response = json_decode( $raw_response['body'], true );
-				if ( ! empty( $response ) ) {
-					//we will only update the purchase code if it's valid
-					//this way we keep existing valid purchase codes
-					if ( isset( $response['purchase_code'] ) && 'valid' == $response['purchase_code'] ) {
-						//all is good, update the purchase code option
-						update_option( strtolower( $slug ) . '_wup_purchase_code', $purchase_code );
-						//delete the update_themes transient so we force a recheck
-						set_site_transient('update_themes', null);
-					} else {
-						if ( isset( $response['reason'] ) && ! empty( $response['reason'] ) && 'out_of_support' == $response['reason'] ) {
-							$errors[] = esc_html__( 'Your purchase\'s support period has ended. Please extend it to receive automatic updates.', 'wupdates' );
-						} else {
-							$errors[] = esc_html__( 'Could not find a sale with this purchase code. Please double check.', 'wupdates' );
-						}
-					}
-				}
-			}
-		} else {
-			//in case the user hasn't entered a valid purchase code
-			$errors[] = esc_html__( 'Please enter a valid purchase code. Make sure to get all the characters.', 'wupdates' );
-		}
-
-		if ( count( $errors ) > 0 ) {
-			//if we do have errors, save them in the database so we can display them to the user
-			update_option( strtolower( $slug ) . '_wup_errors', $errors );
-		} else {
-			//since there are no errors, delete the option
-			delete_option( strtolower( $slug ) . '_wup_errors' );
-		}
-
-		//redirect back to the themes page and open popup
-		wp_redirect( esc_url_raw( add_query_arg( 'theme', $slug ) ) );
-		exit;
-	}
-}
-add_action( 'admin_init', 'wupdates_process_purchase_code_Kv7Br' );
-
-function wupdates_send_purchase_code_Kv7Br( $optional_data, $slug ) {
-	//get the saved purchase code
-	$purchase_code = sanitize_text_field( get_option( strtolower( $slug ) . '_wup_purchase_code', '' ) );
-
-	if ( null === $optional_data ) { //if there is no optional data, initialize it
-		$optional_data = array();
-	}
-	//add the purchase code to the optional_data so we can check it upon update check
-	//if a theme has an Envato item selected, this is mandatory
-	$optional_data['envato_purchase_code'] = $purchase_code;
-
-	return $optional_data;
-}
-add_filter( 'wupdates_call_data_request', 'wupdates_send_purchase_code_Kv7Br', 10, 2 );
-
-function wupdates_prevalidate_purchase_code_Kv7Br( $purchase_code ) {
-	$purchase_code = preg_replace( '#([a-z0-9]{8})-?([a-z0-9]{4})-?([a-z0-9]{4})-?([a-z0-9]{4})-?([a-z0-9]{12})#', '$1-$2-$3-$4-$5', strtolower( $purchase_code ) );
-	if ( 36 == strlen( $purchase_code ) ) {
-		return true;
-	}
-	return false;
-}
-
-/* End of Envato checkup code */
 
 // Adds login buttons to the wp-login.php pages
 function add_wc_social_login_buttons_wplogin() {
@@ -704,9 +502,14 @@ function change_social_login_text_option( $login_text ) {
 	// Only modify the text from this option if we're on the wp-login page
 	if( 'wp-login.php' === $pagenow ) {
 		// Adjust the login text as desired
-		$login_text = esc_html__( 'You can also create an account with a social network.', 'woocommerce-social-login' );
+		$login_text = esc_html__( 'You can also create an account with a social network.', 'listable' );
 	}
 
  	return $login_text;
 }
 add_filter( 'pre_option_wc_social_login_text', 'change_social_login_text_option' );
+
+function listable_force_allow_upload_via_ajax() {
+	return true;
+}
+add_filter( 'job_manager_user_can_upload_file_via_ajax', 'listable_force_allow_upload_via_ajax' );

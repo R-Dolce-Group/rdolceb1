@@ -11,9 +11,8 @@
  * the readme will list any important changes.
  *
  * @see     https://docs.woocommerce.com/document/template-structure/
- * @author  WooThemes
  * @package WooCommerce/Templates
- * @version 3.0.0
+ * @version 3.4.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -51,14 +50,19 @@ if ( 0 == $woocommerce_loop['loop'] % $woocommerce_loop['columns'] ) {
 }
 ?>
 <div class="grid__item">
-    <article <?php post_class( $classes ); ?>>
+    <article <?php wc_product_class( $classes ); ?>>
         <a href="<?php the_permalink(); ?>">
-
-            <?php do_action( 'woocommerce_before_shop_loop_item' ); ?>
 
             <?php
             /**
-             * woocommerce_before_shop_loop_item_title hook
+             * Hook: woocommerce_before_shop_loop_item.
+             *
+             * @hooked woocommerce_template_loop_product_link_open - 10
+             */
+            do_action( 'woocommerce_before_shop_loop_item' );
+
+            /**
+             * Hook: woocommerce_before_shop_loop_item_title.
              *
              * @hooked woocommerce_show_product_loop_sale_flash - 10
              * @hooked woocommerce_template_loop_product_thumbnail - 10
@@ -68,7 +72,7 @@ if ( 0 == $woocommerce_loop['loop'] % $woocommerce_loop['columns'] ) {
             <div class="card__content">
                 <?php
                 /**
-                 * woocommerce_shop_loop_item_title hook
+                 * Hook: woocommerce_shop_loop_item_title.
                  *
                  * @hooked woocommerce_template_loop_product_title - 10
                  */
@@ -77,7 +81,7 @@ if ( 0 == $woocommerce_loop['loop'] % $woocommerce_loop['columns'] ) {
                 woocommerce_template_single_excerpt();
 
                 /**
-                 * woocommerce_after_shop_loop_item_title hook
+                 * Hook: woocommerce_after_shop_loop_item_title.
                  *
                  * @hooked woocommerce_template_loop_rating - 5
                  * @hooked woocommerce_template_loop_price - 10

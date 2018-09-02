@@ -1,0 +1,88 @@
+Unit Name,Market Rent,Default Deposit,Sqft,Bedrooms,Bathrooms,Tags,Rentable,Description
+
+"Buccaneer - 563 Plaza Del Sol North Fort Myers, FL 33917"
+Buccaneer,"2,500.00",,"1,200",2,2.00,,Yes,""
+
+"Country Lakes 904 - 5700 Bayshore Drive Bradenton, FL 34221"
+Country Lakes 904,,,"1,300",2,2.00,,Yes,""
+
+"Country Lakes Village - 702 Hibiscus Lane Palmetto, FL 34221"
+Country Lakes Village,"1,300.00","1,300.00",,2,2.00,,Yes,""
+
+"Del Tura-1248 - 1248 Buena Vista Dr North Fort Myers, FL 33903"
+Del Tura-1248,"1,300.00",,"1,008",2,2.00,,Yes,""
+
+"Del Tura-4405 - 4405 San Lucian Ln North Fort Myers, FL 33903"
+Del Tura-4405,"1,000.00","1,000.00","1,008",2,2.00,,Yes,""
+
+"Del Tura-738 - 738 Via Del Sol North Fort Myers, FL 33903"
+Del Tura-738,"2,700.00","1,000.00","1,100",2,2.00,,Yes,""
+
+"Deltura 309 - 309 San Remo Lane North Fort Myers, FL 33903"
+Deltura 309,,,,,,,Yes,""
+
+"Deltura 4414 - 4414 San Lucian Lane North Fort Myers, FL 33903"
+Deltura 4414,"1,100.00","1,000.00","1,000",2,2.00,,Yes,""
+
+"Gateway Greens - 12031 Champions Green Way Fort Myers, FL 33913"
+801,,,,3,2.00,,Yes,
+
+"Lake Fairways -53L - 19304 Tuckaway Ct 53L N. Fort Myers, FL 33903"
+Lake Fairways -53L,"1,300.00","1,300.00","1,400",2,2.00,,Yes,""
+
+"Lake Fairways 57J - 975 Spyglass Ct 57J N. Fort Myers, FL 33903"
+Lake Fairways 57J,,,"1,400",2,2.00,,Yes,""
+
+"Lake Fairways-31L - 19251 Indian Wells North Fort Myers, FL 33903"
+Lake Fairways-31L,"1,400.00","1,400.00","1,200",2,2.00,,Yes,""
+
+"Lake Fairways-37L - 19117 Harbour Tree Ct North Fort Myers, DE 33903"
+Lake Fairways-37L,,,,2,2.00,,Yes,""
+
+"Lake Fairways-39A - 19144 Harbour Tree Ct 39A N.Fort Myers, FL 33903"
+Lake Fairways-39A,"1,000.00","1,000.00",,,,,Yes,""
+
+"Lake Fairways-41L - 19219 Meadow Brook North Fort Myers, DE 33903"
+Lake Fairways-41L,,,,,,,Yes,""
+
+"Lake Fairways-4N - 19433 Bermuda Ct 4N N.Fort Myers, FL 33903"
+Lake Fairways-4N,"1,200.00","1,200.00","1,400",2,2.00,,Yes,""
+
+"Lake Fairways-9H - 19261 Cedar Crest Ct 9H N. Fort Myers, FL 33903"
+Lake Fairways-9H,"1,400.00",900.00,"1,400",2,2.00,,Yes,""
+
+"LakeFairways - 19304 Tuckaway Ct North Fort Myers, FL 33903"
+LakeFairways,"1,300.00","1,300.00","1,400",2,2.00,,Yes,2BR/2BA
+
+"Pine Lakes-31M - 10861 Circle Pine Rd 31M N. Fort Myers, FL 33903"
+Pine Lakes-31M,562.00,"1,000.00","1,400",2,2.00,,Yes,""
+
+"Pine Lakes-51I - 19418 Saddlebrook Ct 51I N. Fort Myers, FL 33903"
+Pine Lakes-51I,"1,400.00","1,000.00","1,400",2,2.00,,Yes,""
+
+"San Simeon 3862 - 3862 Cherrybrook Loop Fort Myers, FL 33966"
+San Simeon 3862,"1,100.00","1,100.00","1,566",3,3.00,,Yes,""
+
+"Stoneybrook - 9440 ivy Brook Run 508 Fort Myers, FL 33913"
+Stoneybrook,"1,095.00","1,095.00","1,400",2,2.00,,Yes,""
+
+"Summerwind - 103 - 12141 Summergate Circle 103 Fort Myers, FL 33913"
+Summerwind - 103,"1,400.00","1,095.00","1,000",2,2.00,,Yes,""
+
+"Summerwind - 202 - 12181 Summergate Circle 202 Fort Myers, FL 33913"
+Summerwind - 202,"1,500.00","1,000.00","1,000",2,2.00,,Yes,""
+
+"Summerwind - 203 - 12069 Summergate Circle 203 Fort Myers, FL 33913"
+Summerwind - 203,"3,000.10","1,000.00","1,000",2,2.00,,Yes,""
+
+"Summerwind - 204 - 12069 Summergate Circle 204 Fort Myers, FL 33913"
+Summerwind - 204,"1,300.00","1,300.00","1,000",2,2.00,,Yes,""
+
+"Summerwind-101 - 12069 Summergate Circle 101 Fort Myers, FL 33913"
+Summerwind-101,"1,150.00","1,150.00","1,000",2,2.00,,Yes,""
+
+"Tara Woods 292 - 2893 Steamboat Loop North Fort Myers, FL 33917"
+Tara Woods 292,"1,400.00","1,500.00","1,500",3,2.00,,Yes,""
+
+
+Total,"31,407.10","22,640.00","27,082",53,51.00,,,

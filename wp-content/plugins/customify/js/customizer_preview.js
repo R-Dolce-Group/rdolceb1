@@ -1,6 +1,6 @@
 ;(function ($, window, document, undefined) {
 
-	var fonts_cache = [];
+	const fonts_cache = [];
 
 	$(document).ready(function () {
 		var api = parent.wp.customize,
@@ -11,53 +11,52 @@
 		$.each(customify_settings.settings, function (key, el) {
 
 			if (el.type === "font") {
-				var sliced_id = key.slice(0, -1);
-				sliced_id = sliced_id.replace(customify_settings.options_name + '[', '');
-
 				api(key, function (setting) {
 					setting.bind(function (to) {
-						var $values = maybeJsonParse(to);
+						let $values = maybeJsonParse(to);
 
-						if (typeof $values.font_family !== "undefined") {
-							maybeLoadFontFamily($values);
-						}
+                        if (typeof $values !== "undefined" ) {
+                            if (typeof $values.font_family !== "undefined") {
+                                maybeLoadFontFamily($values);
+                            }
 
-						var vls = get_CSS_values(this.id, $values);
-						var CSS = get_CSS_code(this.id, vls);
-						var field_style = $('#customify_font_output_for_' + sliced_id);
+                            let vls = get_CSS_values(this.id, $values),
+                                CSS = get_CSS_code(this.id, vls),
+                                field_style = $('#customify_font_output_for_' + el.html_safe_option_id);
 
-						field_style.html(CSS);
+                            field_style.html(CSS);
+                        }
 					});
 				});
 
-			} else if (typeof wp_settings[key] !== "undefined" && typeof el.css !== "undefined" && typeof el.live !== 'undefined' && el.live === true) {
-
-				var sliced_id = key.slice(0, -1);
-				sliced_id = sliced_id.replace(customify_settings.options_name + '[', '');
-
+			} else if (typeof wp_settings !== "undefined" && typeof wp_settings[key] !== "undefined" && typeof el.css !== "undefined" && typeof el.live !== 'undefined' && el.live === true) {
 				api(key, function (setting) {
 
 					setting.bind(function (to) {
-						var properties = [];
 
 						$.each(el.css, function (counter, property_config) {
+							let properties = [];
 
 							properties[property_config.property] = property_config.selector;
 							if (typeof property_config.callback_filter !== "undefined") {
 								properties['callback'] = property_config.callback_filter;
 							}
 
-							var css_update_args = {
+							let css_update_args = {
 								properties: properties,
-								propertyValue: to
+								propertyValue: to,
+								negative_value: property_config.hasOwnProperty( 'negative_value' ) ? property_config['negative_value'] : false
 							};
 
 							if (typeof this.unit !== 'undefined') {
 								css_update_args.unit = this.unit;
 							}
 
-							var req_Exp_for_multiple_replace = new RegExp('-', 'g');
-							$('#dynamic_setting_' + sliced_id + '_property_' + property_config.property.replace(req_Exp_for_multiple_replace, '_')).cssUpdate(css_update_args);
+							// Replace all dashes with underscores thus making the CSS property safe to us in a HTML ID.
+							let regex_for_multiple_replace = new RegExp('-', 'g'),
+                                cssStyleSelector = '.dynamic_setting_' + el.html_safe_option_id + '_property_' + property_config.property.replace(regex_for_multiple_replace, '_') + '_' + counter;
+
+							$(cssStyleSelector).cssUpdate(css_update_args);
 						});
 
 					});
@@ -71,7 +70,8 @@
 				if ($.inArray(el.type, ['text', 'textarea', 'ace_editor']) > -1) {
 					wp.customize(key, function (value) {
 						value.bind(function (text) {
-							var sanitizer = document.createElement('div');
+							let sanitizer = document.createElement('div');
+
 							sanitizer.innerHTML = text;
 							$(field_class).html(text);
 						});
@@ -103,34 +103,34 @@
 
 		function load_webfont_once() {
 			if (typeof WebFont === "undefined") {
-				var tk = document.createElement('script');
+				let tk = document.createElement('script');
 				tk.src = '//ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
 				tk.type = 'text/javascript';
-				var s = document.getElementsByTagName('script')[0];
+				let s = document.getElementsByTagName('script')[0];
 				s.parentNode.insertBefore(tk, s);
 			}
 		}
 
-		var get_CSS_values = function (ID, $values) {
+		const get_CSS_values = function (ID, values) {
 
-			var store = {};
+			let store = {};
 
-			if (typeof $values.font_family !== "undefined") {
-				store['font-family'] = $values.font_family;
+			if (typeof values.font_family !== "undefined") {
+				store['font-family'] = values.font_family;
 			}
 
-			if (typeof $values.selected_variants !== "undefined") {
+			if (typeof values.selected_variants !== "undefined") {
 
-				var variants = null;
+				let variants = null;
 
-				if (typeof $values.selected_variants !== "undefined" && $values.selected_variants !== null) {
-					variants = $values.selected_variants;
-				} else if (typeof $values.variants !== "undefined" && typeof $values.variants[0] !== "undefined") {
-					variants = $values.variants[0];
+				if (typeof values.selected_variants !== "undefined" && values.selected_variants !== null) {
+					variants = values.selected_variants;
+				} else if (typeof values.variants !== "undefined" && typeof values.variants[0] !== "undefined") {
+					variants = values.variants[0];
 				}
 
 				// google fonts also have the italic string inside, split that
-				if (variants !== null && variants.indexOf('italic') !== -1) {
+				if (variants !== null && _.isString( variants ) && variants.indexOf('italic') !== -1) {
 					store['font-style'] = 'italic';
 					variants = variants.replace('italic', '');
 				}
@@ -144,52 +144,94 @@
 				}
 			}
 
-			if (typeof $values.font_size !== "undefined") {
-				store['font-size'] = $values.font_size + get_field_unit(ID, 'font-size');
+			if (typeof values.font_size !== "undefined") {
+				store['font-size'] = values.font_size;
+                // If the value already contains a unit (is not numeric), go with that.
+                if ( isNaN(values.font_size) ) {
+                    // If we have a standardized value field (as array), use that.
+                    if ( typeof values.font_size.value !== "undefined" ) {
+                        store['font-size'] = values.font_size.value;
+                        if ( typeof values.font_size.unit !== "undefined" ) {
+                            store['font-size'] += values.font_size.unit;
+                        }
+                    } else {
+                        store['font-size'] += get_field_unit(ID, 'font-size');
+                    }
+                } else {
+                    store['font-size'] += get_field_unit(ID, 'font-size');
+                }
 			}
 
-			if (typeof $values.letter_spacing !== "undefined") {
-				store['letter-spacing'] = $values.letter_spacing + get_field_unit(ID, 'letter-spacing');
+			if (typeof values.letter_spacing !== "undefined") {
+				store['letter-spacing'] = values.letter_spacing;
+                // If the value already contains a unit (is not numeric), go with that.
+                if ( isNaN(values.letter_spacing) ) {
+                    // If we have a standardized value field (as array), use that.
+                    if ( typeof values.letter_spacing.value !== "undefined" ) {
+                        store['letter-spacing'] = values.letter_spacing.value;
+                        if ( typeof values.letter_spacing.unit !== "undefined" ) {
+                            store['letter-spacing'] += values.letter_spacing.unit;
+                        }
+                    } else {
+                        store['letter-spacing'] += get_field_unit(ID, 'letter-spacing');
+                    }
+                } else {
+                    store['letter-spacing'] += get_field_unit(ID, 'letter-spacing');
+                }
 			}
 
-			if (typeof $values.line_height !== "undefined") {
-				store['line-height'] = $values.line_height + get_field_unit(ID, 'line-height');
+			if (typeof values.line_height !== "undefined") {
+				store['line-height'] = values.line_height;
+                // If the value already contains a unit (is not numeric), go with that.
+                if ( isNaN(values.line_height) ) {
+                    // If we have a standardized value field (as array), use that.
+                    if ( typeof values.line_height.value !== "undefined" ) {
+                        store['line-height'] = values.line_height.value;
+                        if ( typeof values.line_height.unit !== "undefined" ) {
+                            store['line-height'] += values.line_height.unit;
+                        }
+                    } else {
+                        store['line-height'] += get_field_unit(ID, 'line-height');
+                    }
+                } else {
+                    store['line-height'] += get_field_unit(ID, 'line-height');
+                }
 			}
 
-			if (typeof $values.text_align !== "undefined") {
-				store['text-align'] = $values.text_align;
+			if (typeof values.text_align !== "undefined") {
+				store['text-align'] = values.text_align;
 			}
 
-			if (typeof $values.text_transform !== "undefined") {
-				store['text-transform'] = $values.text_transform;
+			if (typeof values.text_transform !== "undefined") {
+				store['text-transform'] = values.text_transform;
 			}
-			if (typeof $values.text_decoration !== "undefined") {
-				store['text-decoration'] = $values.text_decoration;
+			if (typeof values.text_decoration !== "undefined") {
+				store['text-decoration'] = values.text_decoration;
 			}
 
 			return store;
 		};
 
-		var get_CSS_code = function (ID, $values) {
+		const get_CSS_code = function (ID, values) {
 
-			var field = customify_settings.settings[ID];
-			var output = '';
+			let field = customify_settings.settings[ID];
+			let output = '';
 
 			if (typeof window !== "undefined" && typeof field.callback !== "undefined" && typeof window[field.callback] === "function") {
-				output = window[field.callback]($values, field);
+				output = window[field.callback](values, field);
 			} else {
 				output = field.selector + "{\n";
-				$.each($values, function (k, v) {
+				$.each(values, function (k, v) {
 					output += k + ': ' + v + ";\n";
-				})
+				});
 				output += "}\n";
 			}
 
 			return output;
 		};
 
-		var get_field_unit = function (ID, field) {
-			var unit = 'px';
+		const get_field_unit = function (ID, field) {
+			let unit = '';
 			if (typeof customify_settings.settings[ID] === "undefined" || typeof customify_settings.settings[ID].fields[field] === "undefined") {
 				return unit;
 			}
@@ -200,17 +242,22 @@
 				// in case of an associative array
 				return customify_settings.settings[ID].fields[field][3];
 			}
-		}
+		};
 
-		var maybeLoadFontFamily = function (font) {
+		const maybeLoadFontFamily = function (font) {
 
 			if (typeof WebFont === "undefined") {
-				var tk = document.createElement('script');
+				let tk = document.createElement('script');
 				tk.src = '//ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
 				tk.type = 'text/javascript';
-				var s = document.getElementsByTagName('script')[0];
+				let s = document.getElementsByTagName('script')[0];
 				s.parentNode.insertBefore(tk, s);
 			}
+
+			// If the font type is not defined, we assume is a Google font.
+            if ( typeof font.type === "undefined" ) {
+                font.type = 'google';
+            }
 
 			if (font.type === 'theme_font') {
 				WebFont.load({
@@ -220,16 +267,20 @@
 					}
 				});
 			} else if (font.type === 'google') {
-				var family = font.font_family,
+				let family = font.font_family,
 					variants = null,
 					subsets = null;
 
 				if (typeof font.variants !== "undefined") {
 					variants = maybeJsonParse(font.variants);
 
+					if ( typeof variants === "string" || typeof variants === "number") {
+                        variants = [ variants ];
+                    }
+
 					$.each(variants, function (k, v) {
 
-						if (k === "0") {
+						if (k == 0) {
 							family = family + ':';
 						}
 
@@ -282,10 +333,14 @@
 			} else {
 				// else what?
 			}
-		}
+		};
 
-		var maybeJsonParse = function (value) {
-			var parsed;
+		const maybeJsonParse = function (value) {
+			let parsed;
+
+			if ( typeof value !== "string" ) {
+			    return value;
+            }
 
 			//try and parse it, with decodeURIComponent
 			try {

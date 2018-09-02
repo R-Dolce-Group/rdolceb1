@@ -10,7 +10,6 @@ require_once dirname( __FILE__ ) . '/class-tgm-plugin-activation.php';
 add_action( 'tgmpa_register', 'listable_register_required_plugins', 999 );
 
 function listable_register_required_plugins() {
-
 	/**
 	 * Array of plugin arrays. Required keys are name and slug.
 	 * If the source is NOT from the .org repo, then source is also required.
@@ -27,8 +26,24 @@ function listable_register_required_plugins() {
 	//			'external_url' 			=> '', // If set, overrides default API URL and points to an external URL
 	//		)
 	//	);
-	//
+
+	$protocol = 'http:';
+	if ( is_ssl() ) {
+		$protocol = 'https:';
+	}
+
 	$plugins = array(
+		array(
+			'name'               => 'Pixelgrade Care',
+			'slug'               => 'pixelgrade-care',
+			'force_activation'   => true,
+			'force_deactivation' => false,
+			'required'           => true,
+			'source'             => $protocol . '//wupdates.com/api_wupl_version/JxbVe/2v5t1czd3vw4kmb5xqmyxj1kkwmnt9q0463lhj393r5yxtshdyg05jssgd4jglnfx7A2vdxtfdcf78r9r1sm217k4ht3r2g7pkdng5f6tgwyrk23wryA0pjxvs7gwhhb',
+			'external_url'       => $protocol . '//github.com/pixelgrade/pixelgrade_care',
+			'version'            => '1.3.5',
+			'is_automatic'       => true
+		),
 		array(
 			'name'      		 => 'WP Job Manager',
 			'slug'      		 => 'wp-job-manager',
@@ -121,4 +136,4 @@ function listable_register_required_plugins() {
 
 	tgmpa( $plugins, $config );
 
-} ?>
+}

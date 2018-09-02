@@ -64,14 +64,14 @@ add_action( 'wp_enqueue_scripts', 'listable_child_enqueue_styles' );
 
 
 /**
-*
-* 2. Overwrite Static Resources (eg. style.css or main.js)
-* ----------------------------------------------------------------------------
-*
-* If you want to overwrite static resources files from the parent theme
-* and use only the ones from the Child Theme, this is the way to do it.
-*
-*/
+ *
+ * 2. Overwrite Static Resources (eg. style.css or main.js)
+ * ----------------------------------------------------------------------------
+ *
+ * If you want to overwrite static resources files from the parent theme
+ * and use only the ones from the Child Theme, this is the way to do it.
+ *
+ */
 
 
 /*
@@ -124,7 +124,3 @@ function listable_child_overwrite_files() {
 // The default priority of any action is 10
 
 */
-
-
-
-

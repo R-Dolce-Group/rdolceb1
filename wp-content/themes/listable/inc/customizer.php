@@ -34,105 +34,45 @@ function listable_customize_js() {
 
 	wp_enqueue_style( 'listable-admin-edit-styles', get_template_directory_uri() . '/assets/css/admin/customizer.css' );
 }
-
 add_action( 'customize_controls_enqueue_scripts', 'listable_customize_js' );
 
-
-// @todo CLEANUP refactor function names
 /**
- * Imports the demo data from the demo_data.xml file
+ * Add a shortcut in customizer for the front-page settings
  */
-if ( ! function_exists( 'wpGrade_ajax_import_posts_pages' ) ) {
-	function wpGrade_ajax_import_posts_pages() {
-		// initialize the step importing
-		$stepNumber    = 1;
-		$numberOfSteps = 1;
+function listable_add_front_page_link_to_customizer_settings() {
+	global $wp_admin_bar;
 
-		// get the data sent by the ajax call regarding the current step
-		// and total number of steps
-		if ( ! empty( $_REQUEST['step_number'] ) ) {
-			$stepNumber = $_REQUEST['step_number'];
-		}
-
-		if ( ! empty( $_REQUEST['number_of_steps'] ) ) {
-			$numberOfSteps = $_REQUEST['number_of_steps'];
-		}
-
-		$response = array(
-			'what'         => 'import_posts_pages',
-			'action'       => 'import_submit',
-			'id'           => 'true',
-			'supplemental' => array(
-				'stepNumber'    => $stepNumber,
-				'numberOfSteps' => $numberOfSteps,
-			)
-		);
-
-		// check if user is allowed to save and if its his intention with
-		// a nonce check
-		if ( function_exists( 'check_ajax_referer' ) ) {
-			check_ajax_referer( 'wpGrade_nonce_import_demo_posts_pages' );
-		}
-
-		require_once( get_template_directory() . '/inc/import/import-demo-posts-pages.php' );
-
-		$response = new WP_Ajax_Response( $response );
-		$response->send();
+	if ( is_page_template( 'page-templates/front_page.php' ) ) {
+		$href = admin_url( 'customize.php' );
+		//square brackets in a URL is a mtfker right now in WordPress
+		$href = add_query_arg( urlencode( 'autofocus[section]' ), 'sidebar-widgets-front_page_sections', $href );
+		$wp_admin_bar->add_node( array(
+			'id'     => 'customizer_front_page_sections',
+			'parent' => false,
+			'title'  => '🔵 ' . esc_html__( 'Customize Front Page Sections', 'listable' ),
+			'href'   => $href,
+		) );
 	}
-
-	// hook into wordpress admin.php
-	add_action( 'wp_ajax_wpGrade_ajax_import_posts_pages', 'wpGrade_ajax_import_posts_pages' );
 }
+add_action( 'wp_before_admin_bar_render', 'listable_add_front_page_link_to_customizer_settings' );
 
 /**
- * Imports the theme options from the demo_data.php file
+ * Add a shortcut in customizer for the single listings options
  */
-if ( ! function_exists( 'wpGrade_ajax_import_theme_options' ) ) {
-	function wpGrade_ajax_import_theme_options() {
-		$response = array(
-			'what'   => 'import_theme_options',
-			'action' => 'import_submit',
-			'id'     => 'true',
-		);
+function listable_add_single_listing_link_to_customizer_settings() {
+	global $wp_admin_bar;
 
-		// check if user is allowed to save and if its his intention with
-		// a nonce check
-		if ( function_exists( 'check_ajax_referer' ) ) {
-			check_ajax_referer( 'wpGrade_nonce_import_demo_theme_options' );
-		}
-		require_once( get_template_directory() . '/inc/import/import-demo-theme-options' . EXT );
-
-		$response = new WP_Ajax_Response( $response );
-		$response->send();
+	if ( is_singular( 'job_listing' ) ) {
+		$href = admin_url( 'customize.php' );
+		//square brackets in a URL is a mtfker right now in WordPress
+		$href = add_query_arg( urlencode( 'autofocus[panel]' ), 'widgets', $href );
+		$href = add_query_arg( 'url', urlencode( get_permalink() ), $href );
+		$wp_admin_bar->add_node( array(
+			'id'     => 'customizer_front_page_sections',
+			'parent' => false,
+			'title'  => '🔶 ' . esc_html__( 'Customize Listings Layout', 'listable' ),
+			'href'   => $href,
+		) );
 	}
-
-	// hook into wordpress admin.php
-	add_action( 'wp_ajax_wpGrade_ajax_import_theme_options', 'wpGrade_ajax_import_theme_options' );
 }
-
-/**
- * This function imports the widgets from the demo_data.php file and the menus
- */
-if ( ! function_exists( 'wpGrade_ajax_import_widgets' ) ) {
-	function wpGrade_ajax_import_widgets() {
-		$response = array(
-			'what'   => 'import_widgets',
-			'action' => 'import_submit',
-			'id'     => 'true',
-		);
-
-		// check if user is allowed to save and if its his intention with
-		// a nonce check
-		if ( function_exists( 'check_ajax_referer' ) ) {
-			check_ajax_referer( 'wpGrade_nonce_import_demo_widgets' );
-		}
-
-		require_once( get_template_directory() . '/inc/import/import-demo-widgets.php' );
-
-		$response = new WP_Ajax_Response( $response );
-		$response->send();
-	}
-
-	//hook into wordpress admin.php
-	add_action( 'wp_ajax_wpGrade_ajax_import_widgets', 'wpGrade_ajax_import_widgets' );
-}
+add_action( 'wp_before_admin_bar_render', 'listable_add_single_listing_link_to_customizer_settings' );

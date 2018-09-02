@@ -2,9 +2,9 @@
 # This file is distributed under the GNU General Public License v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Listable 1.8.4\n"
+"Project-Id-Version: Listable 1.8.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/listable\n"
-"POT-Creation-Date: 2017-04-04 14:34:30+00:00\n"
+"POT-Creation-Date: 2017-05-19 08:23:31+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -118,151 +118,155 @@ msgstr ""
 msgid "Footer Menu"
 msgstr ""
 
-#: functions.php:201
+#: functions.php:212
 msgid "Add Photo"
 msgstr ""
 
-#: functions.php:202
+#: functions.php:213
 msgid "No results"
 msgstr ""
 
-#: functions.php:203
+#: functions.php:214
 msgid "Results"
 msgstr ""
 
-#: functions.php:204 job_manager/form-fields/multiselect-field.php:3
+#: functions.php:215 job_manager/form-fields/multiselect-field.php:3
 msgid "Select Some Options"
 msgstr ""
 
-#: functions.php:205
+#: functions.php:216
 msgid "Select an Option"
 msgstr ""
 
-#: functions.php:206 job_manager/form-fields/multiselect-field.php:3
+#: functions.php:217 job_manager/form-fields/multiselect-field.php:3
 msgid "No results match"
 msgstr ""
 
-#: functions.php:235
-msgid "The import didn't work completely!"
-msgstr ""
-
-#: functions.php:235
-msgid "Check out the errors given. You might want to try reloading the page and try again."
-msgstr ""
-
-#: functions.php:236
-msgid "Importing the demo data will overwrite your current site content and options. Proceed anyway?"
-msgstr ""
-
-#: functions.php:237
-msgid "Phew...that was a hard one!"
-msgstr ""
-
-#: functions.php:238
-msgid "The demo data was imported without a glitch! Awesome! "
-msgstr ""
-
-#: functions.php:239
-msgid "<i>We have reloaded the page on the right, so you can see the brand new data!</i>"
-msgstr ""
-
-#: functions.php:240 inc/import/wordpress-importer/wordpress-importer.php:181
-msgid "Remember to update the passwords and roles of imported users."
-msgstr ""
-
-#: functions.php:241
-msgid "All done!"
-msgstr ""
-
-#: functions.php:242
-msgid "Working..."
-msgstr ""
-
-#: functions.php:243
-msgid "The setting up of the demo widgets failed..."
-msgstr ""
-
-#: functions.php:244
-msgid "The setting up of the demo widgets failed"
-msgstr ""
-
-#: functions.php:244 functions.php:247
-msgid "(The script returned the following message"
-msgstr ""
-
-#: functions.php:245
-msgid "Finished setting up the demo widgets..."
-msgstr ""
-
-#: functions.php:246 functions.php:249
-msgid "The importing of the theme options has failed..."
+#: functions.php:218
+msgid "or"
 msgstr ""
 
 #: functions.php:247
-msgid "The importing of the theme options has failed"
+msgid "The import didn't work completely!"
+msgstr ""
+
+#: functions.php:247
+msgid "Check out the errors given. You might want to try reloading the page and try again."
 msgstr ""
 
 #: functions.php:248
-msgid "Finished importing the demo theme options..."
+msgid "Importing the demo data will overwrite your current site content and options. Proceed anyway?"
+msgstr ""
+
+#: functions.php:249
+msgid "Phew...that was a hard one!"
 msgstr ""
 
 #: functions.php:250
-msgid "Importing posts | Step"
+msgid "The demo data was imported without a glitch! Awesome! "
 msgstr ""
 
 #: functions.php:251
+msgid "<i>We have reloaded the page on the right, so you can see the brand new data!</i>"
+msgstr ""
+
+#: functions.php:252 inc/import/wordpress-importer/wordpress-importer.php:181
+msgid "Remember to update the passwords and roles of imported users."
+msgstr ""
+
+#: functions.php:253
+msgid "All done!"
+msgstr ""
+
+#: functions.php:254
+msgid "Working..."
+msgstr ""
+
+#: functions.php:255
+msgid "The setting up of the demo widgets failed..."
+msgstr ""
+
+#: functions.php:256
+msgid "The setting up of the demo widgets failed"
+msgstr ""
+
+#: functions.php:256 functions.php:259
+msgid "(The script returned the following message"
+msgstr ""
+
+#: functions.php:257
+msgid "Finished setting up the demo widgets..."
+msgstr ""
+
+#: functions.php:258 functions.php:261
+msgid "The importing of the theme options has failed..."
+msgstr ""
+
+#: functions.php:259
+msgid "The importing of the theme options has failed"
+msgstr ""
+
+#: functions.php:260
+msgid "Finished importing the demo theme options..."
+msgstr ""
+
+#: functions.php:262
+msgid "Importing posts | Step"
+msgstr ""
+
+#: functions.php:263
 msgid "Error:"
 msgstr ""
 
-#: functions.php:252
+#: functions.php:264
 msgid "You can reload the page and try again."
 msgstr ""
 
-#: functions.php:483 functions.php:533
+#: functions.php:495 functions.php:545
 msgid "A <strong>valid purchase code</strong> is required for automatic updates."
 msgstr ""
 
-#: functions.php:494 functions.php:544
+#: functions.php:506 functions.php:556
 msgid "Purchase code not updated. We will keep the existing one."
 msgstr ""
 
-#: functions.php:497 functions.php:547
+#: functions.php:509 functions.php:559
 msgid "Your <strong>purchase code is valid</strong>. Thank you! Enjoy one-click automatic updates."
 msgstr ""
 
-#: functions.php:504 functions.php:554
+#: functions.php:516 functions.php:566
 msgid "Purchase code ( e.g. 9g2b13fa-10aa-2267-883a-9201a94cf9b5 )"
 msgstr ""
 
-#: functions.php:505 functions.php:555
+#: functions.php:517 functions.php:567
 msgid "Enter your purchase code and <strong>hit return/enter</strong>."
 msgstr ""
 
-#: functions.php:507 functions.php:556
+#: functions.php:519 functions.php:568
 msgid "Find out how to <a href=\"https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code-\" target=\"_blank\">get your purchase code</a>."
 msgstr ""
 
-#: functions.php:572
+#: functions.php:584
 msgid "<a href=\"%s\">Please enter your purchase code</a> to get automatic updates for <b>%s</b>."
 msgstr ""
 
-#: functions.php:618
+#: functions.php:630
 msgid "We are sorry but we couldn't connect to the verification server. Please try again later."
 msgstr ""
 
-#: functions.php:631
+#: functions.php:643
 msgid "Your purchase's support period has ended. Please extend it to receive automatic updates."
 msgstr ""
 
-#: functions.php:633
+#: functions.php:645
 msgid "Could not find a sale with this purchase code. Please double check."
 msgstr ""
 
-#: functions.php:640
+#: functions.php:652
 msgid "Please enter a valid purchase code. Make sure to get all the characters."
 msgstr ""
 
-#: functions.php:707
+#: functions.php:719
 msgid "You can also create an account with a social network."
 msgstr ""
 
@@ -467,7 +471,7 @@ msgstr ""
 msgid "Easily add Custom Javascript code. This code will be loaded in the <head> section."
 msgstr ""
 
-#: inc/config.php:816 inc/config.php:1594
+#: inc/config.php:816 inc/config.php:1596
 msgid "Footer"
 msgstr ""
 
@@ -580,232 +584,217 @@ msgstr ""
 msgid "Content Background"
 msgstr ""
 
-#: inc/config.php:1225
+#: inc/config.php:1226
 msgid "Page Background"
 msgstr ""
 
-#: inc/config.php:1267
+#: inc/config.php:1269
 msgid "Page Titles Color"
 msgstr ""
 
-#: inc/config.php:1292
+#: inc/config.php:1294
 msgid "Page Subtitles Color"
 msgstr ""
 
-#: inc/config.php:1304 inc/config.php:1462 inc/config.php:1580
-#: inc/config.php:1610
+#: inc/config.php:1306 inc/config.php:1464 inc/config.php:1582
+#: inc/config.php:1612
 msgid "Text Color"
 msgstr ""
 
-#: inc/config.php:1355
+#: inc/config.php:1357
 msgid "Buttons Color"
 msgstr ""
 
-#: inc/config.php:1394
+#: inc/config.php:1396
 msgid "Cards"
 msgstr ""
 
-#: inc/config.php:1398
+#: inc/config.php:1400
 msgid "Cards Background"
 msgstr ""
 
-#: inc/config.php:1446
+#: inc/config.php:1448
 msgid "Title Color"
 msgstr ""
 
-#: inc/config.php:1476
+#: inc/config.php:1478
 msgid "Icons Color"
 msgstr ""
 
-#: inc/config.php:1491
+#: inc/config.php:1493
 msgid "Icons Border Color"
 msgstr ""
 
-#: inc/config.php:1514
+#: inc/config.php:1516
 msgid "Icon Background Color"
 msgstr ""
 
-#: inc/config.php:1528
+#: inc/config.php:1530
 msgid "Pin Background Color"
 msgstr ""
 
-#: inc/config.php:1544
+#: inc/config.php:1546
 msgid "Pin Color"
 msgstr ""
 
-#: inc/config.php:1564
+#: inc/config.php:1566
 msgid "Pre Footer"
 msgstr ""
 
-#: inc/config.php:1568 inc/config.php:1598
+#: inc/config.php:1570 inc/config.php:1600
 msgid "Background"
 msgstr ""
 
-#: inc/config.php:1622
+#: inc/config.php:1624
 msgid "Credits Color"
 msgstr ""
 
-#: inc/config.php:1636
+#: inc/config.php:1638
 msgid "Other Colors"
 msgstr ""
 
-#: inc/config.php:1640
+#: inc/config.php:1642
 msgid "Accent Color"
 msgstr ""
 
-#: inc/config.php:1712
+#: inc/config.php:1714
 msgid "Meta Fields Color"
 msgstr ""
 
-#: inc/config.php:1787
+#: inc/config.php:1789
 msgid "Micro Elements"
 msgstr ""
 
-#: inc/config.php:1818
+#: inc/config.php:1820
 msgid "Fonts"
 msgstr ""
 
-#: inc/config.php:1821
+#: inc/config.php:1823
 msgid "Site Title"
 msgstr ""
 
-#: inc/config.php:1826
+#: inc/config.php:1828
 msgid "The font used for Site Title when you do not have a Logo image."
 msgstr ""
 
-#: inc/config.php:1835 inc/config.php:1912 inc/config.php:2074
+#: inc/config.php:1837 inc/config.php:1914 inc/config.php:2076
 msgid "Font Size"
 msgstr ""
 
-#: inc/config.php:1855 inc/config.php:1933 inc/config.php:2095
+#: inc/config.php:1857 inc/config.php:1935 inc/config.php:2097
 msgid "Text Transform"
 msgstr ""
 
-#: inc/config.php:1876 inc/config.php:1955 inc/config.php:2117
+#: inc/config.php:1878 inc/config.php:1957 inc/config.php:2119
 msgid "Letter Spacing"
 msgstr ""
 
-#: inc/config.php:1897 inc/config.php:1901
+#: inc/config.php:1899 inc/config.php:1903
 msgid "Navigation Text"
 msgstr ""
 
-#: inc/config.php:1977
+#: inc/config.php:1979
 msgid "Body Text"
 msgstr ""
 
-#: inc/config.php:1981
+#: inc/config.php:1983
 msgid "Body Font"
 msgstr ""
 
-#: inc/config.php:2012
+#: inc/config.php:2014
 msgid "Page Titles"
 msgstr ""
 
-#: inc/config.php:2016
+#: inc/config.php:2018
 msgid "Headings"
 msgstr ""
 
-#: inc/config.php:2037 inc/config.php:2041
+#: inc/config.php:2039 inc/config.php:2043
 msgid "Page Subtitles"
 msgstr ""
 
-#: inc/config.php:2060 inc/config.php:2064
+#: inc/config.php:2062 inc/config.php:2066
 msgid "Card Title Font"
 msgstr ""
 
-#: inc/config.php:2139 inc/config.php:2143
+#: inc/config.php:2141 inc/config.php:2145
 msgid "Card Font"
 msgstr ""
 
-#: inc/config.php:2153 inc/config.php:2157
+#: inc/config.php:2155 inc/config.php:2159
 msgid "Meta & Forms"
 msgstr ""
 
-#: inc/config.php:2205
+#: inc/config.php:2207
 msgid "Logo while on Transparent Hero Area"
 msgstr ""
 
-#: inc/config.php:2206
+#: inc/config.php:2208
 msgid "Replace the default logo on the Front Page Hero."
 msgstr ""
 
-#: inc/extras.php:95
+#: inc/customizer.php:52
 msgid "Customize Front Page Sections"
 msgstr ""
 
-#: inc/extras.php:114
+#: inc/customizer.php:73
 msgid "Customize Listings Layout"
 msgstr ""
 
-#: inc/extras.php:139 inc/extras.php:150
+#: inc/extras.php:105 inc/extras.php:116
 msgid "Page Subtitle"
 msgstr ""
 
-#: inc/extras.php:141
+#: inc/extras.php:107
 msgid "This is the subtitle that will be shown in the page's Hero Area, below the page title."
 msgstr ""
 
-#: inc/extras.php:562
+#: inc/extras.php:555
 msgid "Your name"
 msgstr ""
 
-#: inc/extras.php:563
+#: inc/extras.php:556
 msgid "your@email.com"
 msgstr ""
 
-#: inc/extras.php:688 inc/extras.php:695
+#: inc/extras.php:685 inc/extras.php:692
 msgid "Wrong Password"
 msgstr ""
 
-#: inc/extras.php:705
+#: inc/extras.php:703
 msgid "&#x1f4bc; Listing URL Base"
 msgstr ""
 
-#: inc/extras.php:712
+#: inc/extras.php:710
 msgid "&#x1f4bc; Listing Category Base"
 msgstr ""
 
-#: inc/extras.php:719
+#: inc/extras.php:717
 msgid "&#x1f4bc; Listing Tag Base"
 msgstr ""
 
-#: inc/extras.php:758
-msgctxt "slug"
-msgid "listings"
-msgstr ""
-
-#: inc/extras.php:766
-msgctxt "slug"
-msgid "listing-category"
-msgstr ""
-
-#: inc/extras.php:774
-msgctxt "slug"
-msgid "listing-tag"
-msgstr ""
-
-#: inc/extras.php:831
+#: inc/extras.php:804
 msgid "User Menu"
 msgstr ""
 
-#: inc/extras.php:840 inc/extras.php:841
+#: inc/extras.php:813 inc/extras.php:814
 #: plugins/login-with-ajax/modal/widget_out.php:35
 msgid "Log In"
 msgstr ""
 
-#: inc/extras.php:844 inc/extras.php:845
+#: inc/extras.php:817 inc/extras.php:818
 msgid "Log Out"
 msgstr ""
 
-#: inc/extras.php:848
+#: inc/extras.php:821
 msgid "Welcome!"
 msgstr ""
 
-#: inc/extras.php:849
+#: inc/extras.php:822
 msgid "Current Username"
 msgstr ""
 
-#: inc/extras.php:883
+#: inc/extras.php:856
 msgid "Add to Menu"
 msgstr ""
 
@@ -898,7 +887,7 @@ msgid "Download and import file attachments"
 msgstr ""
 
 #: inc/import/wordpress-importer/wordpress-importer.php:291
-#: inc/template-tags.php:514 woocommerce/single-product-reviews.php:72
+#: inc/template-tags.php:595 woocommerce/single-product-reviews.php:72
 msgid "Submit"
 msgstr ""
 
@@ -1052,6 +1041,46 @@ msgstr ""
 
 #: inc/integrations/facetwp.php:273
 msgid "Considering that Navigation Bar facets will not be shown on the Front Pagem feel free to use a similar configuration."
+msgstr ""
+
+#: inc/integrations/pixcare.php:78
+msgid "Pixelgrade Care &rsaquo; Installer"
+msgstr ""
+
+#: inc/integrations/pixcare.php:93
+msgid "One more lap to go.."
+msgstr ""
+
+#: inc/integrations/pixcare.php:98
+msgid "Start your digital journey with our"
+msgstr ""
+
+#: inc/integrations/pixcare.php:99 inc/integrations/pixcare.php:106
+msgid "Pixelgrade Care®"
+msgstr ""
+
+#: inc/integrations/pixcare.php:100
+msgid "on board. It's the core of your experience with our WordPress theme, and we bet you are going to love it from day one. You’re in great hands, no doubt about that!"
+msgstr ""
+
+#: inc/integrations/pixcare.php:107
+msgid "Installing ..."
+msgstr ""
+
+#: inc/integrations/pixcare.php:114
+msgid "Return to the WordPress Dashboard"
+msgstr ""
+
+#: inc/integrations/pixcare.php:132
+msgid "Plugin installed successfully."
+msgstr ""
+
+#: inc/integrations/pixcare.php:133
+msgid "Plugin destination folder already exists."
+msgstr ""
+
+#: inc/integrations/pixcare.php:154
+msgid "Bummer! Something went wrong. I’m sorry but you will need to install the plugin manually. Redirecting you to the appropriate page…"
 msgstr ""
 
 #: inc/integrations/woocommerce.php:67
@@ -1538,19 +1567,19 @@ msgid "Preview"
 msgstr ""
 
 #: inc/required-plugins/class-tgm-plugin-activation.php:336
-#: inc/required-plugins/required-plugins.php:92
+#: inc/required-plugins/required-plugins.php:103
 msgid "Install Required Plugins"
 msgstr ""
 
 #: inc/required-plugins/class-tgm-plugin-activation.php:337
-#: inc/required-plugins/required-plugins.php:93
+#: inc/required-plugins/required-plugins.php:104
 msgid "Install Plugins"
 msgstr ""
 
 #. translators: %s: plugin name.
 
 #: inc/required-plugins/class-tgm-plugin-activation.php:339
-#: inc/required-plugins/required-plugins.php:94
+#: inc/required-plugins/required-plugins.php:105
 msgid "Installing Plugin: %s"
 msgstr ""
 
@@ -1561,14 +1590,14 @@ msgid "Updating Plugin: %s"
 msgstr ""
 
 #: inc/required-plugins/class-tgm-plugin-activation.php:342
-#: inc/required-plugins/required-plugins.php:96
+#: inc/required-plugins/required-plugins.php:107
 msgid "Something went wrong with the plugin API."
 msgstr ""
 
 #. translators: 1: plugin name(s).
 
 #: inc/required-plugins/class-tgm-plugin-activation.php:379
-#: inc/required-plugins/required-plugins.php:113
+#: inc/required-plugins/required-plugins.php:124
 msgid "Begin installing plugin"
 msgid_plural "Begin installing plugins"
 msgstr[0] ""
@@ -1587,7 +1616,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: inc/required-plugins/class-tgm-plugin-activation.php:394
-#: inc/required-plugins/required-plugins.php:115
+#: inc/required-plugins/required-plugins.php:126
 msgid "Return to Required Plugins Installer"
 msgstr ""
 
@@ -1600,7 +1629,7 @@ msgstr ""
 
 #: inc/required-plugins/class-tgm-plugin-activation.php:396
 #: inc/required-plugins/class-tgm-plugin-activation.php:3276
-#: inc/required-plugins/required-plugins.php:116
+#: inc/required-plugins/required-plugins.php:127
 msgid "Plugin activated successfully."
 msgstr ""
 
@@ -1930,118 +1959,133 @@ msgstr ""
 msgid "Installing Plugin %1$s (%2$d/%3$d)"
 msgstr ""
 
-#: inc/required-plugins/required-plugins.php:97
+#: inc/required-plugins/required-plugins.php:108
 msgid "This theme requires the following plugin: %1$s."
 msgid_plural "This theme requires the following plugins: %1$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/required-plugins/required-plugins.php:99
+#: inc/required-plugins/required-plugins.php:110
 msgid "This theme recommends the following plugin: %1$s."
 msgid_plural "This theme recommends the following plugins: %1$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/required-plugins/required-plugins.php:101
+#: inc/required-plugins/required-plugins.php:112
 msgid "Sorry, but you do not have the correct permissions to install the %s plugin. Contact the administrator of this site for help on getting the plugin installed."
 msgid_plural "Sorry, but you do not have the correct permissions to install the %s plugins. Contact the administrator of this site for help on getting the plugins installed."
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/required-plugins/required-plugins.php:103
+#: inc/required-plugins/required-plugins.php:114
 msgid "The following required plugin is currently inactive: %1$s."
 msgid_plural "The following required plugins are currently inactive: %1$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/required-plugins/required-plugins.php:105
+#: inc/required-plugins/required-plugins.php:116
 msgid "The following recommended plugin is currently inactive: %1$s."
 msgid_plural "The following recommended plugins are currently inactive: %1$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/required-plugins/required-plugins.php:107
+#: inc/required-plugins/required-plugins.php:118
 msgid "Sorry, but you do not have the correct permissions to activate the %s plugin. Contact the administrator of this site for help on getting the plugin activated."
 msgid_plural "Sorry, but you do not have the correct permissions to activate the %s plugins. Contact the administrator of this site for help on getting the plugins activated."
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/required-plugins/required-plugins.php:109
+#: inc/required-plugins/required-plugins.php:120
 msgid "The following plugin needs to be updated to its latest version to ensure maximum compatibility with this theme: %1$s."
 msgid_plural "The following plugins need to be updated to their latest version to ensure maximum compatibility with this theme: %1$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/required-plugins/required-plugins.php:111
+#: inc/required-plugins/required-plugins.php:122
 msgid "Sorry, but you do not have the correct permissions to update the %s plugin. Contact the administrator of this site for help on getting the plugin updated."
 msgid_plural "Sorry, but you do not have the correct permissions to update the %s plugins. Contact the administrator of this site for help on getting the plugins updated."
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/required-plugins/required-plugins.php:114
+#: inc/required-plugins/required-plugins.php:125
 msgid "Activate installed plugin"
 msgid_plural "Activate installed plugins"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/required-plugins/required-plugins.php:117
+#: inc/required-plugins/required-plugins.php:128
 msgid "All plugins installed and activated successfully. %s"
 msgstr ""
 
 #. translators: used between list items, there is a space after the comma
 
-#: inc/template-tags.php:141 inc/template-tags.php:147
+#: inc/template-tags.php:139 inc/template-tags.php:145
 msgid ", "
 msgstr ""
 
-#: inc/template-tags.php:143
+#: inc/template-tags.php:141
 msgid "Posted in %1$s"
 msgstr ""
 
-#: inc/template-tags.php:149
+#: inc/template-tags.php:147
 msgid "Tagged %1$s"
 msgstr ""
 
-#: inc/template-tags.php:155
+#: inc/template-tags.php:153
 msgid "Leave a comment"
 msgstr ""
 
-#: inc/template-tags.php:155
+#: inc/template-tags.php:153
 msgid "1 Comment"
 msgstr ""
 
-#: inc/template-tags.php:155
+#: inc/template-tags.php:153
 msgid "% Comments"
 msgstr ""
 
-#: inc/template-tags.php:292
+#: inc/template-tags.php:231
+msgctxt "slug"
+msgid "listings"
+msgstr ""
+
+#: inc/template-tags.php:241
+msgctxt "slug"
+msgid "listing-category"
+msgstr ""
+
+#: inc/template-tags.php:251
+msgctxt "slug"
+msgid "listing-tag"
+msgstr ""
+
+#: inc/template-tags.php:373
 msgid "Pingback:"
 msgstr ""
 
-#: inc/template-tags.php:292 inc/template-tags.php:337
-#: inc/template-tags.php:368
+#: inc/template-tags.php:373 inc/template-tags.php:418
+#: inc/template-tags.php:449
 msgid "(Edit)"
 msgstr ""
 
-#: inc/template-tags.php:306 inc/template-tags.php:329
+#: inc/template-tags.php:387 inc/template-tags.php:410
 msgid "Your comment is awaiting moderation."
 msgstr ""
 
 #. translators: 1: date, 2: time
 
-#: inc/template-tags.php:335 inc/template-tags.php:367
+#: inc/template-tags.php:416 inc/template-tags.php:448
 msgid "on %1$s"
 msgstr ""
 
-#: inc/template-tags.php:497
+#: inc/template-tags.php:578
 msgid "Or browse the highlights"
 msgstr ""
 
-#: inc/template-tags.php:513
+#: inc/template-tags.php:594
 msgid "This content is password protected. To view it please enter your password below:"
 msgstr ""
 
-#: inc/template-tags.php:514
+#: inc/template-tags.php:595
 msgid "Password:"
 msgstr ""
 
@@ -2767,42 +2811,58 @@ msgstr ""
 msgid "It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help."
 msgstr ""
 
-#: wc-paid-listings/package-selection.php:26
+#: wc-paid-listings/package-selection.php:28
 msgid "Your packages"
 msgstr ""
 
-#: wc-paid-listings/package-selection.php:36
+#: wc-paid-listings/package-selection.php:38
 msgid "%s listing posted out of %d"
 msgid_plural "%s listings posted out of %d"
 msgstr[0] ""
 msgstr[1] ""
 
-#: wc-paid-listings/package-selection.php:38
+#: wc-paid-listings/package-selection.php:40
 msgid "%s listing posted"
 msgid_plural "%s listings posted"
 msgstr[0] ""
 msgstr[1] ""
 
-#: wc-paid-listings/package-selection.php:42
+#: wc-paid-listings/package-selection.php:44
 msgid "listed for %s day"
 msgid_plural "listed for %s days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: wc-paid-listings/package-selection.php:49
-#: wc-paid-listings/package-selection.php:97
+#: wc-paid-listings/package-selection.php:51
+#: wc-paid-listings/package-selection.php:115
 msgid "Get Started"
 msgstr ""
 
-#: wc-paid-listings/package-selection.php:57
+#: wc-paid-listings/package-selection.php:59
 msgid "Purchase packages"
 msgstr ""
 
-#: wc-paid-listings/package-selection.php:81
+#: wc-paid-listings/package-selection.php:86
 msgid "Free"
 msgstr ""
 
-#: wc-paid-listings/package-selection.php:105
+#: wc-paid-listings/package-selection.php:94
+msgid "day"
+msgstr ""
+
+#: wc-paid-listings/package-selection.php:97
+msgid "week"
+msgstr ""
+
+#: wc-paid-listings/package-selection.php:100
+msgid "month"
+msgstr ""
+
+#: wc-paid-listings/package-selection.php:103
+msgid "year"
+msgstr ""
+
+#: wc-paid-listings/package-selection.php:123
 msgid "No packages found"
 msgstr ""
 
@@ -2864,8 +2924,8 @@ msgstr ""
 msgid "Coupon code"
 msgstr ""
 
-#: woocommerce/cart/cart.php:156
-msgid "Apply Coupon"
+#: woocommerce/cart/cart.php:156 woocommerce/checkout/form-coupon.php:32
+msgid "Apply coupon"
 msgstr ""
 
 #: woocommerce/cart/cart.php:163
@@ -2886,10 +2946,6 @@ msgstr ""
 
 #: woocommerce/checkout/form-coupon.php:20
 msgid "Click here to enter your code"
-msgstr ""
-
-#: woocommerce/checkout/form-coupon.php:32
-msgid "Apply coupon"
 msgstr ""
 
 #: woocommerce/checkout/form-login.php:21
@@ -2945,15 +3001,15 @@ msgstr ""
 msgid "Products navigation"
 msgstr ""
 
-#: woocommerce/loop/result-count.php:32
+#: woocommerce/loop/result-count.php:41
 msgid "Showing the single result"
 msgstr ""
 
-#: woocommerce/loop/result-count.php:34
+#: woocommerce/loop/result-count.php:43
 msgid "Showing all %d results"
 msgstr ""
 
-#: woocommerce/loop/result-count.php:36
+#: woocommerce/loop/result-count.php:45
 msgctxt "%1$d = first, %2$d = last, %3$d = total"
 msgid "Showing %1$d&ndash;%2$d of %3$d results"
 msgstr ""
@@ -3108,7 +3164,7 @@ msgstr ""
 msgid "Related Products"
 msgstr ""
 
-#: woocommerce/single-product/up-sells.php:51
+#: woocommerce/single-product/up-sells.php:27
 msgid "You may also like&hellip;"
 msgstr ""
 
@@ -3215,9 +3271,6 @@ msgstr ""
 #: wp-job-manager-bookmarks/my-bookmarks.php:44
 msgid "You currently have no bookmarks"
 msgstr ""
-#. Theme Name of the plugin/theme
-msgid "Listable"
-msgstr ""
 
 #. Theme URI of the plugin/theme
 msgid "https://pixelgrade.com/demos/listable/"
@@ -3233,10 +3286,6 @@ msgstr ""
 
 #. Author URI of the plugin/theme
 msgid "https://pixelgrade.com/"
-msgstr ""
-
-#. Template Name of the plugin/theme
-msgid "Front Page"
 msgstr ""
 
 #. Template Name of the plugin/theme

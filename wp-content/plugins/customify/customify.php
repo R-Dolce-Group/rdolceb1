@@ -3,7 +3,7 @@
 Plugin Name: Customify
 Plugin URI:  https://wordpress.org/plugins/customify/
 Description: A Theme Customizer Booster
-Version: 1.5.2
+Version: 1.9.1
 Author: Pixelgrade
 Author URI: https://pixelgrade.com
 Author Email: contact@pixelgrade.com
@@ -14,7 +14,7 @@ Domain Path: /languages/
 */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
@@ -23,17 +23,20 @@ if ( ! defined('EXT')) {
 	define('EXT', '.php');
 }
 
-require 'core/bootstrap'.EXT;
+require 'core/bootstrap.php';
 
-$config = include 'plugin-config'.EXT;
+// Include our helper array class.
+require 'includes/lib/class-customify-array.php';
+
+$config = include 'plugin-config.php';
 
 // set textdomain
-pixcustomify::settextdomain('customify');
+pixcustomify::settextdomain( 'customify' );
 
 // Ensure Test Data
 // ----------------
 
-$defaults = include 'plugin-defaults'.EXT;
+$defaults = include 'plugin-defaults.php';
 
 $current_data = get_option( $config['settings-key'] );
 
@@ -52,9 +55,14 @@ if ( $current_data === false ) {
  * @return PixCustomifyPlugin
  */
 function PixCustomifyPlugin() {
+	/**
+	 * The core plugin class that is used to define internationalization,
+	 * admin-specific hooks, and public-facing site hooks.
+	 */
+	require_once plugin_dir_path( __FILE__ ) . 'class-pixcustomify.php';
 
-	require_once( plugin_dir_path( __FILE__ ) . 'class-pixcustomify.php' );
-	$instance = PixCustomifyPlugin::instance( __FILE__, '1.5.2' );
+	$instance = PixCustomifyPlugin::instance( __FILE__, '1.9.1' );
+
 	return $instance;
 }
 

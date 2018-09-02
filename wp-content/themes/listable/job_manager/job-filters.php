@@ -7,9 +7,15 @@
 
 if ( listable_using_facetwp() ) : ?>
 
+	<?php do_action( 'job_manager_job_filters_before', $atts ); ?>
+
 	<div class="job_filters">
+
+
 		<div class="search_jobs">
 
+			<?php do_action( 'job_manager_job_filters_search_jobs_start', $atts ); ?>
+			
 			<?php
 			$facets            = listable_get_facets_by_area( 'listings_archive_visible' );
 			$hidden_facets     = listable_get_facets_by_area( 'listings_archive_hidden' );
@@ -50,23 +56,30 @@ if ( listable_using_facetwp() ) : ?>
 				</div>
 			<?php } ?>
 
+			<?php do_action( 'job_manager_job_filters_search_jobs_end', $atts ); ?>
+
 		</div> <!-- .search-jobs -->
 
-		<div class="mobile-buttons">
-			<button class="btn btn--filter"><?php esc_html_e( 'Filter', 'listable' ); ?>
-				<span><?php esc_html_e( 'Listings', 'listable' ); ?></span></button>
-			<button class="btn btn--view btn--view-map"><span><?php esc_html_e( 'Map View', 'listable' ); ?></span>
-			</button>
-			<button class="btn btn--view btn--view-cards">
-				<span><?php esc_html_e( 'Cards View', 'listable' ); ?> </span></button>
-		</div>
 	</div><!-- .job-filters -->
+
 	<?php if ( ! empty( $hidden_facets ) ) { ?>
-		<button class="toggle-hidden-facets  js-toggle-hidden-facets">
-			<span class="text--inactive"><?php esc_html_e( 'More filters', 'listable' ); ?></span>
-			<span class="text--active"><?php esc_html_e( 'Less filters', 'listable' ); ?></span>
-		</button>
+        <button class="toggle-hidden-facets  js-toggle-hidden-facets">
+            <span class="text--inactive"><?php esc_html_e( 'More filters', 'listable' ); ?></span>
+            <span class="text--active"><?php esc_html_e( 'Less filters', 'listable' ); ?></span>
+        </button>
 	<?php } ?>
+
+    <div class="mobile-buttons">
+        <button class="btn btn--filter"><?php esc_html_e( 'Filter', 'listable' ); ?>
+            <span><?php esc_html_e( 'Listings', 'listable' ); ?></span></button>
+        <button class="btn btn--view btn--view-map"><span><?php esc_html_e( 'Map View', 'listable' ); ?></span>
+        </button>
+        <button class="btn btn--view btn--view-cards">
+            <span><?php esc_html_e( 'Cards View', 'listable' ); ?> </span>
+        </button>
+    </div>
+
+	<?php do_action( 'job_manager_job_filters_after', $atts ); ?>
 
 <?php else :
 

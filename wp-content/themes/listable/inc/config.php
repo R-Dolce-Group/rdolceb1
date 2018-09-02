@@ -6,6 +6,107 @@
  * @since Listable 1.0
  */
 
+add_filter( 'customify_filter_fields', 'pixelgrade_add_customify_style_manager_section', 12, 1 );
+
+/**
+ * Add the Style Manager cross-theme Customizer section.
+ *
+ * @param array $options
+ *
+ * @return array
+ */
+function pixelgrade_add_customify_style_manager_section( $options ) {
+	// If the theme hasn't declared support for style manager, bail.
+	if ( ! current_theme_supports( 'customizer_style_manager' ) ) {
+		return $options;
+	}
+
+	if ( ! isset( $options['sections']['style_manager_section'] ) ) {
+		$options['sections']['style_manager_section'] = array();
+	}
+
+	// The section might be already defined, thus we merge, not replace the entire section config.
+	$options['sections']['style_manager_section'] = array_replace_recursive( $options['sections']['style_manager_section'], array(
+		'options' => array(
+			'sm_color_primary' => array(
+                'default' => '#FF4D58',
+				'connected_fields' => array(
+                    'cards_title_color',            // #FF4D55
+                    'buttons_color',                // #FF4D55
+					'pin_icon_color',               // #FF4D5A
+					'accent_color',                 // #FF4D58
+				),
+			),
+			'sm_color_secondary' => array(
+				'default' => '#F53C48',
+				'connected_fields' => array(
+					'cards_icon_color',             // #FF4D5A
+					'cards_icon_border_color',      // #FF4D5A
+                    'nav_active_color',             // #FF4D55
+                ),
+			),
+			'sm_color_tertiary' => array(
+                'default' => '#FF4D58',
+				'connected_fields' => array(
+				),
+			),
+			'sm_dark_primary' => array(
+                'default' => '#484848',
+				'connected_fields' => array(
+                    'site_title_color',             // #484848
+                    'search_color',                 // #484848
+                    'page_titles_color',            // #484848
+                    'text_color',                   // #484848
+                    'footer_background',            // #261E1E
+				),
+			),
+			'sm_dark_secondary' => array(
+                'default' => '#2F2929',
+				'connected_fields' => array(
+					'prefooter_background',         // #2F2929
+				),
+			),
+			'sm_dark_tertiary' => array(
+                'default' => '#919191',
+				'connected_fields' => array(
+					'nav_link_color',               // #919191
+					'page_subtitles_color',         // #919191
+					'fields_color',                 // #919191
+					'cards_text_color',             // #ABABAB
+					'micro_color',                  // #ABABAB
+				),
+			),
+			'sm_light_primary' => array(
+                'default' => '#FFFFFF',
+				'connected_fields' => array(
+                    'header_background_color',      // #FFFFFF
+                    'content_background',           // #FFFFFF
+                    'cards_background',             // #FFFFFF
+                    'cards_icon_background_color',  // #FFFFFF
+                    'pin_background_color',         // #FFFFFF
+                    'prefooter_text_color',         // #FFFFFF
+				),
+			),
+			'sm_light_secondary' => array(
+                'default' => '#F9F9F9',
+				'connected_fields' => array(
+                    'nav_button_color',             // #EBEBEB
+					'page_background',              // #F9F9F9
+					'footer_credits_color',         // #706C6C
+					'footer_text_color',            // #ADADB2
+				),
+			),
+			'sm_light_tertiary' => array(
+                'default' => '#F9F9F9',
+				'connected_fields' => array(
+				),
+			),
+		),
+	) );
+
+	return $options;
+}
+
 /**
  * Hook into the Customify's fields and settings
  *
@@ -63,7 +164,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 				'theme_style' => array(
 					'type'         => 'preset',
 					'label'        => __( 'Select a style:', 'listable' ),
-					'desc'         => __( 'Conveniently change the design of your site with built-in style presets. Easy as pie.', 'patch' ),
+					'desc'         => __( 'Conveniently change the design of your site with built-in style presets. Easy as pie.', 'listable' ),
 					'default'      => 'listable',
 					'choices_type' => 'awesome',
 					'choices'      => array(
@@ -638,11 +739,6 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 									'selected_variants' => 'regular'
 								),
 								'page_subtitles_font'         => 'Lato',
-								'meta_font'                   => array(
-									'font_family'       => 'Lato',
-									'selected_variants' => 'regular'
-
-								),
 								'card_title_font'             => 'Vidaloka',
 
 							)
@@ -759,6 +855,18 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 				'map_options' => array(
 					'title'   => esc_html__( 'Map Options', 'listable' ),
 					'options' => array(
+						'map_default_location' => array(
+							'type'    => 'text',
+							'label'   => esc_html__( 'Default Map Location', 'listable' ),
+							'default' => '51.5073509,-0.12775829999998223',
+							'live'    => true,
+							'desc'    => sprintf(
+								'<p>%s<a href="%s" target="_blank">%s</a></p>',
+								esc_html__( 'Default GPS coordinates (latitude, longitude). Get them from ', 'listable' ),
+								esc_html__( 'https://www.gps-coordinates.net/', 'listable' ),
+								esc_html__( 'here', 'listable' )
+							),
+						),
 						'mapbox_token'        => array(
 							'type'    => 'text',
 							'label'   => esc_html__( 'Mapbox Integration (optional)', 'listable' ),
@@ -791,15 +899,20 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 						),
 						'google_maps_api_key' => array(
 							'type'    => 'text',
-							'label'   => esc_html__( 'Google Maps API key', 'listable' ),
+							'label'   => esc_html__( '(Deprecated) Google Maps API key', 'listable' ),
 							'default' => '',
 							'desc'    => sprintf(
-								'<p>%s </p> <a href="//developers.google.com/maps/documentation/javascript/get-api-key#get-an-api-key" target="_blank">%s</a>',
-								esc_html__( 'To use the Google Maps library you must authenticate your application with an API key.', 'listable' ),
-								esc_html__( 'Get a Key', 'listable' )
-							)
-						)
-
+								'<p>%s </p> <a href="%3s" target="_blank">%s</a>',
+								esc_html__( 'WP Job Manager has it\'s own field for Google Maps API key and since version 1.8.9 we recommend you to use their option.', 'listable' ),
+								get_admin_url( null,'edit.php?post_type=job_listing&page=job-manager-settings#setting-job_manager_google_maps_api_key'),
+								esc_html__( 'Go there', 'listable' )
+							),
+							'input_attrs' => array(
+								'min'          => 20,
+								'max'          => 100,
+								'disabled'         => 1,
+							),
+						),
 					)
 				),
 				'custom_js'   => array(
@@ -819,38 +932,6 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 						),
 					)
 				),
-
-				'import_demo_data' => array(
-					'title'       => __( 'Demo Data', 'listable' ),
-					'description' => esc_html__( 'If you would like to have a "ready to go" website as the Listable\'s demo page here is the button', 'listable' ),
-					'priority'    => 999999,
-					'options'     => array(
-						'import_demodata_button' => array(
-							'title' => 'Import',
-							'type'  => 'html',
-							'html'  => '<input type="hidden" name="wpGrade-nonce-import-posts-pages" value="' . wp_create_nonce( 'wpGrade_nonce_import_demo_posts_pages' ) . '" />
-										<input type="hidden" name="wpGrade-nonce-import-theme-options" value="' . wp_create_nonce( 'wpGrade_nonce_import_demo_theme_options' ) . '" />
-										<input type="hidden" name="wpGrade-nonce-import-widgets" value="' . wp_create_nonce( 'wpGrade_nonce_import_demo_widgets' ) . '" />
-										<input type="hidden" name="wpGrade_import_ajax_url" value="' . admin_url( "admin-ajax.php" ) . '" />' .
-							           '<span class="description customize-control-description">' . esc_html__( '(Note: We cannot serve you the original images due the ', 'listable' ) . '<strong>&copy;</strong>)</span></br>' .
-							           '<a href="#" class="button button-primary" id="wpGrade_import_demodata_button" style="width: 70%; text-align: center; padding: 10px; display: inline-block; height: auto;  margin: 0 15% 10% 15%;">
-											' . __( 'Import demo data', 'listable' ) . '
-										</a>
-
-										<div class="wpGrade-loading-wrap hidden">
-											<span class="wpGrade-loading wpGrade-import-loading"></span>
-											<div class="wpGrade-import-wait">' .
-							           esc_html__( 'Please wait a few minutes (between 1 and 3 minutes usually, but depending on your hosting it can take longer) and ', 'listable' ) .
-							           '<strong>' . esc_html__( 'don\'t reload the page', 'listable' ) . '</strong>.' .
-							           esc_html__( 'You will be notified as soon as the import has finished!', 'listable' ) . '
-											</div>
-										</div>
-
-										<div class="wpGrade-import-results hidden"></div>
-										<div class="hr"><div class="inner"><span>&nbsp;</span></div></div>'
-						)
-					)
-				)
 			)
 		);
 
@@ -1011,14 +1092,23 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'css'         => array(
 								array(
 									'property' => 'max-width',
-									'selector' => '.single:not(.single-job_listing) .header-content, .single:not(.single-job_listing) .entry-content, .single:not(.single-job_listing) .entry-footer, .single:not(.single-job_listing) .comments-area, .single:not(.single-job_listing) .post-navigation, 
-													.page .header-content, body.page:not(.woocommerce-checkout) .entry-content, .page .entry-footer, .page .comments-area, .page .post-navigation,
-													.secondary-menu,
-													.error404 .header-content, .error404 .entry-content,
-													.search-no-results .header-content, .search-no-results .entry-content,
-													.upsells, .related',
+									'selector' => '
+									    .single:not(.single-job_listing) .header-content, 
+									    .single:not(.single-job_listing) .entry-content, 
+									    .single:not(.single-job_listing) .entry-footer, 
+									    .single:not(.single-job_listing) .comments-area, 
+									    .single:not(.single-job_listing) .post-navigation,
+									    .page .header-content, 
+									    body:not(.woocommerce-checkout):not(.page-template-full_width) .entry-content, 
+									    .page .entry-footer, 
+									    .page .comments-area, 
+									    .page .post-navigation,
+									    .secondary-menu,
+									    .error404 .header-content, .error404 .entry-content,
+									    .search-no-results .header-content, .search-no-results .entry-content,
+									    .upsells, .related',
 									'unit'     => 'px',
-								)
+								),
 							)
 						),
 					),
@@ -1185,7 +1275,10 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								array(
 									'property' => 'border-color',
 									'media'    => 'screen and (min-width: 900px) ',
-									'selector' => '.primary-menu ul > .cta.page_item, ul.primary-menu > .cta.menu-item',
+									'selector' => '
+									    .primary-menu ul > .cta.page_item, 
+									    ul.primary-menu > .cta.menu-item,
+									    .search_jobs--frontpage-facetwp .facetwp-facet',
 								),
 							)
 						),
@@ -1212,13 +1305,96 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 									.page-add-listing fieldset:first-child,
 									.woocommerce-account:not(.logged-in) .entry-content .woocommerce form,
 									.post-password-form,
-									.page-listings div.job_listings .load_more_jobs strong',
+									.page-listings div.job_listings .load_more_jobs strong,
+									body.registration .entry-content,
+									.search-form .search_jobs--frontpage .search-field,
+									
+									.chosen-container-multi .chosen-choices, 
+									.chosen-container-single .chosen-single, 
+									.select2-drop,
+									.chosen-container .chosen-drop,
+									
+									.chosen-container .chosen-results li.no-results,
+									input, 
+									select, 
+									textarea, 
+									.select2-container--default .select2-selection--single .select2-selection__rendered,
+									
+									.description_tooltip,
+									.description_tooltip:after,
+									
+									.woocommerce-account.logged-in .myaccount, .woocommerce-account.logged-in .myaccount:after,
+									.entry-content table:not(.cart-totals):not(.ui-datepicker-calendar), 
+									#job-manager-job-dashboard table,
+									
+									.search_jobs--frontpage input, 
+									.search_jobs--frontpage .chosen-single,
+									.search_jobs--frontpage-facetwp.search_jobs--frontpage select,
+									
+									.search_jobs--frontpage-facetwp .facetwp-facet,
+									
+									.toggle-hidden-facets,
+									.myflex.no-map .search_jobs,
+									
+									.tooltip, .action--share div.sharedaddy',
+								),
+								array(
+									'property' => 'background-color',
+									'selector' => '.chosen-container-multi .chosen-choices li.search-field input[type=text]',
+                                    'callback_filter' => 'listable_css_important_callback',
+								),
+								array(
+									'property' => 'border-top-color',
+									'selector' => '
+									    .uploader-btn .spacer:after,
+									    .tooltip:before, 
+									    .action--share div.sharedaddy:before',
 								),
 								array(
 									'property' => 'border-right-color',
-									'selector' => '.widget_listing_comments #add_post_rating:not(:empty):before',
-								)
-							)
+									'selector' => '
+									    .widget_listing_comments #add_post_rating:not(:empty):before,
+									    .uploader-btn .spacer:after',
+								),
+								array(
+									'property' => 'color',
+									'selector' => '
+									    .page-template-front_page .search_jobs--frontpage .search-submit,
+									    .primary-menu.secondary-menu > ul > li, 
+									    ul.primary-menu.secondary-menu > li, 
+									    ul.primary-menu.secondary-menu .hover.menu-item-has-children,
+									    .primary-menu.secondary-menu > ul > li:hover, 
+									    ul.primary-menu.secondary-menu > li:hover,
+									    
+									    .btn, 
+									    input[type="submit"], 
+									    button[type="submit"], 
+									    .page-template-front_page .search_jobs--frontpage .search-submit, 
+									    .job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a, 
+									    .woocommerce-account:not(.logged-in) .woocommerce form.login input[type="submit"], 
+									    body.registration .entry-content #buddypress .standard-form input#signup_submit[type="submit"], 
+									    .woocommerce .button, 
+									    .woocommerce-message > a,
+									    .card__featured-tag,
+									    .product .product__tag,
+									    
+									    .entry-content .woocommerce a.button, .woocommerce .entry-content a.button, .entry-content .woocommerce-message > a, 
+									    .entry-content a.btn:hover, .entry-content .page-template-front_page .search_jobs--frontpage a.search-submit:hover, 
+									    .page-template-front_page .search_jobs--frontpage .entry-content a.search-submit, 
+									    .page-template-front_page .search_jobs--frontpage .entry-content a.search-submit:hover, 
+									    .entry-content a.btn, 
+									    .entry-content .page-template-front_page .search_jobs--frontpage a.search-submit, 
+									    .entry-content .job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a, 
+									    .job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview .entry-content a, 
+									    .job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview .entry-content a:hover, 
+									    .entry-content .job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:hover, 
+									    .entry-content .woocommerce a.button:hover, .woocommerce .entry-content a.button:hover, 
+									    .entry-content .woocommerce-message > a:hover,
+									    
+									    .action--favorite.bookmarked .action__icon[class],
+                                        .wp-job-manager-bookmarks-form[class].has-bookmark .action__icon[class]',
+								),
+							),
 						),
 						'page_background'    => array(
 							'type'    => 'color',
@@ -1245,12 +1421,21 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 										.woocommerce-account:not(.logged-in) .entry-content,
 										.mobile-buttons, .tabs.wc-tabs,
 										.woocommerce-cart,
-										.woocommerce-checkout',
+										.woocommerce-checkout,
+										body.registration,
+										.woocommerce-account.logged-in .page,
+										.page-job-dashboard, 
+										.page-my-bookmarks,
+										.page-add-listing .hentry, 
+										.page-job-dashboard .hentry,
+										.facetwp-pager .facetwp-pager-label, 
+										.facetwp-pager a.active, 
+										.facetwp-pager a.active:hover',
 								),
 								array(
 									'property' => 'background-color',
 									// 'media' 		=> 'screen and (min-width: 1000px) ',
-									'selector' => '.job_listing_packages,',
+									'selector' => '.job_listing_packages',
 								),
 								array(
 									'media'    => 'not screen and (min-width: 480px)',
@@ -1327,26 +1512,136 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 										.comment-respond label,
 										.page-template-front_page .search-form .search-field,
 										.woocommerce-account:not(.logged-in) .woocommerce form.login .form-row .required,
-										.mobile-buttons .btn--view, .search_jobs--frontpage .chosen-container .chosen-results li'
+										.mobile-buttons .btn--view, .search_jobs--frontpage .chosen-container .chosen-results li,
+										
+										.entry-content_wrapper .widget-area--post .widget_subtitle,
+										.entry-content table:not(.cart-totals):not(.ui-datepicker-calendar) td a:not([class*="job-dashboard-action"]), 
+										#job-manager-job-dashboard table td a:not([class*="job-dashboard-action"])'
 								),
-
 								array(
 									'property' => 'border-color',
 									'selector' => 'input[type="checkbox"]:focus,
-													.package__btn.package__btn:hover',
+                                        .package__btn.package__btn:hover,
+                                        .facetwp-checkbox.facetwp-checkbox:hover:after, 
+                                        .facetwp-checkbox.facetwp-checkbox.checked:after',
 								),
-
+								array(
+									'property' => 'border-color',
+									'selector' => '
+									    select, 
+									    textarea, 
+									    input[type="text"], 
+									    input[type="password"], 
+									    input[type="datetime"], 
+									    input[type="datetime-local"], 
+									    input[type="date"], 
+									    input[type="month"], 
+									    input[type="time"], 
+									    input[type="week"], 
+									    input[type="number"], 
+									    input[type="email"], 
+									    input[type="url"], 
+									    input[type="search"], 
+									    input[type="tel"], 
+									    input[type="color"],
+									    .entry-content_wrapper .search-form, 
+									    .form-control, 
+									    .select2-container .select2-choice, 
+                                        .select2-container--default .select2-selection--single .select2-selection__rendered,
+                                        .select2-drop,
+                                        .chosen-container .chosen-drop,
+                                        .chosen-container-multi .chosen-choices, .chosen-container-single .chosen-single,
+                                        .chosen-container-active.chosen-with-drop .chosen-single, 
+                                        .select-tags .chosen-container-multi .chosen-choices,
+                                        
+                                        .listing-sidebar--main .widget:not(.widget_listing_tags):not(.widget_listing_actions):not(.widget_listing_comments), 
+                                        .listing-sidebar--top .widget, 
+                                        .listing-sidebar--bottom,
+                                        
+                                        .comment, 
+                                        .pingback,
+                                        
+                                        h2.comments-title,
+                                        
+                                        .package, 
+                                        .wpjmcl_form_claim_package .job-package,
+                                        
+                                        ul.primary-menu > .menu-item.menu-item-has-children > .sub-menu,
+                                        .primary-menu > ul > .page_item:before, ul.primary-menu > .menu-item:before,
+                                        
+                                        .page-add-listing fieldset:first-child label, .page-job-dashboard fieldset:first-child label,
+                                        .page-add-listing fieldset:first-child, .page-job-dashboard fieldset:first-child,
+                                        .description_tooltip,
+                                        .uploader-btn .spacer,
+                                        
+                                        .single:not(.single-job_listing) .entry-content div.sharedaddy div.sd-social.sd-social > div.sd-content.sd-content ul li > a,
+                                        .page .entry-content div.sharedaddy div.sd-social.sd-social > div.sd-content.sd-content ul li > a,
+                                        ol.comment-list > .comment:last-child,
+                                        
+                                        .entry-content table:not(.cart-totals):not(.ui-datepicker-calendar), 
+                                        .entry-content table:not(.cart-totals):not(.ui-datepicker-calendar) tr + tr td, 
+                                        .entry-content table:not(.cart-totals):not(.ui-datepicker-calendar) tr + tr th, 
+                                        .entry-content table:not(.cart-totals):not(.ui-datepicker-calendar) thead + tbody tr:first-child td, 
+                                        .entry-content table:not(.cart-totals):not(.ui-datepicker-calendar) thead + tbody tr:first-child th, 
+                                        #job-manager-job-dashboard table,
+                                        #job-manager-job-dashboard table tr + tr td, #job-manager-job-dashboard table tr + tr th, 
+                                        #job-manager-job-dashboard table thead + tbody tr:first-child td, 
+                                        #job-manager-job-dashboard table thead + tbody tr:first-child th,
+                                        
+                                        .toggle-hidden-facets,
+                                        .header-facet-wrapper .facetwp-facet:before,
+                                        .header-facet-wrapper .search-submit:before,
+                                        
+                                        .facetwp-checkbox.facetwp-checkbox:after,
+                                        .myflex.no-map .search_jobs,
+                                        .tooltip, .action--share div.sharedaddy',
+                                    'callback_filter' => 'listable_border_opacity_callback',
+								),
+                                array(
+                                    'property' => 'border-top-color',
+                                    'selector' => '
+                                        ul.primary-menu > .menu-item.menu-item-has-children > .sub-menu:after,
+                                        .description_tooltip:after',
+                                    'callback_filter' => 'listable_border_opacity_callback',
+                                ),
+                                array(
+                                    'property' => 'border-right-color',
+                                    'selector' => '.description_tooltip.left:after',
+                                    'callback_filter' => 'listable_border_opacity_callback',
+                                ),
+                                array(
+                                    'property' => 'border-left-color',
+                                    'selector' => '
+                                        .description_tooltip.right:after,
+                                        .uploader-btn .spacer:after',
+                                    'callback_filter' => 'listable_border_opacity_callback',
+                                ),
+                                array(
+                                    'property' => 'border-bottom-color',
+                                    'selector' => '
+                                        .uploader-btn .spacer:after',
+                                    'callback_filter' => 'listable_border_opacity_callback',
+                                ),
 								array(
 									'property' => 'background-color',
-									'selector' => '.btn:hover, input[type="submit"]:hover,
-										.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:hover,
-										.woocommerce-account:not(.logged-in) .woocommerce form.login input[type="submit"]:hover,
-										.woocommerce .button:hover, .btn:focus, input[type="submit"]:focus,
-										.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:focus,
-										.woocommerce-account:not(.logged-in) .woocommerce form.login input[type="submit"]:focus, .woocommerce .button:focus,
-										.package__btn.package__btn:hover,
-										.job_listing_preview_title input[name="edit_job"],
-										 .page-template-front_page .search-form .search-submit:hover',
+									'selector' => '
+									    .btn:hover, 
+									    input[type="submit"]:hover, 
+									    button[type="submit"]:hover, 
+									    .page-template-front_page .search_jobs--frontpage .search-submit:hover, 
+									    .job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:hover, 
+									    .woocommerce-account:not(.logged-in) .woocommerce form.login input[type="submit"]:hover, 
+									    body.registration .entry-content #buddypress .standard-form input#signup_submit[type="submit"]:hover, 
+									    .woocommerce .button:hover, 
+									    .woocommerce-message > a:hover, 
+									    .btn:focus, 
+									    input[type="submit"]:focus, 
+									    button[type="submit"]:focus, 
+									    .page-template-front_page .search_jobs--frontpage .search-submit:focus, 
+									    .job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:focus, 
+									    .woocommerce-account:not(.logged-in) .woocommerce form.login input[type="submit"]:focus, 
+									    body.registration .entry-content #buddypress .standard-form input#signup_submit[type="submit"]:focus, 
+									    .woocommerce .button:focus, .woocommerce-message > a:focus',
 								),
 							)
 						),
@@ -1358,14 +1653,20 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'css'     => array(
 								array(
 									'property' => 'background-color',
-									'selector' => '.btn, input[type="submit"],
+									'selector' => '
+									    .btn, 
+									    input[type="submit"],
 										.page-template-front_page .search-form .search-submit,
+										.page-template-front_page .search_jobs--frontpage .search-submit, 
 										.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a,
+										body.registration .entry-content #buddypress .standard-form input#signup_submit[type="submit"], 
 										.woocommerce-account:not(.logged-in) .woocommerce form.login input[type="submit"],
 										.woocommerce .button,
+										.woocommerce-message > a
 										.popup__rating,
 										.single-action-buttons .action:hover .action__icon,
 										.action--favorite.bookmarked .action__icon,
+										.wp-job-manager-bookmarks-form[class].has-bookmark .action__icon,
 										.package--labeled .package__btn.package__btn,
 										.featured-label,
 										.product .product__tag,
@@ -1379,7 +1680,9 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								),
 								array(
 									'property' => 'color',
-									'selector' => '.package__btn.package__btn',
+									'selector' => '
+									    .package__btn.package__btn,
+									    .nav-links a:hover',
 								),
 								array(
 									'property' => 'fill',
@@ -1401,7 +1704,18 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 							'css'     => array(
 								array(
 									'property' => 'background-color',
-									'selector' => '.card, .package, .leaflet-popup-content, .leaflet-popup-tip'
+									'selector' => '
+									    .card,
+									    .package, 
+									    .leaflet-popup-content, 
+									    .leaflet-popup-tip,
+									    .facetwp-pager > span, 
+									    .facetwp-pager > a, 
+									    #content nav.job-manager-pagination ul li > span, 
+									    #content nav.job-manager-pagination ul li > a, 
+									    #content nav.job-manager-pagination ul li span.current, 
+									    .nav-links a,
+									    .entry-content_wrapper .widget-area--post .section-wrap'
 								),
 							)
 						),
@@ -1467,7 +1781,18 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 									'property' => 'color',
 									'selector' => '.card, .card__content, .card--post.sticky,
 									.popup__address, .package__description,
-									.single-job_listing .entry-subtitle',
+									.single-job_listing .entry-subtitle,
+									.section-wrap',
+								),
+								array(
+									'property' => 'border-color',
+									'selector' => '
+									    .facetwp-pager > span:after, 
+									    .facetwp-pager > a:after, 
+									    #content nav.job-manager-pagination ul li > span:after, 
+									    #content nav.job-manager-pagination ul li > a:after, 
+									    #content nav.job-manager-pagination ul li span.current:after, 
+									    .nav-links a:after',
 								),
 							)
 						),
@@ -1644,47 +1969,48 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								array(
 									'property' => 'color',
 									'selector' => '.not-entry-content a,
-													.comment-content a,
-													.single-categories-breadcrumb a:hover,
-													.single-rating > i, .widget_listing_comments .comment .review_rate > i,
-													.single-action-buttons .action:hover .action__text,
-													.action--favorite.bookmarked .action__icon,
-													.tags-links a:hover, .tags-links a:focus,
-													.loader,
-													.listing-sidebar .widget_listing_content a,
-													.listing-sidebar a:hover,
-													.listing-sidebar .action__icon,
-													.widget_listing_comments #add_comment_rating_wrap i,
-													ol.comment-list .fn a:hover,
-													.single-job_listing .entry-title,
-													.page-listings div.job_listings .load_more_jobs:hover strong,
-													.tax-job_listing_category div.job_listings .load_more_jobs:hover strong,
-													.tax-job_listing_tag div.job_listings .load_more_jobs:hover strong,
-													.chosen-container-single .chosen-single span,
-													.chosen-container .chosen-results li.highlighted,
-													progress,
-													.single-product .stars a:before,
-													.product-content .price,
-													.tabs.wc-tabs li.active a,
-													.color-accent,
-													.entry-content a, .comment-content a,
-													.gallery-arrow,
-													.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:hover,
-													.job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:focus,
-													.package__btn.package__btn:hover,
-													.nav-links a:hover, .site-footer a:hover, .facetwp-pager a:hover,
-													.facetwp-pager a.first-page:hover:before, .facetwp-pager a.first-page:hover:after,
-													.facetwp-pager a.last-page:hover:before, .facetwp-pager a.last-page:hover:after,
-													.widget_listing_sidebar_claim_listing .listing-claim-button, .lwa-form .lwa-action-link,
-													.pac-container .pac-item:hover .pac-item-query',
+                                        .comment-content a,
+                                        .single-categories-breadcrumb a:hover,
+                                        .single-rating > i, .widget_listing_comments .comment .review_rate > i,
+                                        .single-action-buttons .action:hover .action__text,
+                                        .action--favorite.bookmarked .action__icon,
+                                        .wp-job-manager-bookmarks-form[class].has-bookmark .action__icon,
+                                        .tags-links a:hover, .tags-links a:focus,
+                                        .loader,
+                                        .listing-sidebar .widget_listing_content a,
+                                        .listing-sidebar a:hover,
+                                        .listing-sidebar .action__icon,
+                                        .widget_listing_comments #add_comment_rating_wrap i,
+                                        ol.comment-list .fn a:hover,
+                                        .single-job_listing .entry-title,
+                                        .page-listings div.job_listings .load_more_jobs:hover strong,
+                                        .tax-job_listing_category div.job_listings .load_more_jobs:hover strong,
+                                        .tax-job_listing_tag div.job_listings .load_more_jobs:hover strong,
+                                        .chosen-container-single .chosen-single span,
+                                        .chosen-container .chosen-results li.highlighted,
+                                        progress,
+                                        .single-product .stars a:before,
+                                        .product-content .price,
+                                        .tabs.wc-tabs li.active a,
+                                        .color-accent,
+                                        .entry-content a, .comment-content a,
+                                        .gallery-arrow,
+                                        .job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:hover,
+                                        .job-manager-form fieldset .job-manager-uploaded-files .job-manager-uploaded-file .job-manager-uploaded-file-preview a:focus,
+                                        .package__btn.package__btn:hover,
+                                        .site-footer a:hover, 
+                                        .facetwp-pager a:hover,
+                                        .facetwp-pager a.first-page:hover:before, .facetwp-pager a.first-page:hover:after,
+                                        .facetwp-pager a.last-page:hover:before, .facetwp-pager a.last-page:hover:after,
+                                        .widget_listing_sidebar_claim_listing .listing-claim-button, .lwa-form .lwa-action-link,
+                                        .pac-container .pac-item:hover .pac-item-query',
 								),
 								array(
 									'property' => 'background-color',
 									'selector' => '.secondary-menu, .secondary-menu-wrapper:before, .product__remove,
-													.page-template-front_page .pac-container .pac-item:hover,
-													.page-template-front_page .search_jobs--frontpage .search-submit,
-													.facetwp-type-slider .noUi-connect,
-													.card__featured-tag, .woocommerce-message, .no-results .clear-results-btn',
+                                        .page-template-front_page .pac-container .pac-item:hover,
+                                        .facetwp-type-slider .noUi-connect,
+                                        .card__featured-tag, .woocommerce-message, .no-results .clear-results-btn',
 								),
 								array(
 									'property' => 'background',
@@ -1701,6 +2027,7 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								array(
 									'property' => 'border-top-color',
 									'selector' => '.page-template-front_page .is--active .search-field-wrapper.has--menu:after,
+									                ul.secondary-menu > .menu-item.menu-item-has-children > .sub-menu:before,
 									                ul.secondary-menu > .menu-item.menu-item-has-children > .sub-menu:after,
 									                .search_jobs--frontpage .chosen-with-drop.chosen-container-active .chosen-single:after',
 								)
@@ -1716,37 +2043,50 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 								array(
 									'property' => 'color',
 									'selector' => '.description, .tabs.wc-tabs,
-														.single-categories-breadcrumb a,
-														.single-categories-breadcrumb a:after,
-														.single-rating .rating-value, .widget_listing_comments .comment .review_rate .rating-value,
-														div.sd-social.sd-social > div.sd-content.sd-content ul li > a,
-														.sharedaddy div.sd-social-icon .sd-content ul li[class*="share-"].share-press-this a.sd-button,
-														.sharedaddy div.sd-social-icon .sd-content ul li[class*="share-"].share-press-this a.sd-button:before,
-														.tags-links,
-														.tags-links a,
-														.listing-sidebar a,
-														.widget_listing_comments .comment-meta a,
-														.comment-meta a,
-														.single:not(.single-job_listing) .entry-subtitle, .page .entry-subtitle,
-														.single:not(.single-job_listing) .entry-meta a, .page .entry-meta a,
-														.tax-job_listing_category div.job_listings .load_more_jobs strong, .tax-job_listing_tag div.job_listings .load_more_jobs strong,
-
-														.search_jobs select,
-														.chosen-container-multi .chosen-choices li.search-field input[type=text], .chosen-container-single .chosen-single span,
-														.active-tag,
-														.select-tags .chosen-container-multi .chosen-choices,
-
-														.chosen-results,
-														.job-manager-form .field small.field-description,
-														.uploader-btn .spacer .text,
-														.page-add-listing .chosen-container-multi .chosen-choices li.search-choice,
-														.woocommerce-account:not(.logged-in) .woocommerce form.login label[for=rememberme],
-														.woocommerce-account:not(.logged-in) .lost_password a,
-														.woocommerce-breadcrumb,
-														.product-content .price del,
-														.mfp-iframe-scaler.mfp-wp-login .mfp-close,
-														.nav-links a, .facetwp-pager a,
-														.job_filters .facetwp-type-fselect .fs-label.fs-label'
+                                        .single-categories-breadcrumb a,
+                                        .single-categories-breadcrumb a:after,
+                                        .single-rating .rating-value, .widget_listing_comments .comment .review_rate .rating-value,
+                                        div.sd-social.sd-social > div.sd-content.sd-content ul li > a,
+                                        .sharedaddy div.sd-social-icon .sd-content ul li[class*="share-"].share-press-this a.sd-button,
+                                        .sharedaddy div.sd-social-icon .sd-content ul li[class*="share-"].share-press-this a.sd-button:before,
+                                        .tags-links,
+                                        .tags-links a,
+                                        .listing-sidebar a,
+                                        .widget_listing_comments .comment-meta a,
+                                        .comment-meta a,
+                                        .single:not(.single-job_listing) .entry-subtitle, .page .entry-subtitle,
+                                        .single:not(.single-job_listing) .entry-meta a, .page .entry-meta a,
+                                        .tax-job_listing_category div.job_listings .load_more_jobs strong, .tax-job_listing_tag div.job_listings .load_more_jobs strong,
+    
+                                        .search_jobs select,
+                                        .chosen-container-multi .chosen-choices li.search-field input[type=text], .chosen-container-single .chosen-single span,
+                                        .active-tag,
+                                        .select-tags .chosen-container-multi .chosen-choices,
+    
+                                        .chosen-results,
+                                        .job-manager-form .field small.field-description,
+                                        .uploader-btn .spacer .text,
+                                        .page-add-listing .chosen-container-multi .chosen-choices li.search-choice,
+                                        .woocommerce-account:not(.logged-in) .woocommerce form.login label[for=rememberme],
+                                        .woocommerce-account:not(.logged-in) .lost_password a,
+                                        .woocommerce-breadcrumb,
+                                        .product-content .price del,
+                                        .mfp-iframe-scaler.mfp-wp-login .mfp-close,
+                                        .nav-links a, .facetwp-pager a,
+                                        .job_filters .facetwp-type-fselect .fs-label.fs-label,
+                                        .page-listings div.job_listings .load_more_jobs strong, .post-type-archive-job_listing div.job_listings .load_more_jobs strong,
+                                        
+                                        .search-form .search_jobs--frontpage .search-field, 
+                                        .search_jobs--frontpage .search_location #search_location, 
+                                        .search_jobs--frontpage .select-region-dummy, 
+                                        .search_jobs--frontpage.search_jobs select, 
+                                        .search_jobs--frontpage .chosen-single span, 
+                                        .search_jobs--frontpage-facetwp input, 
+                                        .search_jobs--frontpage-facetwp select,
+                                        
+                                        .facetwp-pager .facetwp-pager-label, 
+                                        .facetwp-pager a.active, 
+                                        .facetwp-pager a.active:hover'
 								),
 								array(
 									'property' => 'color',
@@ -1792,7 +2132,9 @@ if ( ! function_exists( 'listable_add_customify_options' ) ) :
 									'property' => 'color',
 									'selector' => '.job_filters .showing_jobs,
 										.tax-job_listing_category div.job_listings .load_more_jobs strong,
-										.tax-job_listing_tag div.job_listings .load_more_jobs strong'
+										.tax-job_listing_tag div.job_listings .load_more_jobs strong,
+										.search-suggestions-menu .menu-item-description,
+										.widget_listing_comments #add_post_rating'
 								),
 								array(
 									'property' => 'border-top-color',
@@ -2226,8 +2568,11 @@ function listabe_adjust_cusotmizer_settings( $wp_customize ) {
 
 	// move the `logo_invert` option to the title_tagline section(just to keep the well grouped)
 	$logo_invert           = $wp_customize->get_control( 'listable_options[logo_invert]_control' );
-	$logo_invert->section  = 'title_tagline';
-	$logo_invert->priority = 9;
+
+	if ( ! empty( $logo_invert ) ) {
+		$logo_invert->section  = 'title_tagline';
+		$logo_invert->priority = 9;
+	}
 }
 
 add_filter( 'customify_filter_fields', 'listable_add_customify_options' );
@@ -2291,7 +2636,85 @@ add_filter( 'customify_filter_standard_fonts_list', 'listable_add_customify_font
 if ( ! function_exists( 'listable_update_header_height' ) ) {
 	function listable_update_header_height( $value, $selector, $property, $unit ) {
 		$output = $selector . '{' . $property . ': ' . $value . $unit . '}';
+		return $output;
+	}
+}
 
+if ( ! function_exists( 'listable_border_opacity_callback' ) ) {
+	function listable_border_opacity_callback( $value, $selector, $property, $unit ) {
+	    // css3 colors support transparency in hex: #RRGGBBAA
+        // 33 is hex for 25 ~ 20% of 255
+        $output = $selector . '{' . $property . ': ' . $value . '33 }';
+		return $output;
+	}
+}
+
+
+if ( ! function_exists( 'listable_border_opacity_callback_customizer_preview' ) ) :
+	/**
+	 * Outputs the inline JS code used in the Customizer for the aspect ratio live preview.
+	 */
+	function listable_border_opacity_callback_customizer_preview() {
+
+        $js = "
+		    function makeSafeForCSS(name) {
+                return name.replace(/[^a-z0-9]/g, function(s) {
+                    var c = s.charCodeAt(0);
+                    if (c == 32) return '-';
+                    if (c >= 65 && c <= 90) return '_' + s.toLowerCase();
+                    return '__' + ('000' + c.toString(16)).slice(-4);
+                });
+            }
+            
+            String.prototype.hashCode = function() {
+                var hash = 0, i, chr;
+                
+                if ( this.length === 0 ) return hash;
+                
+                for (i = 0; i < this.length; i++) {
+                    chr   = this.charCodeAt(i);
+                    hash  = ((hash << 5) - hash) + chr;
+                    hash |= 0; // Convert to 32bit integer
+                }
+                return hash;
+            };
+            
+			function listable_border_opacity_callback( value, selector, property, unit ) {
+			
+			    var css = '',
+			        id = 'listable_border_opacity_callback_style_tag_' + makeSafeForCSS( property + selector ).hashCode();
+			        style = document.getElementById(id),
+			        head = document.head || document.getElementsByTagName('head')[0];
+
+			    css += selector + ' {' +
+			        property + ': ' + value + '33' +
+		        '}';
+
+			    if ( style !== null ) {
+			        style.innerHTML = css;
+			    } else {
+			        style = document.createElement('style');
+			        style.setAttribute('id', id);
+			
+			        style.type = 'text/css';
+			        if ( style.styleSheet ) {
+			            style.styleSheet.cssText = css;
+			        } else {
+			            style.appendChild(document.createTextNode(css));
+			        }
+			
+			        head.appendChild(style);
+			    }
+			}" . PHP_EOL;
+
+		wp_add_inline_script( 'customify-previewer-scripts', $js );
+	}
+endif;
+add_action( 'customize_preview_init', 'listable_border_opacity_callback_customizer_preview', 20 );
+
+if ( ! function_exists( 'listable_css_important_callback' ) ) {
+	function listable_css_important_callback( $value, $selector, $property, $unit ) {
+    $output = $selector . '{' . $property . ': ' . $value . $unit . ' !important }';
 		return $output;
 	}
 }
@@ -2336,3 +2759,28 @@ function listable_update_header_height_customizer_preview() {
 <?php }
 
 add_action( 'customize_preview_init', 'listable_update_header_height_customizer_preview', 11 );
+
+function listable_add_default_color_palette( $color_palettes ) {
+    $color_palettes = array_merge(array(
+        'default' => array(
+            'label' => 'Default',
+            'preview' => array(
+				'background_image_url' => 'https://cloud.pixelgrade.com/wp-content/uploads/2018/06/listable-palette.jpg',
+			),
+            'options' => array(
+                'sm_color_primary' => '#FF4D58',
+                'sm_color_secondary' => '#FF4D58',
+                'sm_color_tertiary' => '#F53C48',
+                'sm_dark_primary' => '#484848',
+                'sm_dark_secondary' => '#2F2929',
+                'sm_dark_tertiary' => '#919191',
+                'sm_light_primary' => '#FFFFFF',
+                'sm_light_secondary' => '#F9F9F9',
+                'sm_light_tertiary' => '#F9F9F9',
+            ),
+        ),
+    ), $color_palettes);
+
+    return $color_palettes;
+}
+add_filter( 'customify_get_color_palettes', 'listable_add_default_color_palette' );

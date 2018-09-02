@@ -18,16 +18,24 @@
 
 .lwa-form {
 	display: none;
+	-ms-flex-direction: column;
 	flex-direction: column;
 	font-size: 14.95px; 
 	height: auto !important;
+
+	-webkit-box-direction: normal;
+	-webkit-box-orient: vertical;
 }
 .lwa-form.form-visible {
+	display: -webkit-box !important;
+	display: -ms-flexbox !important;
 	display: flex !important;
 }
 .lwa-form p {
+	-ms-flex-order: 1;
 	margin-bottom: 12px; 
 
+	-webkit-box-ordinal-group: 2;
 	order: 1;
 }
 .lwa-form p:last-child {
@@ -45,13 +53,14 @@
 	background-color: white;
 	bottom: -20px;
 	color: #919191;
-	content: "or";
+	content: attr(data-string);
 	display: inline-block;
 	font-weight: 600;
 	left: 50%;
 	padding: 10px;
 	position: absolute;
 	text-align: center;
+	-webkit-transform: translateX(-50%);
 	transform: translateX(-50%);
 }
 .lwa-form .wc-social-login p:first-child {
@@ -62,6 +71,7 @@
 }
 .lwa-form .wc-social-login .button-social-login {
 	border-radius: 4px;
+	-webkit-box-shadow: none;
 	box-shadow: none;
 	display: block;
 	font-size: 16px;
@@ -83,6 +93,7 @@
 	position: absolute;
 	text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3); 
 	top: 50%;
+	-webkit-transform: translateY(-50%);
 	transform: translateY(-50%);
 	width: 2em;
 }
@@ -128,6 +139,7 @@
 	position: absolute;
 	right: -18px;
 	top: 50%;
+	-webkit-transform: translateY(-50%);
 	transform: translateY(-50%);
 	width: 0;
 }

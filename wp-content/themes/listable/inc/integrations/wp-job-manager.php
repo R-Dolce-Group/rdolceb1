@@ -434,9 +434,6 @@ function custom_submit_job_form_fields( $fields ) {
 
 	$fields['company']['company_website']['priority']    = 2.9;
 	$fields['company']['company_website']['placeholder'] = esc_html__( 'e.g yourwebsite.com, London', 'listable' );
-	$fields['company']['company_website']['description'] = sprintf( '<span class="description_tooltip left">%s</span>', esc_html__( 'You can add more similar panels to better help the user fill the form', 'listable' ) );
-
-
 
 	// temporary unsets
 	unset( $fields['company']['company_video'] );
@@ -468,19 +465,24 @@ function listable_on_listing_submit( $id, $values ) {
 	$company_logo = $values['company']['main_image'];
 
 	// turn company logo in featured image
-	if ( isset( $company_logo ) && ! empty( $company_logo ) ) {
+	if ( ! empty( $company_logo ) ) {
 
 		$main_image_string = '';
 		$main_image_array = array();
 
 		// we may have a simple string(on image upload) or an array of images, so we need to treat them all
-		if ( is_numeric( $company_logo ) ) {
-			$attach_id = listable_get_attachment_id_from_url( $company_logo );
+		if ( ! is_array( $company_logo ) ) {
+			if ( is_numeric( $company_logo ) ) {
+				$attach_id = $company_logo;
+			} else {
+				$attach_id = listable_get_attachment_id_from_url( $company_logo );
+			}
+
 			if ( ! empty( $attach_id ) && is_numeric( $attach_id ) ) {
 				$main_image_string = $attach_id;
 				$main_image_array = $company_logo;
 			}
-		} elseif ( is_array( $company_logo ) && ! empty( $company_logo ) ) {
+		} elseif ( is_array( $company_logo ) ) {
 
 			foreach ( $company_logo as $key => $url ) {
 				$attach_id = listable_get_attachment_id_from_url( $url );

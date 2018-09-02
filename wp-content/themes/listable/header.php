@@ -19,7 +19,10 @@
 
 <?php wp_head(); ?>
 </head>
-<body <?php body_class(); ?> data-mapbox-token="<?php echo pixelgrade_option('mapbox_token', ''); ?>" data-mapbox-style="<?php echo pixelgrade_option('mapbox_style', ''); ?>">
+<body <?php body_class(); ?>
+        data-map-default-location="<?php echo pixelgrade_option('map_default_location', '51.5073509,-0.12775829999998223'); ?>"
+        data-mapbox-token="<?php echo pixelgrade_option('mapbox_token', ''); ?>"
+        data-mapbox-style="<?php echo pixelgrade_option('mapbox_style', ''); ?>">
 <div id="page" class="hfeed site">
 	<a class="skip-link screen-reader-text" href="#content"><?php esc_html_e( 'Skip to content', 'listable' ); ?></a>
 

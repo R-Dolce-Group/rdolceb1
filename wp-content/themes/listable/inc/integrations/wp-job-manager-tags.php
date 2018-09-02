@@ -6,33 +6,6 @@
  * @package Listable
  */
 
-
-/* ------- UTILITY FUNCTIONS --------- */
-
-
-/**
- * Prints HTML with meta information for the tags.
- */
-function listable_tags_list( $content ) {
-
-	$tags_content = '';
-
-	// Hide category and tag text for pages.
-	if ( 'post' == get_post_type() ) {
-		/* translators: used between list items, there is a space after the comma */
-		$tags_list = get_the_tag_list();
-		if ( $tags_list ) {
-			$tags_content .= sprintf( '<span class="tags-links">' . esc_html__( '%1$s', 'listable' ) . '</span>', $tags_list ); // WPCS: XSS OK.
-		}
-	}
-
-	return $content . $tags_content;
-}
-
-//add this filter with a priority smaller than sharedaddy - it has 19
-add_filter( 'the_content', 'listable_tags_list', 18 );
-
-
 /* -------- WIDGETS -------- */
 
 function listable_register_widget_areas_wpjm_tags() {
@@ -67,22 +40,23 @@ class Listing_Tags_Widget extends WP_Widget {
 
 			<ul class="listing-tag-list">
 
-				<?php foreach ( $tags as $tag ) : ?>
+				<?php foreach ( $tags as $tag ) :
+					$tag_link = esc_url( get_term_link( $tag ) );
+					$tag_image = listable_get_term_icon_url( $tag->term_id );
 
-					<li>
-						<?php $tag_link = esc_url( get_term_link( $tag ) ); ?>
-						<a href="<?php echo $tag_link; ?>" class="listing-tag">
-							<?php
-							$tag_image = listable_get_term_icon_url( $tag->term_id );
-							if ( $tag_image ) :
-								?>
-								<span class="tag__icon"><img src="<?php echo $tag_image ?>" alt=""/></span>
-							<?php endif; ?>
-							<span class="tag__text"><?php echo $tag->name; ?></span>
-						</a><!-- .listing-tag -->
-					</li>
+					$tag_output = '';
+					$tag_output .= '<li><a href="' . $tag_link . '" class="listing-tag">';
+					if ( $tag_image ) :
+						$tag_output .= '<span class="tag__icon"><img src="' . $tag_image . '" alt=""/></span>';
+					endif;
+					$tag_output .= '<span class="tag__text">' . $tag->name . '</span></a></li>';
 
-				<?php endforeach; ?>
+					if ( ! apply_filters( 'enable_job_tag_archives', get_option( 'job_manager_enable_tag_archive' ) ) )
+						$tag_output = strip_tags( $tag_output, '<li><span><img>' );
+
+					echo $tag_output;
+
+				endforeach; ?>
 
 			</ul><!-- .listing-tag-list -->
 

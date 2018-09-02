@@ -46,14 +46,14 @@ define( 'DB_COLLATE', '' );
  *
  * @since 2.6.0
  */
-define('AUTH_KEY',         'wkYq4FadYMDVR2Y96N4kDJ6RT50aLVwoWT+swkFbIs6TnjHtBz5qStFtnrZ6psmQva8YME+nMSOmrqJtgEVCrQ==');
-define('SECURE_AUTH_KEY',  '5Mu1qEBIqjC82cQk7svx3iza6sjWom4judWb/R+z/CdMm0Tha6a3UpEiTjR7J6BgBTxbe5pE0jmpYhcGSyQqZA==');
-define('LOGGED_IN_KEY',    'jGnfqTxauldyPagiJ42UskoUAeY9kD3Erta87K8b7XtAQp80F3kugqm/s/FfPZUOmeAbb5dsniZQW46yP528UA==');
-define('NONCE_KEY',        '9v61hFPcZI6+2OuLPmXshq9xdf9PNK0Jlv6oS7uQdEdo+0OGRhS2euIzC8O1tf+ISj7jcUbDI7TvRWS7z7QXYA==');
-define('AUTH_SALT',        'A7UitofMur5DAfs/cbufUe4cXmXKK48/mF3IIWWTMW6ZM+yJwqTRYkf37ToA/N9c1Lkn8oCTPXudpMKE7XiedQ==');
-define('SECURE_AUTH_SALT', 'ClwHqQF1mWTphOwA4JVPulcPv1tqV23sVJD5/Jc5l1/VuLpT8VbJHmVwRnh2IZ1zqghq4Lb27N1aJceUJ2jOmw==');
-define('LOGGED_IN_SALT',   'axy7zDDyOZU/JjuYq5WEYFI6OImnON2mJHUCAUI4RWgANlwMU8yI/Kvcw9ynyG/F8kR0q15iBep3gK/xZ935IQ==');
-define('NONCE_SALT',       'EiSE33PFVGrg9+9svcCZY9f8QELaus/IJlufGH6ExiGPur6I1rC8z+Nt4lVjDqSoL5GCAWXXGkeByN0PJ8jDTA==');
+define('AUTH_KEY',         '8cqx7EnB/GqepkZkEzmjs2DUo4eIGw9M91OnOaSwfTFGjqvc3hHb8PzatOl30mvDRwXQKmUVpDn/FRmKVaTdZw==');
+define('SECURE_AUTH_KEY',  'c+p9htZJQ1mloKO3SGme4qKAhvGduQIOuq9yKhrWAhFohIr1VwUffCiSiSF3h9XjR2AKcLkXaxkbXvmnH92crg==');
+define('LOGGED_IN_KEY',    'zF1m9vEpZ4G30tkOqpODcKOmp7+QQFl3usnizs3k4DpDbjZ+1De1wtLFrfu19Kvs48Nj1JG0piTIQSJDatQ2gA==');
+define('NONCE_KEY',        'b13T/iyyu3ZQ+5ql+0YS6nDoAMbRcO+7eZdYR9hKj2bUlmEKhiVK7fBH16S75eWQxk4J+0SFLEmcFKnMTKy0+g==');
+define('AUTH_SALT',        'qfiK7sUZ0cltoCsmAw1NQltRBfhl7UAqs8JWDTx2DOqLDJoPP/gOzMaTRTzB47yNtpDUBSu4U5MEmfCwQAElAA==');
+define('SECURE_AUTH_SALT', '8uLOIg+CIbOlMZkmf/L8Dt8DpNkGoVlXKpz2SWkwE8Y7Z1/r6c5s3zulQJ8X6uwBC85PkCszLFjf27PG7+xeGQ==');
+define('LOGGED_IN_SALT',   'zxFtcOE/Qh97S1QE+FT9YnvUEQOKB9wY+2Pv6SSgBrbFs3pEPf9O7SAywS3bSzC/aYAy9/z0ynbVMdOG7V5ILg==');
+define('NONCE_SALT',       'hI9zpkRPQRbAKU3efeN9D2a8l/KTff4HcfibmWooD9n0uDldFzzv/nhnhapiUxrFEF0zGjzRgGtLZp5l2yKWcw==');
 
 /**
  * WordPress Database Table prefix.
@@ -61,15 +61,20 @@ define('NONCE_SALT',       'EiSE33PFVGrg9+9svcCZY9f8QELaus/IJlufGH6ExiGPur6I1rC8
  * You can have multiple installations in one database if you give each
  * a unique prefix. Only numbers, letters, and underscores please!
  */
-$table_prefix = 'wp_';
+$table_prefix = 'wp_a39g9wda1k_';
 
 
 
 
 
 /* Inserted by Local by Flywheel. See: http://codex.wordpress.org/Administration_Over_SSL#Using_a_Reverse_Proxy */
-if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+if ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ) {
 	$_SERVER['HTTPS'] = 'on';
+}
+
+/* Inserted by Local by Flywheel. Fixes $is_nginx global for rewrites. */
+if ( ! empty( $_SERVER['SERVER_SOFTWARE'] ) && strpos( $_SERVER['SERVER_SOFTWARE'], 'Flywheel/' ) !== false ) {
+	$_SERVER['SERVER_SOFTWARE'] = 'nginx/1.10.1';
 }
 /* That's all, stop editing! Happy blogging. */
 

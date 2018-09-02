@@ -18,6 +18,10 @@ get_header(); ?>
 		<?php if ( have_posts() ) : ?>
 
 			<?php /* Start the Loop */ ?>
+		
+			<?php if ( is_active_sidebar( 'blog_sidebar' ) ) { ?>
+				<div class="entry-content_wrapper">
+			<?php } ?>
 
 			<div class="postcards">
 				<div class="grid">
@@ -39,6 +43,13 @@ get_header(); ?>
 				<?php the_posts_navigation(); ?>
 			</div>
 
+			<?php if ( is_active_sidebar( 'blog_sidebar' ) ) { ?>
+				<div class="widget-area--post">
+					<?php dynamic_sidebar( 'blog_sidebar' ); ?>
+				</div>
+            </div>
+			<?php } ?>
+		
 		<?php else : ?>
 			<?php get_template_part( 'template-parts/content', 'none' ); ?>
 		<?php endif; ?>

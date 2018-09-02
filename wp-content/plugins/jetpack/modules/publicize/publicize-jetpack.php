@@ -84,6 +84,9 @@ class Publicize extends Publicize_Base {
 							class="button-connector"
 							id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 					</p>
+					<p class="jetpack-install-blurb">
+						<?php jetpack_render_tos_blurb(); ?>
+					</p>
 				</div>
 			</div>
 		</div>
@@ -117,14 +120,39 @@ class Publicize extends Publicize_Base {
 		) );
 	}
 
+	function get_all_connections() {
+		return Jetpack_Options::get_option( 'publicize_connections' );
+	}
+
 	function get_connections( $service_name, $_blog_id = false, $_user_id = false ) {
-		$connections           = Jetpack_Options::get_option( 'publicize_connections' );
+		$connections           = $this->get_all_connections();
 		$connections_to_return = array();
 		if ( ! empty( $connections ) && is_array( $connections ) ) {
 			if ( ! empty( $connections[ $service_name ] ) ) {
 				foreach ( $connections[ $service_name ] as $id => $connection ) {
 					if ( 0 == $connection['connection_data']['user_id'] || $this->user_id() == $connection['connection_data']['user_id'] ) {
 						$connections_to_return[ $id ] = $connection;
+					}
+				}
+			}
+
+			return $connections_to_return;
+		}
+
+		return false;
+	}
+
+	function get_all_connections_for_user() {
+		$connections = $this->get_all_connections();
+
+		$connections_to_return = array();
+		if ( ! empty( $connections ) ) {
+			foreach ( (array) $connections as $service_name => $connections_for_service ) {
+				foreach ( $connections_for_service as $id => $connection ) {
+					$user_id = intval( $connection['connection_data']['user_id'] );
+					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
+					if ( $user_id === 0 || $this->user_id() === $user_id ) {
+						$connections_to_return[ $service_name ][ $id ] = $connection;
 					}
 				}
 			}
@@ -159,8 +187,8 @@ class Publicize extends Publicize_Base {
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
-					$verification = Jetpack::create_nonce( 'publicize' );
-					if ( is_wp_error( $verification ) ) {
+					$verification = Jetpack::generate_secrets( 'publicize' );
+					if ( ! $verification ) {
 						$url = Jetpack::admin_url( 'jetpack#/settings' );
 						wp_die( sprintf( __( "Jetpack is not connected. Please connect Jetpack by visiting <a href='%s'>Settings</a>.", 'jetpack' ), $url ) );
 
@@ -180,7 +208,7 @@ class Publicize extends Publicize_Base {
 						'blog_id'      => $wpcom_blog_id,
 						'secret_1'     => $verification['secret_1'],
 						'secret_2'     => $verification['secret_2'],
-						'eol'          => $verification['eol'],
+						'eol'          => $verification['exp'],
 					) ) );
 					wp_redirect( $redirect );
 					exit;
@@ -354,11 +382,16 @@ class Publicize extends Publicize_Base {
 		), menu_page_url( 'sharing', false ) );
 	}
 
-	function get_services( $filter ) {
-		if ( ! in_array( $filter, array( 'all', 'connected' ) ) ) {
-			$filter = 'all';
-		}
-
+	/**
+	 * Get social networks, either all available or only those that the site is connected to.
+	 *
+	 * @since 2.0
+	 *
+	 * @param string $filter Select the list of services that will be returned. Defaults to 'all', accepts 'connected'.
+	 *
+	 * @return array List of social networks.
+	 */
+	function get_services( $filter = 'all' ) {
 		$services = array(
 			'facebook'    => array(),
 			'twitter'     => array(),
@@ -378,7 +411,6 @@ class Publicize extends Publicize_Base {
 					$connected_services[ $service ] = $connections;
 				}
 			}
-
 			return $connected_services;
 		}
 	}
@@ -388,6 +420,10 @@ class Publicize extends Publicize_Base {
 	}
 
 	function flag_post_for_publicize( $new_status, $old_status, $post ) {
+		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
+			return;
+		}
+
 		if ( 'publish' == $new_status && 'publish' != $old_status ) {
 			/**
 			 * Determines whether a post being published gets publicized.
@@ -410,9 +446,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	function test_connection( $service_name, $connection ) {
-		$connection_test_passed  = true;
-		$connection_test_message = '';
-		$user_can_refresh        = false;
 
 		$id = $this->get_connection_id( $connection );
 
@@ -420,16 +453,13 @@ class Publicize extends Publicize_Base {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.testPublicizeConnection', $id );
 
-		if ( $xml->isError() ) {
-			$xml_response            = $xml->getResponse();
-			$connection_test_message = $xml_response['faultString'];
-			$connection_test_passed  = false;
-		}
-
 		// Bail if all is well
-		if ( $connection_test_passed ) {
+		if ( ! $xml->isError() ) {
 			return true;
 		}
+
+		$xml_response            = $xml->getResponse();
+		$connection_test_message = $xml_response['faultString'];
 
 		// Set up refresh if the user can
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP );
@@ -452,10 +482,13 @@ class Publicize extends Publicize_Base {
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
 	 */
-	function save_publicized( $post_ID, $post, $update ) {
+	function save_publicized( $post_ID, $post = null, $update = null ) {
+		if ( is_null( $post ) ) {
+			return;
+		}
 		// Only do this when a post transitions to being published
 		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
-			$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+			$connected_services = $this->get_all_connections();
 			if ( ! empty( $connected_services ) ) {
 				/**
 				 * Fires when a post is saved that has is marked as pending publicizing
@@ -481,7 +514,7 @@ class Publicize extends Publicize_Base {
 			return $flags;
 		}
 
-		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+		$connected_services = $this->get_all_connections();
 
 		if ( empty( $connected_services ) ) {
 			return $flags;
@@ -497,22 +530,19 @@ class Publicize extends Publicize_Base {
 	 */
 
 	function options_page_facebook() {
-		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+		$connected_services = $this->get_all_connections();
 		$connection         = $connected_services['facebook'][ $_REQUEST['connection'] ];
 		$options_to_show    = ( ! empty( $connection['connection_data']['meta']['options_responses'] ) ? $connection['connection_data']['meta']['options_responses'] : false );
 
 		// Nonce check
 		check_admin_referer( 'options_page_facebook_' . $_REQUEST['connection'] );
 
-		$me    = ( ! empty( $options_to_show[0] ) ? $options_to_show[0] : false );
 		$pages = ( ! empty( $options_to_show[1]['data'] ) ? $options_to_show[1]['data'] : false );
 
-		$profile_checked = true;
 		$page_selected   = false;
-
 		if ( ! empty( $connection['connection_data']['meta']['facebook_page'] ) ) {
 			$found = false;
-			if ( is_array( $pages->data ) ) {
+			if ( $pages && isset( $pages->data ) && is_array( $pages->data )  ) {
 				foreach ( $pages->data as $page ) {
 					if ( $page->id == $connection['connection_data']['meta']['facebook_page'] ) {
 						$found = true;
@@ -522,7 +552,6 @@ class Publicize extends Publicize_Base {
 			}
 
 			if ( $found ) {
-				$profile_checked = false;
 				$page_selected   = $connection['connection_data']['meta']['facebook_page'];
 			}
 		}
@@ -539,29 +568,12 @@ class Publicize extends Publicize_Base {
 			if ( ! empty( $update_notice ) ) {
 				echo $update_notice;
 			}
-			?>
+			$page_info_message = sprintf(
+				__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack' ),
+				'https://jetpack.com/support/publicize/facebook'
+			);
 
-			<?php if ( ! empty( $me['name'] ) ) : ?>
-				<p><?php _e( 'Publicize to my <strong>Facebook Wall</strong>:', 'jetpack' ); ?></p>
-				<table id="option-profile">
-					<tbody>
-					<tr>
-						<td class="radio"><input type="radio" name="option" data-type="profile"
-						                         id="<?php echo esc_attr( $me['id'] ) ?>"
-						                         value="" <?php checked( $profile_checked, true ); ?> /></td>
-						<td class="thumbnail"><label for="<?php echo esc_attr( $me['id'] ) ?>"><img
-									src="<?php echo esc_url( $me['picture']['data']['url'] ) ?>" width="50"
-									height="50"/></label></td>
-						<td class="details"><label
-								for="<?php echo esc_attr( $me['id'] ) ?>"><?php echo esc_html( $me['name'] ) ?></label>
-						</td>
-					</tr>
-					</tbody>
-				</table>
-			<?php endif; ?>
-
-			<?php if ( $pages ) : ?>
-
+			if ( $pages ) : ?>
 				<p><?php _e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
 				<table id="option-fb-fanpage">
 					<tbody>
@@ -591,18 +603,21 @@ class Publicize extends Publicize_Base {
 					</tbody>
 				</table>
 
+				<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
+				<p style="text-align: center;">
+					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ) ?>"
+					       class="button fb-options save-options" name="save"
+					       data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
+					       rel="<?php echo wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ?>"/>
+				</p><br/>
+				<p><?php echo $page_info_message; ?></p>
+			<?php else: ?>
+				<div>
+					<p><?php echo $page_info_message; ?></p>
+					<p><?php printf( __( '<a class="button" href="%s" target="%s">Create a Facebook page</a> to get started.', 'jetpack' ), 'https://www.facebook.com/pages/creation/', '_blank noopener noreferrer' ); ?></p>
+				</div>
 			<?php endif; ?>
-
-			<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
-
-			<p style="text-align: center;">
-				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ) ?>"
-				       class="button fb-options save-options" name="save"
-				       data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-				       rel="<?php echo wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ?>"/>
-			</p><br/>
 		</div>
-
 		<?php
 	}
 
@@ -610,50 +625,30 @@ class Publicize extends Publicize_Base {
 		// Nonce check
 		check_admin_referer( 'save_fb_token_' . $_REQUEST['connection'] );
 
-		$id = $_POST['connection'];
-
 		// Check for a numeric page ID
 		$page_id = $_POST['selected_id'];
 		if ( ! ctype_digit( $page_id ) ) {
 			die( 'Security check' );
 		}
 
-		if ( isset( $_POST['selected_id'] ) && 'profile' == $_POST['type'] ) {
-			// Publish to User Wall/Profile
-			$options = array(
-				'facebook_page'    => null,
-				'facebook_profile' => true
-			);
-
-		} else {
-			if ( 'page' != $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
-				return;
-			}
-
-			// Publish to Page
-			$options = array(
-				'facebook_page'    => $page_id,
-				'facebook_profile' => null
-			);
+		if ( 'page' != $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
+			return;
 		}
 
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
+		// Publish to Page
+		$options = array(
+			'facebook_page'    => $page_id,
+			'facebook_profile' => null
+		);
 
-		if ( ! $xml->isError() ) {
-			$response = $xml->getResponse();
-			Jetpack_Options::update_option( 'publicize_connections', $response );
-		}
-
-		$this->globalization();
+		$this->set_remote_publicize_options( $_POST['connection'], $options );
 	}
 
 	function options_page_tumblr() {
 		// Nonce check
 		check_admin_referer( 'options_page_tumblr_' . $_REQUEST['connection'] );
 
-		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
+		$connected_services = $this->get_all_connections();
 		$connection         = $connected_services['tumblr'][ $_POST['connection'] ];
 		$options_to_show    = $connection['connection_data']['meta']['options_responses'];
 		$request            = $options_to_show[0];
@@ -730,11 +725,13 @@ class Publicize extends Publicize_Base {
 	function options_save_tumblr() {
 		// Nonce check
 		check_admin_referer( 'save_tumblr_blog_' . $_REQUEST['connection'] );
-
-		$id = $_POST['connection'];
-
 		$options = array( 'tumblr_base_hostname' => $_POST['selected_id'] );
 
+		$this->set_remote_publicize_options( $_POST['connection'], $options );
+
+	}
+
+	function set_remote_publicize_options( $id, $options ) {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
@@ -742,9 +739,8 @@ class Publicize extends Publicize_Base {
 		if ( ! $xml->isError() ) {
 			$response = $xml->getResponse();
 			Jetpack_Options::update_option( 'publicize_connections', $response );
+			$this->globalization();
 		}
-
-		$this->globalization();
 	}
 
 	function options_page_twitter() {

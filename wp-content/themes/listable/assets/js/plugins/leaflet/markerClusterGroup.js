@@ -2300,7 +2300,7 @@
 					leg.setStyle({opacity: finalLegOpacity});
 				}
 			}
-			this.setOpacity(0.3);
+			this.setOpacity(0.1);
 
 			group._ignoreMove = false;
 

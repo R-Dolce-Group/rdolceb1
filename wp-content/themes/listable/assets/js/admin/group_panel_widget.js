@@ -29,6 +29,25 @@
 				$list.append( tmpl );
 			} );
 
+			$( document ).on( 'click', '.remove_spotlight', function( event ) {
+				var sure = confirm('Are you sure?'),
+					$btn = $(event.currentTarget),
+					$this_container = $btn.parents( '.group_panel_widget_wrapper' ),
+					$spotlights_list = $btn.parents( '.group_panel_widget_list' );
+
+				if ( sure ) {
+					$btn.parents('.group_panel_widget_spotlight').remove();
+
+					var values = get_fields_values( $spotlights_list ),
+						jsoned = JSON.stringify( values ),
+						$values_holder = $this_container.find( '.spotlight_values' );
+
+					$values_holder.val( jsoned );
+					$values_holder.trigger('input');
+					wp.customize.previewer.refresh();
+				}
+			} );
+
 			$( document ).on( 'input', '.group_panel_widget_list input, .group_panel_widget_list textarea', function() {
 				var $this_container = $( this ).parents( '.group_panel_widget_wrapper' ),
 					$spotlights_list = $( this ).parents( '.group_panel_widget_list' ),

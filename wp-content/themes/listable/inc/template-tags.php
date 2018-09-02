@@ -63,13 +63,11 @@ if ( ! function_exists( 'pixelgrade_option') ) {
 	}
 }
 
-
-/**
- * Function to display the logo added by the theme support 'custom-logo'.
- * This was implemented in 4.5, to use the old logo install jetpack
- */
-
 if ( ! function_exists( 'listable_display_logo' ) ) {
+	/**
+	 * Function to display the logo added by the theme support 'custom-logo'.
+	 * This was implemented in 4.5, to use the old logo install jetpack
+	 */
 	function listable_display_logo() {
 		// Display the inverted logo if all the requirements are met
 		$logo_invert = wp_get_attachment_image_src( pixelgrade_option('logo_invert') );
@@ -213,16 +211,99 @@ function listable_category_transient_flusher() {
 add_action( 'edit_category', 'listable_category_transient_flusher' );
 add_action( 'save_post', 'listable_category_transient_flusher' );
 
-function listable_display_term_icon( $term_id = null, $size = 'thumbnail' ) {
+if ( ! function_exists( 'listable_display_term_icon' ) ) {
+	function listable_display_term_icon( $term_id = null, $size = 'thumbnail' ) {
+		$img_src = listable_get_term_icon_url( $term_id, $size );
 
-	$img_src = listable_get_term_icon_url( $term_id, $size );
+		if ( ! empty( $img_src ) ) { ?>
+			<div class="icon_wrapper">
+				<img src="<?php echo $img_src; ?>">
+			</div>
+		<?php }
+	}
+}
 
-	if ( ! empty( $img_src ) ) { ?>
-		<div class="icon_wrapper">
-			<img src="<?php echo $img_src; ?>">
-		</div>
-	<?php }
+if ( ! function_exists( 'listable_listing_slug_input' ) ) {
+	function listable_listing_slug_input() {
+		$permalinks = get_option( 'listable_permalinks_settings' ); ?>
+		<input name="listable_listing_base_slug" type="text" class="regular-text code" value="<?php if ( isset( $permalinks['listing_base'] ) ) {
+			echo esc_attr( $permalinks['listing_base'] );
+		} ?>" placeholder="<?php echo esc_attr_x( 'listings', 'slug', 'listable' ) ?>"/>
+		<?php
+	}
+}
 
+if ( ! function_exists( 'listable_listing_category_slug_input' ) ) {
+	function listable_listing_category_slug_input() {
+		$permalinks = get_option( 'listable_permalinks_settings' ); ?>
+		<input name="listable_listing_category_slug" type="text" class="regular-text code" value="<?php if ( isset( $permalinks['category_base'] ) ) {
+			echo esc_attr( $permalinks['category_base'] );
+		} ?>" placeholder="<?php echo esc_attr_x( 'listing-category', 'slug', 'listable' ) ?>"/>
+		<?php
+	}
+}
+
+if ( ! function_exists( 'listable_listing_tag_slug_input' ) ) {
+	function listable_listing_tag_slug_input() {
+		$permalinks = get_option( 'listable_permalinks_settings' ); ?>
+		<input name="listable_listing_tag_slug" type="text" class="regular-text code" value="<?php if ( isset( $permalinks['tag_base'] ) ) {
+			echo esc_attr( $permalinks['tag_base'] );
+		} ?>" placeholder="<?php echo esc_attr_x( 'listing-tag', 'slug', 'listable' ) ?>"/>
+		<?php
+	}
+}
+
+if ( ! function_exists('listable_output_single_listing_icon' ) ) {
+	/**
+	 * Output an icon to be used in the Single Listing Map Widget
+	 */
+	function listable_output_single_listing_icon () {
+		global $post;
+
+		$the_term = null;
+
+		// Try to get a category icon
+		$cat_list = wp_get_post_terms(
+			$post->ID,
+			'job_listing_category',
+			array( 'fields' => 'all' )
+		);
+
+		if ( ! empty( $cat_list ) && ! is_wp_error( $cat_list ) ) {
+			foreach ( $cat_list as $term ) :
+				if ( listable_get_term_icon_url( $term->term_id ) ) {
+					$the_term = $term;
+					break;
+				}
+			endforeach;
+		}
+
+		// Else try to get a tag icon
+		if ( $the_term == null ) {
+			$tag_list = wp_get_post_terms(
+				$post->ID,
+				'job_listing_tag',
+				array( 'fields' => 'all' )
+			);
+
+			if ( ! empty( $tag_list ) && ! is_wp_error( $tag_list ) ) {
+				foreach ( $tag_list as $term ) :
+					if ( listable_get_term_icon_url( $term->term_id ) ) {
+						$the_term = $term;
+						break;
+					}
+				endforeach;
+			}
+		}
+
+		if( $the_term != null ) {
+			$icon_url      = listable_get_term_icon_url( $the_term->term_id );
+			$attachment_id = listable_get_term_icon_id( $the_term->term_id );
+			echo '<div class="single-listing-map-category-icon">';
+			listable_display_image( $icon_url, '', true, $attachment_id );
+			echo '</div>';
+		}
+	}
 }
 
 /**
@@ -275,7 +356,7 @@ function get_average_listing_rating( $post_id = null, $decimals = 2 ) {
 	return false;
 }
 
-if ( ! function_exists( 'shape_comment' ) ) :
+if ( ! function_exists( 'listable_shape_comment' ) ) :
 	/**
 	 * Template for comments and pingbacks.
 	 *
@@ -283,7 +364,7 @@ if ( ! function_exists( 'shape_comment' ) ) :
 	 *
 	 * @since Listable
 	 */
-	function shape_comment( $comment, $args, $depth ) {
+	function listable_shape_comment( $comment, $args, $depth ) {
 		$GLOBALS['comment'] = $comment;
 		switch ( $comment->comment_type ) :
 			case 'pingback' :
@@ -295,7 +376,7 @@ if ( ! function_exists( 'shape_comment' ) ) :
 			default :
 				if ( 'job_listing' == get_post_type() ) : ?>
 					<li <?php comment_class(); ?> id="li-comment-<?php comment_ID(); ?>" itemprop="review" itemscope itemtype="http://schema.org/Review">
-					<div class="comment-wrapper">
+					<div class="comment-wrapper" id="div-comment-<?php comment_ID(); ?>">
 						<header class="comment-header">
 							<div class="comment-author vcard" itemprop="author" itemscope itemtype="http://schema.org/Person">
 								<?php
@@ -312,14 +393,15 @@ if ( ! function_exists( 'shape_comment' ) ) :
 						</div>
 						<div class="reply">
 							<?php comment_reply_link( array_merge( $args, array(
+								'add_below' => 'div-comment',
 								'depth'     => $depth,
-								'max_depth' => $args['max_depth']
+								'max_depth' => $args['max_depth'],
 							) ) ); ?>
 						</div><!-- .reply -->
 					</div>
 				<?php else : ?>
 					<li <?php comment_class(); ?> id="li-comment-<?php comment_ID(); ?>">
-					<div class="comment-wrapper">
+					<div class="comment-wrapper" id="div-comment-<?php comment_ID(); ?>">
 						<div class="comment-avatar"><?php echo get_avatar( $comment, 75 ); ?></div>
 						<header class="comment-header">
 							<div class="comment-author vcard">
@@ -342,8 +424,9 @@ if ( ! function_exists( 'shape_comment' ) ) :
 						</div>
 						<div class="reply">
 							<?php comment_reply_link( array_merge( $args, array(
+								'add_below' => 'div-comment',
 								'depth'     => $depth,
-								'max_depth' => $args['max_depth']
+								'max_depth' => $args['max_depth'],
 							) ) ); ?>
 						</div><!-- .reply -->
 					</div>
@@ -351,23 +434,24 @@ if ( ! function_exists( 'shape_comment' ) ) :
 				break;
 		endswitch;
 	}
-endif; // ends check for shape_comment()
+endif; // ends check for listable_shape_comment()
 
+if ( ! function_exists( 'listable_move_comment_date' ) ) {
+	function listable_move_comment_date( $comment_content ) {
+		global $comment;
 
-function listable_move_comment_date( $comment_content ) {
-	global $comment;
+		$commentDateTime = new DateTime( $comment->comment_date );
+		$commentIsoDate = $commentDateTime->format(DateTime::ISO8601);
 
-	$commentDateTime = new DateTime( $comment->comment_date );
-	$commentIsoDate = $commentDateTime->format(DateTime::ISO8601);
-
-	ob_start(); ?>
+		ob_start(); ?>
 	<div class="comment-meta commentmetadata" itemprop="datePublished" content = "<?php echo $commentIsoDate; ?>">
-<a href="<?php echo esc_url( get_comment_link( $comment->comment_ID ) ); ?>"><time pubdate datetime="<?php comment_time( 'c' ); ?>"><?php
-		/* translators: 1: date, 2: time */
-		printf( esc_html__( 'on %1$s', 'listable' ), get_comment_date() ); ?></time>
-	</a><?php edit_comment_link( esc_html__( '(Edit)', 'listable' ), ' ' ); ?></div><?php
+	<a href="<?php echo esc_url( get_comment_link( $comment->comment_ID ) ); ?>"><time pubdate datetime="<?php comment_time( 'c' ); ?>"><?php
+			/* translators: 1: date, 2: time */
+			printf( esc_html__( 'on %1$s', 'listable' ), get_comment_date() ); ?></time>
+		</a><?php edit_comment_link( esc_html__( '(Edit)', 'listable' ), ' ' ); ?></div><?php
 
-	return ob_get_clean() . $comment_content;
+		return ob_get_clean() . $comment_content;
+	}
 }
 
 /**
@@ -401,6 +485,7 @@ function listable_wrap_images_in_figure( $content ) {
 
 	return $content;
 }
+add_filter( 'the_content', 'listable_wrap_images_in_figure' );
 
 //We need to use a class so we can pass the $class variable to the callback function
 class ListableWrapImagesInFigureCallback {
@@ -415,8 +500,6 @@ class ListableWrapImagesInFigureCallback {
 		return '<span class="' . $this->class . '">' . $match[1] . '</span>';
 	}
 }
-
-add_filter( 'the_content', 'listable_wrap_images_in_figure' );
 
 function listable_display_frontpage_listing_categories( $default_count = 7 ) {
 	$term_list = array();
@@ -450,6 +533,7 @@ function listable_display_frontpage_listing_categories( $default_count = 7 ) {
 			if ( strpos( $category, '(' ) !== false ) {
 				$category  = explode( '(', $category );
 				$term_slug = trim( $category[0] );
+				$term_slug = sanitize_title_for_query( $term_slug );
 
 				if ( substr( $category[1], - 1, 1 ) == ')' ) {
 					$custom_category_labels[ $term_slug ] = trim( substr( $category[1], 0, - 1 ) );
@@ -460,6 +544,7 @@ function listable_display_frontpage_listing_categories( $default_count = 7 ) {
 				}
 			} else {
 				$term_slug   = trim( $category );
+				$term_slug = sanitize_title_for_query( $term_slug );
 
 				if ( array_key_exists( $term_slug, $all_categories ) ) {
 					$term_list[] = $all_categories[ $term_slug ];
@@ -541,4 +626,8 @@ function listable_get_listings_page_url( $default_link = null  ) {
 		return $default_link;
 	}
 	return get_post_type_archive_link( 'job_listing' );
+}
+
+function listable_single_post_style () {
+	echo apply_filters( 'listable_single_post_image', '');
 }

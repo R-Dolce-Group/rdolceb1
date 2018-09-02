@@ -1,5 +1,22 @@
+<?php
+/**
+ * Job dashboard shortcode content.
+ *
+ * This template can be overridden by copying it to yourtheme/job_manager/job-dashboard.php.
+ *
+ * @see         https://wpjobmanager.com/document/template-overrides/
+ * @author      Automattic
+ * @package     WP Job Manager
+ * @category    Template
+ * @version     1.31.1
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+?>
 <div id="job-manager-job-dashboard">
-	<p><?php _e( 'Your listings are shown in the table below.', 'wp-job-manager' ); ?></p>
+	<p><?php esc_html_e( 'Your listings are shown in the table below.', 'wp-job-manager' ); ?></p>
 	<table class="job-manager-jobs">
 		<thead>
 			<tr>
@@ -11,7 +28,7 @@
 		<tbody>
 			<?php if ( ! $jobs ) : ?>
 				<tr>
-					<td colspan="6"><?php _e( 'You do not have any active listings.', 'wp-job-manager' ); ?></td>
+					<td colspan="<?php echo intval( count( $job_dashboard_columns ) ); ?>"><?php esc_html_e( 'You do not have any active listings.', 'wp-job-manager' ); ?></td>
 				</tr>
 			<?php else : ?>
 				<?php foreach ( $jobs as $job ) : ?>
@@ -20,18 +37,20 @@
 							<td class="<?php echo esc_attr( $key ); ?>">
 								<?php if ('job_title' === $key ) : ?>
 									<?php if ( $job->post_status == 'publish' ) : ?>
-										<a href="<?php echo get_permalink( $job->ID ); ?>"><?php echo $job->post_title; ?></a>
+										<a href="<?php echo esc_url( get_permalink( $job->ID ) ); ?>"><?php wpjm_the_job_title( $job ); ?></a>
 									<?php else : ?>
-										<?php echo $job->post_title; ?> <small>(<?php the_job_status( $job ); ?>)</small>
+										<?php wpjm_the_job_title( $job ); ?> <small>(<?php the_job_status( $job ); ?>)</small>
 									<?php endif; ?>
+									<?php echo is_position_featured( $job ) ? '<span class="featured-job-icon" title="' . esc_attr__( 'Featured Job', 'wp-job-manager' ) . '"></span>' : ''; ?>
 									<ul class="job-dashboard-actions">
 										<?php
 											$actions = array();
 
 											switch ( $job->post_status ) {
 												case 'publish' :
-													$actions['edit'] = array( 'label' => __( 'Edit', 'wp-job-manager' ), 'nonce' => false );
-
+													if ( wpjm_user_can_edit_published_submissions() ) {
+														$actions[ 'edit' ] = array( 'label' => __( 'Edit', 'wp-job-manager' ), 'nonce' => false );
+													}
 													if ( is_position_filled( $job ) ) {
 														$actions['mark_not_filled'] = array( 'label' => __( 'Mark not filled', 'wp-job-manager' ), 'nonce' => true );
 													} else {
@@ -66,9 +85,9 @@
 										?>
 									</ul>
 								<?php elseif ('date' === $key ) : ?>
-									<?php echo date_i18n( get_option( 'date_format' ), strtotime( $job->post_date ) ); ?>
+									<?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $job->post_date ) ) ); ?>
 								<?php elseif ('expires' === $key ) : ?>
-									<?php echo $job->_job_expires ? date_i18n( get_option( 'date_format' ), strtotime( $job->_job_expires ) ) : '&ndash;'; ?>
+									<?php echo esc_html( $job->_job_expires ? date_i18n( get_option( 'date_format' ), strtotime( $job->_job_expires ) ) : '&ndash;' ); ?>
 								<?php elseif ('filled' === $key ) : ?>
 									<?php echo is_position_filled( $job ) ? '&#10004;' : '&ndash;'; ?>
 								<?php else : ?>

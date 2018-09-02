@@ -10,7 +10,7 @@
 $has_image = false; ?>
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
-		<div class="entry-featured"></div>
+		<div class="entry-featured" <?php listable_single_post_style(); ?>></div>
 		<div class="header-content">
 			<div class="entry-meta">
 				<?php
@@ -34,7 +34,12 @@ $has_image = false; ?>
 		</div>
 	</header><!-- .entry-header -->
 
+	<?php if ( is_active_sidebar( 'blog_sidebar' ) ) { ?>
+		<div class="entry-content_wrapper">
+	<?php } ?>
+
 	<div class="entry-content">
+
 		<?php
 		the_content();
 
@@ -43,6 +48,29 @@ $has_image = false; ?>
 			'after'  => '</div>',
 		) );
 		?>
-	</div><!-- .entry-content -->
-</article><!-- #post-## -->
 
+		<?php if ( is_active_sidebar( 'blog_sidebar' ) ) { ?>
+
+            <aside>
+                <?php the_post_navigation(); ?>
+
+                <?php
+                // If comments are open or we have at least one comment, load up the comment template.
+                if ( comments_open() || get_comments_number() ) :
+                    comments_template();
+                endif;
+                ?>
+            </aside>
+
+        <?php } ?>
+
+	</div><!-- .entry-content -->
+
+	<?php if ( is_active_sidebar( 'blog_sidebar' ) ) { ?>
+            <div class="widget-area--post">
+                <?php dynamic_sidebar( 'blog_sidebar' ); ?>
+            </div>
+        </div>
+	<?php } ?>
+
+</article><!-- #post-## -->

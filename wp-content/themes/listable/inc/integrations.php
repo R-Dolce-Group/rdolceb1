@@ -6,6 +6,11 @@
 */
 
 /**
+ * Load PixCare compatibility file.
+ */
+require get_template_directory() . '/inc/integrations/pixcare.php';
+
+/**
  * Load WP Job Manager compatibility file.
  * https://wpjobmanager.com/
  */

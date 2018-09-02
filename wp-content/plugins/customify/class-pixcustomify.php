@@ -44,13 +44,6 @@ class PixCustomifyPlugin {
 	 */
 	protected $plugin_screen_hook_suffix = null;
 
-	/**
-	 * Path to the plugin.
-	 * @since    1.0.0
-	 * @var      string
-	 */
-	protected $plugin_basepath = null;
-
 	public $display_admin_menu = false;
 
 	private $config;
@@ -126,6 +119,14 @@ class PixCustomifyPlugin {
 	public $file;
 
 	/**
+	 * Style Manager class object.
+	 * @var Customify_Style_Manager
+	 * @access  public
+	 * @since   1.0.0
+	 */
+	public $style_manager = null;
+
+	/**
 	 * Minimal Required PHP Version
 	 * @var string
 	 * @access  private
@@ -138,9 +139,6 @@ class PixCustomifyPlugin {
 		$this->file = $file;
 		//the current plugin version
 		$this->_version = $version;
-
-		// Remember our base path
-		$this->plugin_basepath = plugin_dir_path( $file );
 
 		if ( $this->php_version_check() ) {
 			// Only load and run the init function if we know PHP version can parse it.
@@ -157,14 +155,18 @@ class PixCustomifyPlugin {
 		// Load the plugin's settings from the DB
 		$this->plugin_settings = get_option( $this->config['settings-key'] );
 
+		/* Initialize the Style Manager logic. */
+		require_once( $this->get_base_path() . 'includes/class-customify-style-manager.php' );
+		if ( is_null( $this->style_manager ) ) {
+			$this->style_manager = Customify_Style_Manager::instance( $this );
+		}
+
 		// Register all the needed hooks
 		$this->register_hooks();
 	}
 
 	/**
 	 * Register our actions and filters
-	 *
-	 * @return null
 	 */
 	function register_hooks() {
 		/*
@@ -179,13 +181,20 @@ class PixCustomifyPlugin {
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 
 		/*
+		 * Load the upgrade logic.
+		 */
+		add_action( 'admin_init', array( $this, 'upgrade' ) );
+
+		/*
 		 * Prepare and load the configuration
 		 */
 		$this->init_plugin_configs();
 
-		// We can load the actual plugins config only on after_setup_theme so we can give the themes a change to have their say
+		// We need to load the configuration as late as possible so we allow all that want to influence it
+		// We need the init hook and not after_setup_theme because there a number of plugins that fire up on init (like certain modules from Jetpack)
+		// We need to be able to load things like components configs depending on those firing up or not
 		// DO NOT TRY to use the Customify values before this!
-		add_action( 'after_setup_theme', array( $this, 'load_plugin_configs' ), 5 );
+		add_action( 'init', array( $this, 'load_plugin_configs' ), 15 );
 
 		/*
 		 * Now setup the admin side of things
@@ -208,44 +217,71 @@ class PixCustomifyPlugin {
 		add_action( 'customize_controls_init', array( $this, 'register_admin_customizer_styles' ), 10 );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_admin_customizer_styles' ), 10 );
 		// Scripts enqueued in the Customizer
-		add_action( 'customize_controls_init', array( $this, 'register_admin_customizer_scripts' ), 10 );
-		add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_admin_customizer_scripts' ), 10 );
+		add_action( 'customize_controls_init', array( $this, 'register_admin_customizer_scripts' ), 15 );
+		add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_admin_customizer_scripts' ), 15 );
 
 		// Scripts enqueued only in the theme preview
 		add_action( 'customize_preview_init', array( $this, 'customizer_live_preview_register_scripts' ), 10 );
 		add_action( 'customize_preview_init', array( $this, 'customizer_live_preview_enqueue_scripts' ), 99999 );
 
+		// Add extra settings data to _wpCustomizeSettings.settings of the parent window.
+		add_action( 'customize_controls_print_footer_scripts', array( $this, 'customize_pane_settings_additional_data' ), 10000 );
+
 		// The frontend effects of the Customizer controls
 		$load_location = $this->get_plugin_setting( 'style_resources_location', 'wp_head' );
 
-		add_action( $load_location, array( $this, 'output_dynamic_style' ), 99999 );
+		add_action( $load_location, array( $this, 'output_dynamic_style' ), 99 );
 		add_action( 'wp_head', array( $this, 'output_typography_dynamic_style' ), 10 );
 
 		add_action( 'customize_register', array( $this, 'remove_default_sections' ), 11 );
 		add_action( 'customize_register', array( $this, 'register_customizer' ), 12 );
+		// Maybe the theme has instructed us to do things like removing sections or controls.
+		add_action( 'customize_register', array( $this, 'maybe_process_config_extras' ), 13 );
 
 		if ( $this->get_plugin_setting( 'enable_editor_style', true ) ) {
 			add_action( 'admin_head', array( $this, 'add_customizer_settings_into_wp_editor' ) );
 		}
 
-		/*
-		 * Jetpack Related
-		 */
-		add_action( 'init', array( $this, 'set_jetpack_sharing_config') );
-		add_filter( 'default_option_jetpack_active_modules', array( $this, 'default_jetpack_active_modules' ), 10, 1 );
-		add_filter( 'jetpack_get_available_modules', array( $this, 'jetpack_hide_blocked_modules' ), 10, 1 );
-		add_filter( 'default_option_sharing-options', array( $this, 'default_jetpack_sharing_options' ), 10, 1 );
-
 		add_action( 'rest_api_init', array( $this, 'add_rest_routes_api' ) );
+
+		/*
+		 * Development related
+		 */
+		if ( defined( 'CUSTOMIFY_DEV_FORCE_DEFAULTS' ) && true === CUSTOMIFY_DEV_FORCE_DEFAULTS ) {
+			// If the development constant CUSTOMIFY_DEV_FORCE_DEFAULTS has been defined we will not save anything in the database
+			// Always go with the default
+			add_filter( 'customize_changeset_save_data', array( $this, 'prevent_changeset_save_in_devmode' ), 50, 2 );
+			// Add a JS to display a notification
+			add_action( 'customize_controls_print_footer_scripts', array( $this, 'prevent_changeset_save_in_devmode_notification' ), 100 );
+		}
 	}
 
 	/**
-	 * Initialize Configs, Options and Values methods
+	 * Handle the logic to upgrade between versions. It will run only one per version change.
+	 */
+	public function upgrade() {
+		$customify_dbversion = get_option( 'customify_dbversion', '0.0.1' );
+		if ( $this->get_version() === $customify_dbversion ) {
+			return;
+		}
+
+		// For versions, previous of version 2.0.0 (the Color Palettes v2.0 release).
+		if ( version_compare( $customify_dbversion, '2.0.0', '<' ) ) {
+			// Delete the option holding the fact that the user offered feedback.
+			delete_option( 'style_manager_user_feedback_provided' );
+		}
+
+		// Put the current version in the database.
+		update_option( 'customify_dbversion', $this->get_version(), true );
+	}
+
+	/**
+	 * Initialize Configs, Options and Values methods.
 	 */
 	function init_plugin_configs() {
 		$this->customizer_config = get_option( 'pixcustomify_config' );
 
-		// no option so go for default
+		// no option so go for default.
 		if ( empty( $this->customizer_config ) ) {
 			$this->customizer_config = $this->get_config_option( 'default_options' );
 		}
@@ -256,16 +292,19 @@ class PixCustomifyPlugin {
 	}
 
 	/**
-	 * Load the plugin configuration and options
+	 * Load the plugin configuration and options.
 	 */
 	function load_plugin_configs() {
 
-		// allow themes or other plugins to filter the config
+		// Allow themes or other plugins to filter the config.
 		$this->customizer_config = apply_filters( 'customify_filter_fields', $this->customizer_config );
+		// We apply a second filter for those that wish to work with the final config and not rely on a a huge priority number.
+		$this->customizer_config = apply_filters( 'customify_final_config', $this->customizer_config );
+
 		$this->opt_name          = $this->localized['options_name'] = $this->customizer_config['opt-name'];
 		$this->options_list      = $this->get_options();
 
-		// Load the current options values
+		// Load the current options values.
 		$this->current_values = $this->get_current_values();
 
 		if ( $this->import_button_exists() ) {
@@ -276,68 +315,18 @@ class PixCustomifyPlugin {
 		}
 
 		$this->localized['theme_fonts'] = $this->theme_fonts = Customify_Font_Selector::instance()->get_theme_fonts();
+
+		$this->localized['ajax_url'] = admin_url( 'admin-ajax.php' );
+		$this->localized['style_manager_user_feedback_nonce'] = wp_create_nonce( 'customify_style_manager_user_feedback' );
+		$this->localized['style_manager_user_feedback_provided'] = get_option( 'style_manager_user_feedback_provided', false );
 	}
 
-	function set_jetpack_sharing_config() {
-		// Allow others to change the sharing config here
-		$this->jetpack_sharing_default_options = apply_filters ( 'customify_filter_jetpack_sharing_default_options', array() );
+	public function get_version() {
+		return $this->_version;
 	}
 
-	/**
-	 * Control the default modules that are activated in Jetpack.
-	 * Use the `customify_filter_jetpack_default_modules` to set your's.
-	 *
-	 * @param array $default The default value to return if the option does not exist
-	 *                        in the database.
-	 *
-	 * @return array
-	 */
-	function default_jetpack_active_modules( $default ) {
-		if ( ! is_array( $default ) ) {
-			$default = array();
-		}
-		$jetpack_default_modules = array();
-
-		$theme_default_modules = get_theme_mod( 'pixelgrade_jetpack_default_active_modules', array() );
-
-		if ( ! is_array( $theme_default_modules ) ) {
-			return array_merge( $default, $jetpack_default_modules );
-		}
-
-		foreach ( $theme_default_modules as $module ) {
-			array_push( $jetpack_default_modules, $module );
-		}
-
-		return array_merge( $default, $jetpack_default_modules );
-	}
-
-	/**
-	 * Control the default Jetpack Sharing options.
-	 * Use the `customify_filter_jetpack_sharing_default_options` to set your's.
-	 *
-	 * @param array $default The default value to return if the option does not exist
-	 *                        in the database.
-	 *
-	 * @return array
-	 */
-	function default_jetpack_sharing_options( $default ) {
-		if ( ! is_array( $default ) ) {
-			$default = array();
-		}
-
-		return array_merge( $default, $this->jetpack_sharing_default_options );
-	}
-
-	/**
-	 * Control the modules that are available in Jetpack (hide some of them).
-	 * Use the `customify_filter_jetpack_blocked_modules` filter to set your's.
-	 *
-	 * @param array $modules
-	 *
-	 * @return array
-	 */
-	function jetpack_hide_blocked_modules( $modules ) {
-		return array_diff_key( $modules, array_flip( $this->jetpack_blocked_modules ) );
+	public function get_slug() {
+		return $this->plugin_slug;
 	}
 
 	/**
@@ -393,11 +382,18 @@ class PixCustomifyPlugin {
 
 		wp_register_script( 'customify_select2', plugins_url( 'js/select2/js/select2.js', $this->file ), array( 'jquery' ), $this->_version );
 		wp_register_script( 'jquery-react', plugins_url( 'js/jquery-react.js', $this->file ), array( 'jquery' ), $this->_version );
+
+		wp_register_script( 'customify-scale', plugins_url( 'js/customizer/scale-iframe.js', $this->file ), array( 'jquery' ), $this->_version );
+		wp_register_script( 'customify-fontselectfields', plugins_url( 'js/customizer/font-select-fields.js', $this->file ), array( 'jquery' ), $this->_version );
+
 		wp_register_script( $this->plugin_slug . '-customizer-scripts', plugins_url( 'js/customizer.js', $this->file ), array(
 			'jquery',
 			'customify_select2',
 			'underscore',
-			'customize-controls'
+			'customize-controls',
+			'customify-fontselectfields',
+
+			'customify-scale',
 		), $this->_version );
 	}
 
@@ -408,7 +404,7 @@ class PixCustomifyPlugin {
 		wp_enqueue_script( 'jquery-react' );
 		wp_enqueue_script( $this->plugin_slug . '-customizer-scripts' );
 
-		wp_localize_script( $this->plugin_slug . '-customizer-scripts', 'customify_settings', $this->localized );
+		wp_localize_script( $this->plugin_slug . '-customizer-scripts', 'customify_settings', apply_filters( 'customify_localized_js_settings', $this->localized ) );
 	}
 
 	/** Register Customizer scripts loaded only on previewer page */
@@ -481,7 +477,7 @@ class PixCustomifyPlugin {
 	}
 
 	function add_rest_routes_api(){
-		register_rest_route( 'customfiy/v1', '/delete_theme_mod', array(
+		register_rest_route( 'customify/v1', '/delete_theme_mod', array(
 			'methods'             => 'POST',
 			'callback'            => array( $this, 'delete_theme_mod' ),
 			'permission_callback' => array( $this, 'permission_nonce_callback' ),
@@ -489,9 +485,8 @@ class PixCustomifyPlugin {
 	}
 
 	function delete_theme_mod(){
-		$user = wp_get_current_user();
-		if ( ! $user->caps['administrator'] ) {
-			wp_send_json_error('no admin');
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error('You don\'t have admin privileges.');
 		}
 
 		$config = apply_filters('customify_filter_fields', array() );
@@ -504,7 +499,7 @@ class PixCustomifyPlugin {
 
 		remove_theme_mod( $key );
 
-		wp_send_json_success('Bby ' . $key . '!');
+		wp_send_json_success('Deleted ' . $key . ' theme mod!');
 	}
 
 	function permission_nonce_callback() {
@@ -527,7 +522,7 @@ class PixCustomifyPlugin {
 	 * Public style generated by customizer
 	 */
 	function output_dynamic_style() {
-		$custom_css = "\n";
+		$custom_css = '';
 
 		foreach ( $this->options_list as $option_id => $option ) {
 
@@ -536,9 +531,9 @@ class PixCustomifyPlugin {
 				$custom_css .= $this->convert_setting_to_css( $option_id, $option['css'] );
 			}
 
-			if ( $option['type'] === 'custom_background' ) {
+			if ( isset( $option['type'] ) && $option['type'] === 'custom_background' ) {
 				$option['value']         = $this->get_option( $option_id );
-				$custom_css .= $this->process_custom_background_field_output( $option_id, $option );
+				$custom_css .= $this->process_custom_background_field_output( $option_id, $option ) . PHP_EOL;
 			}
 		}
 
@@ -550,20 +545,18 @@ class PixCustomifyPlugin {
 					continue;
 				}
 
-				$custom_css .= '@media ' . $media_query . " { ";
+				$custom_css .= PHP_EOL . '@media ' . $media_query . " { " . PHP_EOL . PHP_EOL;
 
 				foreach ( $properties as $key => $property ) {
 					$property_settings = $property['property'];
 					$property_value    = $property['value'];
-					$custom_css .= $this->proccess_css_property( $property_settings, $property_value );
+					$custom_css .= "\t" . $this->proccess_css_property( $property_settings, $property_value ) . PHP_EOL;
 				}
 
-				$custom_css .= " }\n";
+				$custom_css .= "}" . PHP_EOL;
 
 			}
 		}
-
-		$custom_css .= "\n";
 		?>
 		<style id="customify_output_style">
 		<?php echo apply_filters( 'customify_dynamic_style', $custom_css ); ?>
@@ -579,11 +572,11 @@ class PixCustomifyPlugin {
 
 		foreach ( $this->options_list as $option_id => $options ) {
 
-			if ( $options['type'] === 'custom_background' ) {
+			if ( isset( $options['type'] ) && $options['type'] === 'custom_background' ) {
 				$options['value']         = $this->get_option( $option_id );
 				$custom_background_output = $this->process_custom_background_field_output( $option_id, $options ); ?>
 
-				<style id="custom_backgorund_output_for_<?php echo $option_id; ?>">
+				<style id="custom_background_output_for_<?php echo sanitize_html_class( $option_id ); ?>">
 					<?php
 					if ( isset( $custom_background_output ) && ! empty( $custom_background_output )) {
 						echo $custom_background_output;
@@ -596,55 +589,27 @@ class PixCustomifyPlugin {
 			}
 
 			$this_value = $this->get_option( $option_id );
-			foreach ( $options['css'] as $key => $properties_set ) { ?>
-				<style id="dynamic_setting_<?php echo $option_id . '_property_' . str_replace( '-', '_', $properties_set['property'] ); ?>"
-				       type="text/css"><?php
+			if ( ! empty( $options['css'] ) ) {
+				foreach ( $options['css'] as $key => $properties_set ) {
+					// We need to use a class because we may have multiple <style>s with the same "ID" for example
+					// when targeting the same property but with different selectors.
+					?>
+					<style class="dynamic_setting_<?php echo sanitize_html_class( $option_id ) . '_property_' . str_replace( '-', '_', $properties_set['property'] ) . '_' . $key; ?>"
+					       type="text/css"><?php
 
 					if ( isset( $properties_set['media'] ) && ! empty( $properties_set['media'] ) ) {
-						echo '@media '. $properties_set['media'] . " {\n";
+						echo '@media '. $properties_set['media'] . " {" . PHP_EOL;
 					}
 
 					if ( isset( $properties_set['selector'] ) && isset( $properties_set['property'] ) ) {
-						echo $this->proccess_css_property($properties_set, $this_value);
+						echo $this->proccess_css_property($properties_set, $this_value) . PHP_EOL;
 					}
 
 					if ( isset( $properties_set['media'] ) && ! empty( $properties_set['media'] ) ) {
-						echo "}\n";
+						echo "}" . PHP_EOL;
 					} ?>
-				</style>
-			<?php }
-		}
-
-		if ( ! empty( $this->media_queries ) ) {
-
-			foreach ( $this->media_queries as $media_query => $properties ) {
-
-				if ( empty( $properties ) ) {
-					continue;
-				}
-
-				$display = false;
-				$media_q = '@media ' . $media_query . " {\n";
-
-				foreach ( $properties as $key => $property ) {
-
-					if ( ! isset( $options['live'] ) || $options['live'] !== true ) {
-						continue;
-					}
-
-					$display = true; ?>
-					<style id="dynamic_setting_<?php echo $key; ?>" type="text/css"><?php
-						$property_settings = $property['property'];
-						$property_value    = $property['value'];
-						$media_q .= "\t" . $this->proccess_css_property( $property_settings, $property_value );?>
 					</style>
 				<?php }
-
-				$media_q .= "\n}\n";
-
-				if ( $display ) {
-					$custom_css .= $media_q;
-				}
 			}
 		}
 	}
@@ -681,26 +646,35 @@ class PixCustomifyPlugin {
 				}
 
 				// shim the time when this was an array
+				// @todo Is this really needed? Or does it make sense?
 				if ( is_array( $font['value'] ) ) {
 					$font['value'] = stripslashes_deep( $font['value'] );
 					$font['value'] = json_encode( $font['value'] );
 				}
 
-				$value = json_decode( wp_unslash( PixCustomifyPlugin::decodeURIComponent( $font['value'] ) ), true );
+				$value = wp_unslash( PixCustomifyPlugin::decodeURIComponent( $font['value'] ) );
+				if ( is_string( $value ) ) {
+					$value = json_decode( $value, true );
+				}
 
-				// in case the value is still null, try default value(mostly for google fonts)
-				if ( ! is_array( $value ) || $value === null ) {
+				// In case the value is still null, try default value (mostly for google fonts)
+				if ( $value === null || ! is_array( $value ) ) {
 					$value = $this->get_font_defaults_value( str_replace( '"', '', $font['value'] ) );
 				}
 
-				//bail if by this time we don't have a value of some sort
+				// Bail if by this time we don't have a value of some sort
 				if ( empty( $value ) ) {
 					continue;
 				}
 
-				//Handle special logic for when the $value array is not an associative array
+				// Handle special logic for when the $value array is not an associative array
 				if ( ! $this->is_assoc( $value ) ) {
-					$value = $this->process_a_not_associative_font_default( $value );
+					$value = $this->standardize_non_associative_font_default( $value );
+				}
+
+				// Bail if empty or we don't have an array
+				if ( empty( $value ) || ! is_array( $value ) ) {
+					continue;
 				}
 
 				if ( isset( $value['font_family'] ) && isset( $value['type'] ) && $value['type'] == 'google' ) {
@@ -777,21 +751,31 @@ class PixCustomifyPlugin {
 				}
 
 				if ( isset( $font['selector'] ) && isset( $font['value'] ) && ! empty( $font['value'] ) ) {
+					// Make sure that the value is in the proper format
+					$value = PixCustomifyPlugin::decodeURIComponent( $font['value'] );
+					if ( is_string( $value ) ) {
+						$value = json_decode( $value, true );
+					}
 
-					$value = json_decode( PixCustomifyPlugin::decodeURIComponent( $font['value'] ), true );
-					// in case the value is still null, try default value(mostly for google fonts)
+					// In case the value is null (most probably because the json_decode failed),
+					// try the default value (mostly for google fonts)
 					if ( $value === null ) {
 						$value = $this->get_font_defaults_value( $font['value'] );
 					}
 
-					// shim the old case when the default was only the font name
-					if ( is_string( $value ) && ! empty( $value ) ) {
+					// Shim the old case when the default was only the font name
+					if ( ! empty( $value ) && is_string( $value ) ) {
 						$value = array( 'font_family' => $value );
 					}
 
-					//Handle special logic for when the $value array is not an associative array
+					// Handle special logic for when the $value array is not an associative array
 					if ( ! $this->is_assoc( $value ) ) {
-						$value = $this->process_a_not_associative_font_default( $value );
+						$value = $this->standardize_non_associative_font_default( $value );
+					}
+
+					// Bail if empty or we don't have an array
+					if ( empty( $value ) || ! is_array( $value ) ) {
+						continue;
 					}
 
 					$selected_variant = '';
@@ -805,23 +789,23 @@ class PixCustomifyPlugin {
 
 					// First handle the case where we have the font-family in the selected variant (usually this means a custom font from our Fonto plugin)
 					if ( ! empty( $selected_variant ) && is_array( $selected_variant ) && ! empty( $selected_variant['font-family'] ) ) {
-						//the variant's font-family
+						// The variant's font-family
 						echo $font['selector'] . " {\nfont-family: " . $selected_variant['font-family'] . ";\n";
 
 						if ( ! $load_all_weights ) {
-							// if this is a custom font (like from our plugin Fonto) with individual styles & weights - i.e. the font-family says it all
+							// If this is a custom font (like from our plugin Fonto) with individual styles & weights - i.e. the font-family says it all
 							// we need to "force" the font-weight and font-style
 							if ( ! empty( $value['type'] ) && 'custom_individual' == $value['type'] ) {
 								$selected_variant['font-weight'] = '400 !important';
 								$selected_variant['font-style'] = 'normal !important';
 							}
 
-							// output the font weight, if available
+							// Output the font weight, if available
 							if ( ! empty( $selected_variant['font-weight'] ) ) {
 								echo "font-weight: " . $selected_variant['font-weight'] . ";\n";
 							}
 
-							// output the font style, if available
+							// Output the font style, if available
 							if ( ! empty( $selected_variant['font-style'] ) ) {
 								echo "font-style: " . $selected_variant['font-style'] . ";\n";
 							}
@@ -829,7 +813,7 @@ class PixCustomifyPlugin {
 
 						echo "}\n";
 					} elseif ( isset( $value['font_family'] ) ) {
-						// the selected font family
+						// The selected font family
 						echo $font['selector'] . " {\n font-family: " . $value['font_family'] . ";\n";
 
 						if ( ! empty( $selected_variant ) && ! $load_all_weights ) {
@@ -867,12 +851,16 @@ class PixCustomifyPlugin {
 	 * Handle special logic for when the $value array is not an associative array
 	 * Return a new associative array with proper keys
 	 */
-	public function process_a_not_associative_font_default( $value ) {
+	public function standardize_non_associative_font_default( $value ) {
+		// If the value provided is not array, simply return it
+		if ( ! is_array( $value ) ) {
+			return $value;
+		}
 
 		$new_value = array();
 
-		//Let's determine some type of font
-		if ( ! isset( $value[2] ) || ( isset( $value[2] ) && 'google' == $value[2] ) ) {
+		// Let's determine some type of font
+		if ( ! isset( $value[2] ) || 'google' == $value[2] ) {
 			$new_value = $this->get_font_defaults_value( $value[0] );
 		} else {
 			$new_value['type'] = $value[2];
@@ -882,13 +870,13 @@ class PixCustomifyPlugin {
 			$new_value = array();
 		}
 
-		//The first entry is the font-family
+		// The first entry is the font-family
 		if ( isset( $value[0] ) ) {
 			$new_value['font_family'] = $value[0];
 		}
 
-		//In case we don't have an associative array
-		//The second entry is the variants
+		// In case we don't have an associative array
+		// The second entry is the variants
 		if ( isset( $value[1] ) ) {
 			$new_value['selected_variants'] = $value[1];
 		}
@@ -953,8 +941,8 @@ class PixCustomifyPlugin {
 				continue;
 			}
 
-			if ( ! isset( $css_property['selector'] ) || isset( $css_property['property'] ) ) {
-				$output .= $this->proccess_css_property( $css_property, $this_value );
+			if ( isset( $css_property['selector'] ) && isset( $css_property['property'] ) ) {
+				$output .= $this->proccess_css_property( $css_property, $this_value ) . PHP_EOL;
 			}
 		}
 
@@ -975,13 +963,64 @@ class PixCustomifyPlugin {
 		// lose the tons of tabs
 		$css_property['selector'] = trim( preg_replace( '/\t+/', '', $css_property['selector'] ) );
 
-		$this_property_output = $css_property['selector'] . ' { ' . $css_property['property'] . ': ' . $this_value . $unit . "; }\n";
+		$this_property_output = $css_property['selector'] . ' { ' . $css_property['property'] . ': ' . $this_value . $unit . "; }" . PHP_EOL;
 
-		if ( isset( $css_property['callback_filter'] ) && function_exists( $css_property['callback_filter'] ) ) {
+		// Handle the value filter callback.
+		if ( isset( $css_property['filter_value_cb'] ) ) {
+			$this_value = $this->maybe_apply_filter( $css_property['filter_value_cb'], $this_value );
+		}
+
+		// Handle output callback.
+		if ( isset( $css_property['callback_filter'] ) && is_callable( $css_property['callback_filter'] ) ) {
 			$this_property_output = call_user_func( $css_property['callback_filter'], $this_value, $css_property['selector'], $css_property['property'], $unit );
 		}
 
 		return $this_property_output;
+	}
+
+	/**
+	 * Apply a filter (config) to a value.
+	 *
+	 * We currently handle filters like these:
+	 *  // Elaborate filter config
+	 *  array(
+	 *      'callback' => 'is_post_type_archive',
+	 *      // The arguments we should pass to the check function.
+	 *      // Think post types, taxonomies, or nothing if that is the case.
+	 *      // It can be an array of values or a single value.
+	 *      'args' => array(
+	 *          'jetpack-portfolio',
+	 *      ),
+	 *  ),
+	 *  // Simple filter - just the function name
+	 *  'is_404',
+	 *
+	 * @param array|string $filter
+	 * @param mixed $value The value to apply the filter to.
+	 *
+	 * @return mixed The filtered value.
+	 */
+	public function maybe_apply_filter( $filter, $value ) {
+		// Let's get some obvious things off the table.
+		// On invalid data, we just return what we've received.
+		if ( empty( $filter ) ) {
+			return $value;
+		}
+
+		// First, we handle the shorthand version: just a function name
+		if ( is_string( $filter ) && is_callable( $filter ) ) {
+			$value = call_user_func( $filter );
+		} elseif ( is_array( $filter ) && ! empty( $filter['callback'] ) && is_callable( $filter['callback'] ) ) {
+			if ( empty( $filter['args'] ) ) {
+				$filter['args'] = array();
+			}
+			// The value is always the first argument.
+			$filter['args'] = array( $value ) + $filter['args'];
+
+			$value = call_user_func_array( $filter['callback'], $filter['args'] );
+		}
+
+		return $value;
 	}
 
 	protected function process_custom_background_field_output( $option_id, $options ) {
@@ -1043,7 +1082,7 @@ class PixCustomifyPlugin {
 			(function ($) {
 				$(window).load(function () {
 					/**
-					 * @param iframe_id the id of the frame you whant to append the style
+					 * @param iframe_id the id of the frame you want to append the style
 					 * @param style_element the style element you want to append
 					 */
 					var append_script_to_iframe = function (ifrm_id, scriptEl) {
@@ -1058,6 +1097,9 @@ class PixCustomifyPlugin {
 
 					var append_style_to_iframe = function (ifrm_id, styleElment) {
 						var ifrm = window.frames[ifrm_id];
+                        if ( typeof ifrm === "undefined" ) {
+                            return;
+                        }
 						ifrm = ( ifrm.contentDocument || ifrm.contentDocument || ifrm.document );
 						var head = ifrm.getElementsByTagName('head')[0];
 
@@ -1129,6 +1171,176 @@ class PixCustomifyPlugin {
 	}
 
 	/**
+	 * Maybe process certain "commands" from the config.
+	 *
+	 * Mainly things like removing sections, controls, etc.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param WP_Customize_Manager $wp_customize
+	 */
+	public function maybe_process_config_extras( $wp_customize ) {
+		// Bail if we have no external theme config data.
+		if ( empty( $this->customizer_config ) || ! is_array( $this->customizer_config ) ) {
+			return;
+		}
+
+		// Maybe remove panels
+		if ( ! empty( $this->customizer_config['remove_panels'] ) ) {
+			// Standardize it.
+			if ( is_string( $this->customizer_config['remove_panels'] ) ) {
+				$this->customizer_config['remove_panels'] = array( $this->customizer_config['remove_panels'] );
+			}
+
+			foreach ( $this->customizer_config['remove_panels'] as $panel_id ) {
+				$wp_customize->remove_panel( $panel_id );
+			}
+		}
+
+		// Maybe change panel props.
+		if ( ! empty( $this->customizer_config['change_panel_props'] ) ) {
+			foreach ( $this->customizer_config['change_panel_props'] as $panel_id => $panel_props ) {
+				if ( ! is_array( $panel_props ) ) {
+					continue;
+				}
+
+				$panel = $wp_customize->get_panel( $panel_id );
+				if ( empty( $panel ) || ! $panel instanceof WP_Customize_Panel ) {
+					continue;
+				}
+
+				$public_props = get_class_vars( get_class( $panel ) );
+				foreach ( $panel_props as $prop_name => $prop_value ) {
+
+					if ( ! in_array( $prop_name, array_keys( $public_props ) ) ) {
+						continue;
+					}
+
+					$panel->$prop_name = $prop_value;
+				}
+			}
+		}
+
+		// Maybe remove sections
+		if ( ! empty( $this->customizer_config['remove_sections'] ) ) {
+			// Standardize it.
+			if ( is_string( $this->customizer_config['remove_sections'] ) ) {
+				$this->customizer_config['remove_sections'] = array( $this->customizer_config['remove_sections'] );
+			}
+
+			foreach ( $this->customizer_config['remove_sections'] as $section_id ) {
+
+				if ( 'widgets' === $section_id ) {
+					global $wp_registered_sidebars;
+
+					foreach ( $wp_registered_sidebars as $widget => $settings ) {
+						$wp_customize->remove_section( 'sidebar-widgets-' . $widget );
+					}
+					continue;
+				}
+
+				$wp_customize->remove_section( $section_id );
+			}
+		}
+
+		// Maybe change section props.
+		if ( ! empty( $this->customizer_config['change_section_props'] ) ) {
+			foreach ( $this->customizer_config['change_section_props'] as $section_id => $section_props ) {
+				if ( ! is_array( $section_props ) ) {
+					continue;
+				}
+
+				$section = $wp_customize->get_section( $section_id );
+				if ( empty( $section ) || ! $section instanceof WP_Customize_Section ) {
+					continue;
+				}
+
+				$public_props = get_class_vars( get_class( $section ) );
+				foreach ( $section_props as $prop_name => $prop_value ) {
+
+					if ( ! in_array( $prop_name, array_keys( $public_props ) ) ) {
+						continue;
+					}
+
+					$section->$prop_name = $prop_value;
+				}
+			}
+		}
+
+		// Maybe remove settings
+		if ( ! empty( $this->customizer_config['remove_settings'] ) ) {
+			// Standardize it.
+			if ( is_string( $this->customizer_config['remove_settings'] ) ) {
+				$this->customizer_config['remove_settings'] = array( $this->customizer_config['remove_settings'] );
+			}
+
+			foreach ( $this->customizer_config['remove_settings'] as $setting_id ) {
+				$wp_customize->remove_setting( $setting_id );
+			}
+		}
+
+		// Maybe change setting props.
+		if ( ! empty( $this->customizer_config['change_setting_props'] ) ) {
+			foreach ( $this->customizer_config['change_setting_props'] as $setting_id => $setting_props ) {
+				if ( ! is_array( $setting_props ) ) {
+					continue;
+				}
+
+				$setting = $wp_customize->get_setting( $setting_id );
+				if ( empty( $setting ) || ! $setting instanceof WP_Customize_Setting ) {
+					continue;
+				}
+
+				$public_props = get_class_vars( get_class( $setting ) );
+				foreach ( $setting_props as $prop_name => $prop_value ) {
+
+					if ( ! in_array( $prop_name, array_keys( $public_props ) ) ) {
+						continue;
+					}
+
+					$setting->$prop_name = $prop_value;
+				}
+			}
+		}
+
+		// Maybe remove controls
+		if ( ! empty( $this->customizer_config['remove_controls'] ) ) {
+			// Standardize it.
+			if ( is_string( $this->customizer_config['remove_controls'] ) ) {
+				$this->customizer_config['remove_controls'] = array( $this->customizer_config['remove_controls'] );
+			}
+
+			foreach ( $this->customizer_config['remove_controls'] as $control_id ) {
+				$wp_customize->remove_control( $control_id );
+			}
+		}
+
+		// Maybe change control props.
+		if ( ! empty( $this->customizer_config['change_control_props'] ) ) {
+			foreach ( $this->customizer_config['change_control_props'] as $control_id => $control_props ) {
+				if ( ! is_array( $control_props ) ) {
+					continue;
+				}
+
+				$control = $wp_customize->get_control( $control_id );
+				if ( empty( $control ) || ! $control instanceof WP_Customize_Control ) {
+					continue;
+				}
+
+				$public_props = get_class_vars( get_class( $control ) );
+				foreach ( $control_props as $prop_name => $prop_value ) {
+
+					if ( ! in_array( $prop_name, array_keys( $public_props ) ) ) {
+						continue;
+					}
+
+					$control->$prop_name = $prop_value;
+				}
+			}
+		}
+	}
+
+	/**
 	 * @param WP_Customize_Manager $wp_customize
 	 */
 	function register_customizer( $wp_customize ) {
@@ -1140,7 +1352,7 @@ class PixCustomifyPlugin {
 		if ( ! empty ( $customizer_settings ) ) {
 
 			// first check the very needed options name
-			if ( ! isset ( $customizer_settings['opt-name'] ) || empty( $customizer_settings['opt-name'] ) ) {
+			if ( empty( $customizer_settings['opt-name'] ) ) {
 				return;
 			}
 			$options_name              = $customizer_settings['opt-name'];
@@ -1149,35 +1361,47 @@ class PixCustomifyPlugin {
 			// let's check if we have sections or panels
 			if ( isset( $customizer_settings['panels'] ) && ! empty( $customizer_settings['panels'] ) ) {
 
-				foreach ( $customizer_settings['panels'] as $panel_id => $panel_settings ) {
+				foreach ( $customizer_settings['panels'] as $panel_id => $panel_config ) {
 
-					if ( ! empty( $panel_id ) && isset( $panel_settings['sections'] ) && ! empty( $panel_settings['sections'] ) ) {
+					if ( ! empty( $panel_id ) && isset( $panel_config['sections'] ) && ! empty( $panel_config['sections'] ) ) {
 
-						$panel_id   = $options_name . '[' . $panel_id . ']';
+						// If we have been explicitly given a panel ID we will use that
+						if ( ! empty( $panel_config['panel_id'] ) ) {
+							$panel_id = $panel_config['panel_id'];
+						} else {
+							$panel_id   = $options_name . '[' . $panel_id . ']';
+						}
+
 						$panel_args = array(
-							'priority'    => 10,
-							'capability'  => 'edit_theme_options',
-							'title'       => __( 'Panel title is required', 'pixcustomify' ),
-							'description' => __( 'Description of what this panel does.', 'pixcustomify' ),
+							'priority'                 => 10,
+							'capability'               => 'edit_theme_options',
+							'title'                    => __( 'Panel title is required', 'customify' ),
+							'description'              => __( 'Description of what this panel does.', 'customify' ),
+							'auto_expand_sole_section' => false,
 						);
 
-						if ( isset( $panel_settings['priority'] ) && ! empty( $panel_settings['priority'] ) ) {
-							$panel_args['priority'] = $panel_settings['priority'];
+						if ( isset( $panel_config['priority'] ) && ! empty( $panel_config['priority'] ) ) {
+							$panel_args['priority'] = $panel_config['priority'];
 						}
 
-						if ( isset( $panel_settings['title'] ) && ! empty( $panel_settings['title'] ) ) {
-							$panel_args['title'] = $panel_settings['title'];
+						if ( isset( $panel_config['title'] ) && ! empty( $panel_config['title'] ) ) {
+							$panel_args['title'] = $panel_config['title'];
 						}
 
-						if ( isset( $panel_settings['description'] ) && ! empty( $panel_settings['description'] ) ) {
-							$panel_args[10] = $panel_settings['description'];
+						if ( isset( $panel_config['description'] ) && ! empty( $panel_config['description'] ) ) {
+							$panel_args['description'] = $panel_config['description'];
 						}
+
+						if ( isset( $panel_config['auto_expand_sole_section'] ) ) {
+							$panel_args['auto_expand_sole_section'] = $panel_config['auto_expand_sole_section'];
+						}
+
 
 						$wp_customize->add_panel( $panel_id, $panel_args );
 
-						foreach ( $panel_settings['sections'] as $section_id => $section_settings ) {
-							if ( ! empty( $section_id ) && isset( $section_settings['options'] ) && ! empty( $section_settings['options'] ) ) {
-								$this->register_section( $panel_id, $section_id, $options_name, $section_settings, $wp_customize );
+						foreach ( $panel_config['sections'] as $section_id => $section_config ) {
+							if ( ! empty( $section_id ) && isset( $section_config['options'] ) && ! empty( $section_config['options'] ) ) {
+								$this->register_section( $panel_id, $section_id, $options_name, $section_config, $wp_customize );
 							}
 						}
 					}
@@ -1186,9 +1410,9 @@ class PixCustomifyPlugin {
 
 			if ( isset( $customizer_settings['sections'] ) && ! empty( $customizer_settings['sections'] ) ) {
 
-				foreach ( $customizer_settings['sections'] as $section_id => $section_settings ) {
-					if ( ! empty( $section_id ) && isset( $section_settings['options'] ) && ! empty( $section_settings['options'] ) ) {
-						$this->register_section( $panel_id = false, $section_id, $options_name, $section_settings, $wp_customize );
+				foreach ( $customizer_settings['sections'] as $section_id => $section_config ) {
+					if ( ! empty( $section_id ) && isset( $section_config['options'] ) && ! empty( $section_config['options'] ) ) {
+						$this->register_section( $panel_id = false, $section_id, $options_name, $section_config, $wp_customize );
 					}
 				}
 			}
@@ -1196,7 +1420,9 @@ class PixCustomifyPlugin {
 			if ( $this->plugin_settings['enable_reset_buttons'] ) {
 				// create a toolbar section which will be present all the time
 				$reset_section_settings = array(
-					'title'   => 'Customify toolbar',
+					'title'   => 'Customify Toolbox',
+					'capability' => 'manage_options',
+					'priority' => 999999999,
 					'options' => array(
 						'reset_all_button' => array(
 							'type'   => 'button',
@@ -1209,10 +1435,7 @@ class PixCustomifyPlugin {
 
 				$wp_customize->add_section(
 					'customify_toolbar',
-					array(
-						'title'    => '',
-						'priority' => 999999999
-					)
+					$reset_section_settings
 				);
 
 				$wp_customize->add_setting(
@@ -1223,7 +1446,7 @@ class PixCustomifyPlugin {
 					$wp_customize,
 					'reset_customify',
 					array(
-						'label'    => __( 'Reset Customify to Defaults', 'customify' ),
+						'label'    => __( 'Reset All Customify Options to Default', 'customify' ),
 						'section'  => 'customify_toolbar',
 						'settings' => 'reset_customify',
 						'action'   => 'reset_customify',
@@ -1255,58 +1478,81 @@ class PixCustomifyPlugin {
 		do_action( 'customify_create_custom_control', $wp_customize );
 	}
 
-	protected function register_section( $panel_id, $section_key, $options_name, $section_settings, $wp_customize ) {
+	/**
+	 * @param string $panel_id
+	 * @param string $section_key
+	 * @param string $options_name
+	 * @param array $section_config
+	 * @param WP_Customize_Manager $wp_customize
+	 */
+	protected function register_section( $panel_id, $section_key, $options_name, $section_config, $wp_customize ) {
 
 		if ( isset( $this->plugin_settings['disable_customify_sections'] ) && isset( $this->plugin_settings['disable_customify_sections'][ $section_key ] ) ) {
 			return;
 		}
 
-		$section_args = array(
-			'priority'   => 10,
-			'capability' => 'edit_theme_options',
-			'title'      => __( 'Title Section is required', '' ),
-			'panel'      => $panel_id,
-		);
-		$section_id   = $options_name . '[' . $section_key . ']';
-
-		if ( isset( $section_settings['priority'] ) && ! empty( $section_settings['priority'] ) ) {
-			$section_args['priority'] = $section_settings['priority'];
+		// If we have been explicitly given a section ID we will use that
+		if ( ! empty( $section_config['section_id'] ) ) {
+			$section_id = $section_config['section_id'];
+		} else {
+			$section_id = $options_name . '[' . $section_key . ']';
 		}
 
-		if ( isset( $section_settings['title'] ) && ! empty( $section_settings['title'] ) ) {
-			$section_args['title'] = $section_settings['title'];
+		// Add the new section to the Customizer, but only if it is not already added.
+		if ( ! $wp_customize->get_section( $section_id ) ) {
+			// Merge the section settings with the defaults
+			$section_args = wp_parse_args( $section_config, array(
+				'priority'   => 10,
+				'panel'      => $panel_id,
+				'capability' => 'edit_theme_options',
+				'theme_supports' => '',
+				'title'      => esc_html__( 'Title Section is required', 'customify' ),
+				'description' => '',
+				'type' => 'default',
+				'description_hidden' => false,
+			) );
+
+			$wp_customize->add_section( $section_id, $section_args );
 		}
 
-		if ( isset( $section_settings['theme_supports'] ) && ! empty( $section_settings['theme_supports'] ) ) {
-			$section_args['theme_supports'] = $section_settings['theme_supports'];
-		}
-
-		if ( isset( $section_settings['description'] ) && ! empty( $section_settings['description'] ) ) {
-			$section_args['description'] = $section_settings['description'];
-		}
-
-		$wp_customize->add_section( $section_id, $section_args );
-
-		foreach ( $section_settings['options'] as $option_id => $option_config ) {
+		// Now go through each section option and add the fields
+		foreach ( $section_config['options'] as $option_id => $option_config ) {
 
 			if ( empty( $option_id ) || ! isset( $option_config['type'] ) ) {
 				continue;
 			}
 
-			$option_id = $options_name . '[' . $option_id . ']';
+			// If we have been explicitly given a setting ID we will use that
+			if ( ! empty( $option_config['setting_id'] ) ) {
+				$setting_id = $option_config['setting_id'];
+			} else {
+				$setting_id = $options_name . '[' . $option_id . ']';
+			}
 
-			$this->register_field( $section_id, $option_id, $option_config, $wp_customize );
+			// Add the option config to the localized array so we can pass the info to JS.
+			// @todo Maybe we should ensure that the connected_fields configs passed here follow the same format and logic as the ones in ::customize_pane_settings_additional_data() thus maybe having the data in the same place.
+			$this->localized['settings'][ $setting_id ] = $option_config;
+
+			// Generate a safe option ID (not the final setting ID) to us in HTML attributes like ID or class
+			$this->localized['settings'][ $setting_id ]['html_safe_option_id'] = sanitize_html_class( $option_id );
+
+			$this->register_field( $section_id, $setting_id, $option_config, $wp_customize );
 		}
 
 	}
 
 	/**
+	 * Register a Customizer field (setting and control).
+	 *
+	 * @see WP_Customize_Setting
+	 * @see WP_Customize_Control
+	 *
 	 * @param string $section_id
 	 * @param string $setting_id
-	 * @param array $setting_config
+	 * @param array $field_config
 	 * @param WP_Customize_Manager $wp_customize
 	 */
-	protected function register_field( $section_id, $setting_id, $setting_config, $wp_customize ) {
+	protected function register_field( $section_id, $setting_id, $field_config, $wp_customize ) {
 
 		$add_control = true;
 		// defaults
@@ -1316,32 +1562,36 @@ class PixCustomifyPlugin {
 			'transport'  => 'refresh',
 		);
 		$control_args = array(
+			'priority' => 10,
 			'label'    => '',
 			'section'  => $section_id,
 			'settings' => $setting_id,
 		);
 
-		$this->localized['settings'][ $setting_id ] = $setting_config;
-
 		// sanitize settings
-		if ( ( isset( $setting_config['live'] ) && $setting_config['live'] ) || $setting_config['type'] === 'font' ) {
+		if ( ! empty( $field_config['live'] ) || $field_config['type'] === 'font' ) {
 			$setting_args['transport'] = 'postMessage';
 		}
 
-		if ( isset( $setting_config['default'] ) ) {
-			$setting_args['default'] = $setting_config['default'];
+		if ( isset( $field_config['default'] ) ) {
+			$setting_args['default'] = $field_config['default'];
 		}
 
-		if ( isset( $setting_config['capability'] ) && ! empty( $setting_config['capability'] ) ) {
-			$setting_args['capability'] = $setting_config['capability'];
+		if ( ! empty( $field_config['capability'] ) ) {
+			$setting_args['capability'] = $field_config['capability'];
 		}
 
-		if ( $this->plugin_settings['values_store_mod'] == 'option' ) {
+		// If the setting defines it's own type we will respect that, otherwise we will follow the global plugin setting.
+		if ( ! empty( $field_config['setting_type'] ) ) {
+			if ( 'option' === $field_config['setting_type'] ) {
+				$setting_args['type'] = 'option';
+			}
+		} elseif ( $this->plugin_settings['values_store_mod'] === 'option' ) {
 			$setting_args['type'] = 'option';
 		}
 
 		// if we arrive here this means we have a custom field control
-		switch ( $setting_config['type'] ) {
+		switch ( $field_config['type'] ) {
 
 			case 'checkbox':
 
@@ -1352,39 +1602,39 @@ class PixCustomifyPlugin {
 				break;
 		}
 
-		if ( isset( $setting_config['sanitize_callback'] ) && ! empty( $setting_config['sanitize_callback'] ) && function_exists( $setting_config['sanitize_callback'] ) ) {
-			$setting_args['sanitize_callback'] = $setting_config['sanitize_callback'];
+		if ( ! empty( $field_config['sanitize_callback'] ) && is_callable( $field_config['sanitize_callback'] ) ) {
+			$setting_args['sanitize_callback'] = $field_config['sanitize_callback'];
 		}
 
-		// and add it
+		// Add the setting
 		$wp_customize->add_setting( $setting_id, $setting_args );
 
 		// now sanitize the control
-		if ( isset( $setting_config['label'] ) && ! empty( $setting_config['label'] ) ) {
-			$control_args['label'] = $setting_config['label'];
+		if ( ! empty( $field_config['label'] ) ) {
+			$control_args['label'] = $field_config['label'];
 		}
 
-		if ( isset( $setting_config['priority'] ) && ! empty( $setting_config['priority'] ) ) {
-			$control_args['priority'] = $setting_config['priority'];
+		if ( ! empty( $field_config['priority'] ) ) {
+			$control_args['priority'] = $field_config['priority'];
 		}
 
-		if ( isset( $setting_config['desc'] ) && ! empty( $setting_config['desc'] ) ) {
-			$control_args['description'] = $setting_config['desc'];
+		if ( ! empty( $field_config['desc'] ) ) {
+			$control_args['description'] = $field_config['desc'];
 		}
 
-		if ( isset( $setting_config['active_callback'] ) && ! empty( $setting_config['active_callback'] ) ) {
-			$control_args['active_callback'] = $setting_config['active_callback'];
+		if ( ! empty( $field_config['active_callback'] ) ) {
+			$control_args['active_callback'] = $field_config['active_callback'];
 		}
 
 
-		$control_args['type'] = $setting_config['type'];
+		$control_args['type'] = $field_config['type'];
 
 		// select the control type
 		// but first init a default
 		$control_class_name = 'Pix_Customize_Text_Control';
 
-		// if is a standard wp field type call it here and skip the rest
-		if ( in_array( $setting_config['type'], array(
+		// If is a standard wp field type call it here and skip the rest.
+		if ( in_array( $field_config['type'], array(
 			'checkbox',
 			'dropdown-pages',
 			'url',
@@ -1397,36 +1647,36 @@ class PixCustomifyPlugin {
 			$wp_customize->add_control( $setting_id . '_control', $control_args );
 
 			return;
-		} elseif ( in_array( $setting_config['type'], array(
+		} elseif ( in_array( $field_config['type'], array(
 				'radio',
 				'select'
-			) ) && isset( $setting_config['choices'] ) && ! empty( $setting_config['choices'] )
+			) ) && ! empty( $field_config['choices'] )
 		) {
-			$control_args['choices'] = $setting_config['choices'];
+			$control_args['choices'] = $field_config['choices'];
 			$wp_customize->add_control( $setting_id . '_control', $control_args );
 
 			return;
-		} elseif ( in_array( $setting_config['type'], array( 'range' ) ) && isset( $setting_config['input_attrs'] ) && ! empty( $setting_config['input_attrs'] ) ) {
+		} elseif ( in_array( $field_config['type'], array( 'range' ) ) && ! empty( $field_config['input_attrs'] ) ) {
 
-			$control_args['input_attrs'] = $setting_config['input_attrs'];
+			$control_args['input_attrs'] = $field_config['input_attrs'];
 
 			$wp_customize->add_control( $setting_id . '_control', $control_args );
 		}
 
-		// if we arrive here this means we have a custom field control
-		switch ( $setting_config['type'] ) {
+		// If we arrive here this means we have a custom field control.
+		switch ( $field_config['type'] ) {
 
 			case 'text':
-				if ( isset( $setting_config['live'] ) ) {
-					$control_args['live'] = $setting_config['live'];
+				if ( isset( $field_config['live'] ) ) {
+					$control_args['live'] = $field_config['live'];
 				}
 
 				$control_class_name = 'Pix_Customize_Text_Control';
 				break;
 
 			case 'textarea':
-				if ( isset( $setting_config['live'] ) ) {
-					$control_args['live'] = $setting_config['live'];
+				if ( isset( $field_config['live'] ) ) {
+					$control_args['live'] = $field_config['live'];
 				}
 
 				$control_class_name = 'Pix_Customize_Textarea_Control';
@@ -1441,12 +1691,12 @@ class PixCustomifyPlugin {
 				break;
 
 			case 'ace_editor':
-				if ( isset( $setting_config['live'] ) ) {
-					$control_args['live'] = $setting_config['live'];
+				if ( isset( $field_config['live'] ) ) {
+					$control_args['live'] = $field_config['live'];
 				}
 
-				if ( isset( $setting_config['editor_type'] ) ) {
-					$control_args['editor_type'] = $setting_config['editor_type'];
+				if ( isset( $field_config['editor_type'] ) ) {
+					$control_args['editor_type'] = $field_config['editor_type'];
 				}
 
 				$control_class_name = 'Pix_Customize_Ace_Editor_Control';
@@ -1465,28 +1715,33 @@ class PixCustomifyPlugin {
 				break;
 
 			case 'custom_background':
-				if ( isset( $setting_config['field'] ) ) {
-					$control_args['field'] = $setting_config['field'];
+				if ( isset( $field_config['field'] ) ) {
+					$control_args['field'] = $field_config['field'];
 				}
 
 				$control_class_name = 'Pix_Customize_Background_Control';
 				break;
 
-			case 'cropped_media':
-				if ( isset( $setting_config['width'] ) ) {
-					$control_args['width'] = $setting_config['width'];
+			case 'cropped_image':
+			case 'cropped_media': // 'cropped_media' no longer works
+				if ( isset( $field_config['width'] ) ) {
+					$control_args['width'] = $field_config['width'];
 				}
 
-				if ( isset( $setting_config['height'] ) ) {
-					$control_args['height'] = $setting_config['height'];
+				if ( isset( $field_config['height'] ) ) {
+					$control_args['height'] = $field_config['height'];
 				}
 
-				if ( isset( $setting_config['flex_width'] ) ) {
-					$control_args['flex_width'] = $setting_config['flex_width'];
+				if ( isset( $field_config['flex_width'] ) ) {
+					$control_args['flex_width'] = $field_config['flex_width'];
 				}
 
-				if ( isset( $setting_config['flex_height'] ) ) {
-					$control_args['flex_height'] = $setting_config['flex_height'];
+				if ( isset( $field_config['flex_height'] ) ) {
+					$control_args['flex_height'] = $field_config['flex_height'];
+				}
+
+				if ( isset( $field_config['button_labels'] ) ) {
+					$control_args['button_labels'] = $field_config['button_labels'];
 				}
 
 				$control_class_name = 'WP_Customize_Cropped_Image_Control';
@@ -1503,33 +1758,32 @@ class PixCustomifyPlugin {
 
 				$control_class_name = 'Pix_Customize_Typography_Control';
 
-				if ( isset( $setting_config['backup'] ) ) {
-					$control_args['backup'] = $setting_config['backup'];
+				if ( isset( $field_config['backup'] ) ) {
+					$control_args['backup'] = $field_config['backup'];
 				}
 
-				if ( isset( $setting_config['font_weight'] ) ) {
-					$control_args['font_weight'] = $setting_config['font_weight'];
+				if ( isset( $field_config['font_weight'] ) ) {
+					$control_args['font_weight'] = $field_config['font_weight'];
 				}
 
-				if ( isset( $setting_config['subsets'] ) ) {
-					$control_args['subsets'] = $setting_config['subsets'];
+				if ( isset( $field_config['subsets'] ) ) {
+					$control_args['subsets'] = $field_config['subsets'];
 				}
 
-				if ( isset( $setting_config['recommended'] ) ) {
-					$control_args['recommended'] = array_flip( $setting_config['recommended'] );
+				if ( isset( $field_config['recommended'] ) ) {
+					$control_args['recommended'] = array_flip( $field_config['recommended'] );
 				}
 
-				if ( isset( $setting_config['load_all_weights'] ) ) {
-					$control_args['load_all_weights'] = $setting_config['load_all_weights'];
+				if ( isset( $field_config['load_all_weights'] ) ) {
+					$control_args['load_all_weights'] = $field_config['load_all_weights'];
 				}
 
-				if ( isset( $setting_config['default'] ) ) {
-					$control_args['default'] = $setting_config['default'];
+				if ( isset( $field_config['default'] ) ) {
+					$control_args['default'] = $field_config['default'];
 				}
 
 				break;
 
-			// Custom types
 			case 'font' :
 				$use_typography = $this->get_plugin_setting( 'typography', '1' );
 
@@ -1540,60 +1794,80 @@ class PixCustomifyPlugin {
 
 				$control_class_name = 'Pix_Customize_Font_Control';
 
-				if ( isset( $setting_config['backup'] ) ) {
-					$control_args['backup'] = $setting_config['backup'];
+				if ( isset( $field_config['backup'] ) ) {
+					$control_args['backup'] = $field_config['backup'];
 				}
 
-				if ( isset( $setting_config['font_weight'] ) ) {
-					$control_args['font_weight'] = $setting_config['font_weight'];
+				if ( isset( $field_config['font_weight'] ) ) {
+					$control_args['font_weight'] = $field_config['font_weight'];
 				}
 
-				if ( isset( $setting_config['subsets'] ) ) {
-					$control_args['subsets'] = $setting_config['subsets'];
+				if ( isset( $field_config['subsets'] ) ) {
+					$control_args['subsets'] = $field_config['subsets'];
 				}
 
-				if ( isset( $setting_config['recommended'] ) ) {
-					$control_args['recommended'] = array_flip( $setting_config['recommended'] );
+				if ( isset( $field_config['recommended'] ) ) {
+					$control_args['recommended'] = array_flip( $field_config['recommended'] );
 				}
 
-				if ( isset( $setting_config['load_all_weights'] ) ) {
-					$control_args['load_all_weights'] = $setting_config['load_all_weights'];
+				if ( isset( $field_config['load_all_weights'] ) ) {
+					$control_args['load_all_weights'] = $field_config['load_all_weights'];
 				}
 
-				if ( isset( $setting_config['default'] ) ) {
-					$control_args['default'] = $setting_config['default'];
+				if ( isset( $field_config['default'] ) ) {
+					$control_args['default'] = $field_config['default'];
 				}
 
-				if ( isset( $setting_config['fields'] ) ) {
-					$control_args['fields'] = $setting_config['fields'];
+				if ( isset( $field_config['fields'] ) ) {
+					$control_args['fields'] = $field_config['fields'];
 				}
 				$control_args['live'] = true;
 
 				break;
 
 			case 'select2' :
-				if ( ! isset( $setting_config['choices'] ) || empty( $setting_config['choices'] ) ) {
+				if ( ! isset( $field_config['choices'] ) || empty( $field_config['choices'] ) ) {
 					return;
 				}
 
-				$control_args['choices'] = $setting_config['choices'];
+				$control_args['choices'] = $field_config['choices'];
 
 				$control_class_name = 'Pix_Customize_Select2_Control';
 				break;
-
-			case 'preset' :
-				if ( ! isset( $setting_config['choices'] ) || empty( $setting_config['choices'] ) ) {
+				
+			case 'sm_radio' :
+				if ( ! isset( $field_config['choices'] ) || empty( $field_config['choices'] ) ) {
 					return;
 				}
 
-				$control_args['choices'] = $setting_config['choices'];
+				$control_args['choices'] = $field_config['choices'];
 
-				if ( isset( $setting_config['choices_type'] ) || ! empty( $setting_config['choices_type'] ) ) {
-					$control_args['choices_type'] = $setting_config['choices_type'];
+				$control_class_name = 'Pix_Customize_SM_radio_Control';
+				break;
+				
+			case 'sm_switch' :
+				if ( ! isset( $field_config['choices'] ) || empty( $field_config['choices'] ) ) {
+					return;
 				}
 
-				if ( isset( $setting_config['desc'] ) || ! empty( $setting_config['desc'] ) ) {
-					$control_args['description'] = $setting_config['desc'];
+				$control_args['choices'] = $field_config['choices'];
+
+				$control_class_name = 'Pix_Customize_SM_switch_Control';
+				break;
+
+			case 'preset' :
+				if ( ! isset( $field_config['choices'] ) || empty( $field_config['choices'] ) ) {
+					return;
+				}
+
+				$control_args['choices'] = $field_config['choices'];
+
+				if ( isset( $field_config['choices_type'] ) || ! empty( $field_config['choices_type'] ) ) {
+					$control_args['choices_type'] = $field_config['choices_type'];
+				}
+
+				if ( isset( $field_config['desc'] ) || ! empty( $field_config['desc'] ) ) {
+					$control_args['description'] = $field_config['desc'];
 				}
 
 
@@ -1601,18 +1875,18 @@ class PixCustomifyPlugin {
 				break;
 
 			case 'radio_image' :
-				if ( ! isset( $setting_config['choices'] ) || empty( $setting_config['choices'] ) ) {
+				if ( ! isset( $field_config['choices'] ) || empty( $field_config['choices'] ) ) {
 					return;
 				}
 
-				$control_args['choices'] = $setting_config['choices'];
+				$control_args['choices'] = $field_config['choices'];
 
-				if ( isset( $setting_config['choices_type'] ) || ! empty( $setting_config['choices_type'] ) ) {
-					$control_args['choices_type'] = $setting_config['choices_type'];
+				if ( isset( $field_config['choices_type'] ) || ! empty( $field_config['choices_type'] ) ) {
+					$control_args['choices_type'] = $field_config['choices_type'];
 				}
 
-				if ( isset( $setting_config['desc'] ) || ! empty( $setting_config['desc'] ) ) {
-					$control_args['description'] = $setting_config['desc'];
+				if ( isset( $field_config['desc'] ) || ! empty( $field_config['desc'] ) ) {
+					$control_args['description'] = $field_config['desc'];
 				}
 
 
@@ -1620,37 +1894,37 @@ class PixCustomifyPlugin {
 				break;
 
 			case 'button' :
-				if ( ! isset( $setting_config['action'] ) || empty( $setting_config['action'] ) ) {
+				if ( ! isset( $field_config['action'] ) || empty( $field_config['action'] ) ) {
 					return;
 				}
 
-				$control_args['action'] = $setting_config['action'];
+				$control_args['action'] = $field_config['action'];
 
 				$control_class_name = 'Pix_Customize_Button_Control';
 
 				break;
 
 			case 'html' :
-				if ( isset( $setting_config['html'] ) || ! empty( $setting_config['html'] ) ) {
-					$control_args['html'] = $setting_config['html'];
+				if ( isset( $field_config['html'] ) || ! empty( $field_config['html'] ) ) {
+					$control_args['html'] = $field_config['html'];
 				}
 
 				$control_class_name = 'Pix_Customize_HTML_Control';
 				break;
 
 			case 'import_demo_data' :
-				if ( isset( $setting_config['html'] ) || ! empty( $setting_config['html'] ) ) {
-					$control_args['html'] = $setting_config['html'];
+				if ( isset( $field_config['html'] ) || ! empty( $field_config['html'] ) ) {
+					$control_args['html'] = $field_config['html'];
 				}
 
-				if ( ! isset( $setting_config['label'] ) || empty( $setting_config['label'] ) ) {
+				if ( ! isset( $field_config['label'] ) || empty( $field_config['label'] ) ) {
 					$control_args['label'] = esc_html__( 'Import', 'customify' );
 				} else {
-					$control_args['label'] = $setting_config['label'];
+					$control_args['label'] = $field_config['label'];
 				}
 
-				if ( isset( $setting_config['notices'] ) && ! empty( $setting_config['notices'] ) ) {
-					$control_args['notices'] = $setting_config['notices'];
+				if ( isset( $field_config['notices'] ) && ! empty( $field_config['notices'] ) ) {
+					$control_args['notices'] = $field_config['notices'];
 				}
 
 				$control_class_name = 'Pix_Customize_Import_Demo_Data_Control';
@@ -1696,6 +1970,97 @@ class PixCustomifyPlugin {
 				$wp_customize->remove_section( $section );
 			}
 		}
+	}
+
+	/**
+	 * Print JavaScript for adding additional data to _wpCustomizeSettings.settings object of the main window (not the preview window).
+	 */
+	public function customize_pane_settings_additional_data() {
+		/**
+		 * @global WP_Customize_Manager $wp_customize
+		 */
+		global $wp_customize;
+
+		// Without an options name we can't do much.
+		if ( empty( $this->customizer_config['opt-name'] ) ) {
+			return;
+		}
+
+		$options_name = $this->customizer_config['opt-name'];
+		$customizer_settings = $wp_customize->settings();
+		?>
+		<script type="text/javascript">
+            if ( 'undefined' === typeof _wpCustomizeSettings.settings ) {
+                _wpCustomizeSettings.settings = {};
+            }
+
+			<?php
+			echo "(function ( sAdditional ){\n";
+
+			$options = $this->get_options();
+			foreach ( $options as $option_id => $option_config ) {
+				// If we have been explicitly given a setting ID we will use that
+				if ( ! empty( $option_config['setting_id'] ) ) {
+					$setting_id = $option_config['setting_id'];
+				} else {
+					$setting_id = $options_name . '[' . $option_id . ']';
+				}
+				// @todo Right now we only handle the connected_fields key - make this more dynamic by adding the keys that are not returned by WP_Customize_Setting->json()
+				if ( ! empty( $customizer_settings[ $setting_id ] ) && ! empty( $option_config['connected_fields'] ) ) {
+					// Pass through all the connected fields and make sure the id is in the final format
+					$connected_fields = array();
+					foreach ( $option_config['connected_fields'] as $key => $connected_field_config ) {
+						$connected_field_data = array();
+
+						if ( is_string( $connected_field_config ) ) {
+							$connected_field_id = $connected_field_config;
+						} elseif ( is_array( $connected_field_config ) ) {
+							// We have a full blown connected field config
+							if ( is_string( $key ) ) {
+								$connected_field_id = $key;
+							} else {
+								continue;
+							}
+
+							// We will pass to JS all the configured connected field details.
+							$connected_field_data = $connected_field_config;
+						}
+
+						// Continue if we don't have a connected field ID to work with.
+						if ( empty( $connected_field_id ) ) {
+							continue;
+						}
+
+						// If the connected setting is not one of our's, we will use it's ID as it is.
+						if ( ! array_key_exists( $connected_field_id, $options ) ) {
+							$connected_field_data['setting_id'] = $connected_field_id;
+						}
+						// If the connected setting specifies a setting ID, we will not prefix it and use it as it is.
+						elseif ( ! empty( $options[ $connected_field_id ] ) && ! empty( $options[ $connected_field_id ]['setting_id'] ) ) {
+							$connected_field_data['setting_id'] = $options[ $connected_field_id ]['setting_id'];
+						} else {
+							$connected_field_data['setting_id'] = $options_name . '[' . $connected_field_id . ']';
+						}
+
+						$connected_fields[] = $connected_field_data;
+					}
+
+					printf(
+						"sAdditional[%s].%s = %s;\n",
+						wp_json_encode( $setting_id ),
+						'connected_fields',
+						wp_json_encode( $connected_fields, JSON_FORCE_OBJECT )
+					);
+				}
+			}
+			echo "})( _wpCustomizeSettings.settings );\n";
+			?>
+		</script>
+		<?php
+	}
+
+	public function get_file() {
+		return $this->file;
 	}
 
 	public function get_base_path() {
@@ -1814,64 +2179,99 @@ class PixCustomifyPlugin {
 		return $settings;
 	}
 
-	protected function get_value( $option, $alt_opt_name ) {
+	protected function get_value( $option_id, $alt_opt_name ) {
 		global $wp_customize;
 
-		$opt_name = $this->opt_name;
+		$options_name = $this->opt_name;
 		$values   = $this->current_values;
 
-		// In case someone asked for a DB value too early but it has given us the opt_name under which to search, let's do it
-		if ( empty( $opt_name ) && ! empty( $alt_opt_name ) ) {
-			$opt_name = $alt_opt_name;
-			$values   = $this->get_current_values( $opt_name );
+		// In case someone asked for a DB value too early but it has given us the options_name under which to search, let's do it
+		if ( empty( $options_name ) && ! empty( $alt_opt_name ) ) {
+			$options_name = $alt_opt_name;
+			$values   = $this->get_current_values( $options_name );
 		}
 
 		if ( ! empty( $wp_customize ) && method_exists( $wp_customize, 'get_setting' ) ) {
+			// Get the field config.
+			$option_config = $this->get_option_customizer_config( $option_id );
 
-			$option_key = $opt_name . '[' . $option . ']';
-			$setting    = $wp_customize->get_setting( $option_key );
+			if ( empty( $option_id ) || ! isset( $option_config['type'] ) ) {
+				return null;
+			}
+
+			// If we have been explicitly given a setting ID we will use that
+			if ( ! empty( $option_config['setting_id'] ) ) {
+				$setting_id = $option_config['setting_id'];
+			} else {
+				$setting_id = $options_name . '[' . $option_id . ']';
+			}
+
+			$setting    = $wp_customize->get_setting( $setting_id );
 			if ( ! empty( $setting ) ) {
-				$value = $setting->value();
-
-				return $value;
+				return $setting->value();
 			}
 		}
 
 		// shim
-		if ( strpos( $option, $opt_name . '[' ) !== false ) {
+		if ( strpos( $option_id, $options_name . '[' ) !== false ) {
 			// get only the setting id
-			$option = explode( '[', $option );
-			$option = rtrim( $option[1], ']' );
+			$option_id = explode( '[', $option_id );
+			$option_id = rtrim( $option_id[1], ']' );
 		}
 
-		if ( isset( $values[ $option ] ) ) {
-			return $values[ $option ];
+		if ( isset( $values[ $option_id ] ) ) {
+			return $values[ $option_id ];
 		}
 
 		return null;
 	}
 
 	/**
-	 * A public function to retreat an option's value
-	 * If there is a value and return it
-	 * Otherwise try to get the default parameter or the default from config
+	 * A public function to get an option's value.
+	 * If there is a value and return it.
+	 * Otherwise try to get the default parameter or the default from config.
 	 *
-	 * @param $option
+	 * @param $option_id
 	 * @param mixed $default Optional.
 	 * @param string $alt_opt_name Optional. We can use this to bypass the fact that the DB values are loaded on after_setup_theme, if we know what to look for.
 	 *
 	 * @return bool|null|string
 	 */
-	public function get_option( $option, $default = null, $alt_opt_name = null ) {
+	public function get_option( $option_id, $default = null, $alt_opt_name = null ) {
+		// If the development constant CUSTOMIFY_DEV_FORCE_DEFAULTS has been defined we will not retrieve anything from the database
+		// Always go with the default
+		if ( defined( 'CUSTOMIFY_DEV_FORCE_DEFAULTS' ) && true === CUSTOMIFY_DEV_FORCE_DEFAULTS && ! $this->skip_dev_mode_force_defaults( $option_id ) ) {
+			$return = null;
+		} else {
+			// Get the field config.
+			$option_config = $this->get_option_customizer_config( $option_id );
 
-		$return = $this->get_value( $option, $alt_opt_name );
+			if ( empty( $option_id ) ) {
+				$return = null;
+			} elseif ( isset( $option_config['setting_type'] ) && $option_config['setting_type'] === 'option' ) {
+				// We have a setting that is saved in the wp_options table, not in theme_mods.
+				// We will fetch it directly.
+
+				// If we have been explicitly given a setting ID we will use that
+				if ( ! empty( $option_config['setting_id'] ) ) {
+					$setting_id = $option_config['setting_id'];
+				} else {
+					$setting_id = $this->opt_name . '[' . $option_id . ']';
+				}
+
+				$return = get_option( $setting_id );
+			} else {
+				// Get the value stores in theme_mods.
+				$return = $this->get_value( $option_id, $alt_opt_name );
+			}
+		}
 
 		if ( $return !== null ) {
 			return $return;
 		} elseif ( $default !== null ) {
 			return $default;
-		} elseif ( isset( $this->options_list[ $option ] ) && isset( $this->options_list[ $option ]['default'] ) ) {
-			return $this->options_list[ $option ]['default'];
+		} elseif ( isset( $this->options_list[ $option_id ] ) && isset( $this->options_list[ $option_id ]['default'] ) ) {
+			return $this->options_list[ $option_id ]['default'];
 		}
 
 		return null;
@@ -1881,6 +2281,50 @@ class PixCustomifyPlugin {
 
 		if ( isset( $this->options_list[ $option ] ) ) {
 			return true;
+		}
+
+		return false;
+	}
+
+	public function get_customizer_config() {
+		return $this->customizer_config;
+	}
+
+	/**
+	 * Get the Customify configuration of a certain option.
+	 *
+	 * @param string $option_id
+	 *
+	 * @return array|false The option config or false on failure.
+	 */
+	public function get_option_customizer_config( $option_id ) {
+		// We need to search for the option configured under the given id (the array key)
+		if ( isset ( $this->customizer_config['panels'] ) ) {
+			foreach ( $this->customizer_config['panels'] as $panel_id => $panel_settings ) {
+				if ( isset( $panel_settings['sections'] ) ) {
+					foreach ( $panel_settings['sections'] as $section_id => $section_settings ) {
+						if ( isset( $section_settings['options'] ) ) {
+							foreach ( $section_settings['options'] as $id => $option_config ) {
+								if ( $id === $option_id ) {
+									return $option_config;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if ( isset ( $this->customizer_config['sections'] ) ) {
+			foreach ( $this->customizer_config['sections'] as $section_id => $section_settings ) {
+				if ( isset( $section_settings['options'] ) ) {
+					foreach ( $section_settings['options'] as $id => $option_config ) {
+						if ( $id === $option_id ) {
+							return $option_config;
+						}
+					}
+				}
+			}
 		}
 
 		return false;
@@ -1971,7 +2415,7 @@ class PixCustomifyPlugin {
 		$controller->init();
 	}
 
-	function get_options_configs() {
+	public function get_options_configs() {
 		return $this->options_list;
 	}
 
@@ -2004,7 +2448,7 @@ class PixCustomifyPlugin {
 	 * @return string
 	 */
 	public static function decodeURIComponent( $str ) {
-		//if we get an array we just let it be
+		// If we get an array we just let it be
 		if ( is_string( $str ) ) {
 			$revert = array( '!' => '%21', '*' => '%2A', "'" => '%27', '(' => '%28', ')' => '%29' );
 			$str    = rawurldecode( strtr( $str, $revert ) );
@@ -2028,6 +2472,88 @@ class PixCustomifyPlugin {
 	}
 
 	/**
+	 * Prevent saving of plugin options in the Customizer
+	 *
+	 * @param array $data The data to save
+	 * @param array $filter_context
+	 *
+	 * @return array
+	 */
+	public function prevent_changeset_save_in_devmode( $data, $filter_context ) {
+		// Get the options key
+		$options_key = $this->customizer_config['opt-name'];
+		if ( ! empty( $options_key ) ) {
+			// Remove any Customify data thus preventing it from saving
+			foreach ( $data as $option_id => $value ) {
+				if ( false !== strpos( $option_id, $options_key ) && ! $this->skip_dev_mode_force_defaults( $option_id ) ) {
+					unset( $data[ $option_id ] );
+				}
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Determine if we should NOT enforce the CUSTOMIFY_DEV_FORCE_DEFAULTS behavior on a certain option.
+	 *
+	 * @param string $option_id
+	 *
+	 * @return bool
+	 */
+	private function skip_dev_mode_force_defaults( $option_id ) {
+		// Preprocess the $option_id.
+		if ( false !== strpos( $option_id, '::' ) ) {
+			$option_id = substr( $option_id, strpos( $option_id, '::' ) + 2 );
+		}
+		if ( false !== strpos( $option_id, '[' ) ) {
+			$option_id = explode( '[', $option_id );
+			$option_id = rtrim( $option_id[1], ']' );
+		}
+
+		$option_config = $this->get_option_customizer_config( $option_id );
+		if ( empty( $option_config ) ) {
+			return false;
+		}
+
+		// We will skip certain field types that generally don't have a default value.
+		if ( ! empty( $option_config['type'] ) ) {
+			switch ( $option_config['type'] ) {
+				case 'cropped_image':
+				case 'cropped_media':
+				case 'image':
+				case 'media':
+				case 'custom_background':
+				case 'upload':
+					return true;
+					break;
+				default:
+					break;
+			}
+		}
+
+		return false;
+	}
+
+	public function prevent_changeset_save_in_devmode_notification() { ?>
+		<script type="application/javascript">
+            (function ( $, exports, wp ) {
+                'use strict';
+                // when the customizer is ready add our notification
+                wp.customize.bind('ready', function () {
+                    wp.customize.notifications.add( 'customify_force_defaults', new wp.customize.Notification(
+                        'customify_force_defaults',
+                        {
+                            type: 'warning',
+                            message: '<strong style="margin-bottom: ">Customify: Development Mode</strong><p>All the options are switched to default. While they are changing in the live preview, they will not be kept when publish.</p>'
+                        }
+                    ) );
+                });
+            })(jQuery, window, wp);
+		</script>
+	<?php }
+
+	/**
 	 * Return an instance of this class.
 	 * @since     1.0.0
 	 * @return    PixCustomifyPlugin    A single instance of this class.
@@ -2044,7 +2570,7 @@ class PixCustomifyPlugin {
 	 * @param string $version Version.
 	 *
 	 * @see    PixCustomifyPlugin()
-	 * @return object Main PixCustomifyPlugin instance
+	 * @return PixCustomifyPlugin Main PixCustomifyPlugin instance
 	 */
 	public static function instance( $file = '', $version = '1.0.0' ) {
 		// If the single instance hasn't been set, set it now.

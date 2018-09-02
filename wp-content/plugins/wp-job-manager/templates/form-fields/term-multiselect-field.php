@@ -1,5 +1,21 @@
 <?php
-// Get selected value
+/**
+ * Shows term `select` (multiple) form field on job listing forms.
+ *
+ * This template can be overridden by copying it to yourtheme/job_manager/form-fields/term-multiselect-field.php.
+ *
+ * @see         https://wpjobmanager.com/document/template-overrides/
+ * @author      Automattic
+ * @package     WP Job Manager
+ * @category    Template
+ * @version     1.31.1
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+// Get selected value.
 if ( isset( $field['value'] ) ) {
 	$selected = $field['value'];
 } elseif (  ! empty( $field['default'] ) && is_int( $field['default'] ) ) {
@@ -25,4 +41,4 @@ if ( isset( $field['placeholder'] ) && ! empty( $field['placeholder'] ) ) $args[
 
 job_manager_dropdown_categories( apply_filters( 'job_manager_term_multiselect_field_args', $args ) );
 
-if ( ! empty( $field['description'] ) ) : ?><small class="description"><?php echo $field['description']; ?></small><?php endif; ?>
+if ( ! empty( $field['description'] ) ) : ?><small class="description"><?php echo wp_kses_post( $field['description'] ); ?></small><?php endif; ?>

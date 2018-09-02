@@ -55,6 +55,16 @@ function listable_register_widget_areas() {
 		'after_title'   => '</h2>',
 	) );
 
+	register_sidebar( array(
+		'name'          => esc_html__( 'Blog Sidebar Area', 'listable' ),
+		'id'            => 'blog_sidebar',
+		'description'   => '',
+		'before_widget' => '<div class="section-wrap">',
+		'after_widget'  => '</div>',
+		'before_title'  => '<h2 class="widget-title">',
+		'after_title'   => '</h2>',
+	) );
+
 	register_widget( 'Listing_Actions_Widget' );
 	register_widget( 'Listing_Content_Widget' );
 	register_widget( 'Listing_Comments_Widget' );
@@ -66,7 +76,7 @@ function listable_register_widget_areas() {
 	register_widget( 'Listing_Sidebar_Gallery_Widget' );
 
 	// Claim Listing >= 3.x
-	if ( defined( 'WPJMCL_VERSION' ) ) {
+	if ( defined( 'WPJMCL_VERSION' ) && class_exists('WP_Job_Manager') ) {
 		register_widget( 'Listing_Sidebar_Claim_Listing_Widget' );
 	}
 
@@ -445,10 +455,14 @@ class Listing_Sidebar_Gallery_Widget extends WP_Widget {
 			<div class="listing-gallery__items  js-widget-gallery">
 
 				<?php
-				foreach ( $photos as $key => $photo_ID ) : ?>
+				foreach ( $photos as $key => $photo_ID ) :
+					$attachment = get_post( $photo_ID );
+
+					if ( empty( $attachment ) ) {
+						continue;
+					} ?>
 					<a href="<?php echo wp_get_attachment_url( $photo_ID ); ?>" class="listing-gallery__item">
 						<?php
-							$attachment = get_post( $photo_ID );
 							echo wp_get_attachment_image( $photo_ID, 'thumbnail', false, array( 'itemprop' => 'image', 'caption' => $attachment->post_excerpt, 'description' => $attachment->post_content ) );
 						?>
 					</a>
@@ -484,7 +498,6 @@ class Listing_Sidebar_Claim_Listing_Widget extends WP_Widget {
 			array( 'description' => esc_html__( 'Display a claim listing button.', 'listable' ), ) // Args
 		);
 
-
 		$this->job_listing = wpjmcl\job_listing\Setup::get_instance();
 		remove_action( 'single_job_listing_start', array( $this->job_listing, 'add_claim_link' ) );
 	}
@@ -503,39 +516,38 @@ class Listing_Sidebar_Claim_Listing_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		// If the listing is claimed, we simply ouput the result
-		if ( '1' !== $is_claimed && (int)$curr_user_id !== (int)$post->post_author ) {
-			// You cannot claim your own listing
-//			if( $curr_user_id == $post->post_author ) return false;
-			//make sure that Login with Ajax can work
-			if ( empty( $paid_claims ) && ! is_user_logged_in() && listable_using_lwa() ) {
-				//we need a wrapper with the lwa class
-				$args['before_title'] .= '<div class="lwa">';
-				$args['after_title'] = '</div>' . $args['after_title'];
-			}
-
-			echo $args['before_title'] . $title;
-
-			if ( ! empty( $claim_button_text ) ) {
-				/**
-				 * I know this is PHP 5.3+ but claim listing is a plugin for 5.3+ so this is not my fault :D
-				 */
-				add_filter( 'wpjmcl_submit_claim_link', function ( $link, $ID, $url ) use ( $claim_button_text ) {
-
-					$parsed_link = preg_replace( "#<a(.*)><span>(.*)</span>(.*)</a>#", '<a$1><span>' . $claim_button_text . '</span></a>', $link );
-
-					return $parsed_link;
-				}, 10, 3 );
-			}
-
-			$this->job_listing->add_claim_link();
-
-			if ( ! empty ( $claim_description_text ) ) {
-				echo '<small class="listing-claim-description">' . $claim_description_text . '</small>';
-			}
+		//make sure that Login with Ajax can work
+		if ( empty( $paid_claims ) && ! is_user_logged_in() && listable_using_lwa() ) {
+			//we need a wrapper with the lwa class
+			$args['before_title'] .= '<div class="lwa">';
+			$args['after_title'] = '</div>' . $args['after_title'];
 		}
 
-		wc_print_notices();
+		echo $args['before_title'] . $title;
+
+		if ( ! empty( $claim_button_text ) ) {
+			/**
+			 * I know this is PHP 5.3+ but claim listing is a plugin for 5.3+ so this is not my fault :D
+			 */
+			add_filter( 'wpjmcl_submit_claim_link', function ( $link, $ID, $url ) use ( $claim_button_text ) {
+
+				$parsed_link = preg_replace( "#<a(.*)><span>(.*)</span>(.*)</a>#", '<a$1><span>' . $claim_button_text . '</span></a>', $link );
+
+				return $parsed_link;
+			}, 10, 3 );
+		}
+
+		$this->job_listing->add_claim_link();
+
+		echo $args['after_title'];
+
+		if ( ! empty ( $claim_description_text ) ) {
+			echo '<small class="listing-claim-description">' . $claim_description_text . '</small>';
+		}
+
+		if ( function_exists('wc_print_notices' ) ) {
+			wc_print_notices();
+		}
 
 		echo $args['after_widget'];
 	}
@@ -716,7 +728,7 @@ class Front_Page_Listing_Cards_Widget extends WP_Widget {
 							         data-img="<?php echo listable_get_post_image_src( $post->ID, 'full' ); ?>"
 							         data-permalink="<?php the_job_permalink(); ?>">
 
-								<aside class="card__image" style="background-image: url(<?php echo listable_get_post_image_src( $post->ID, 'listable-card-image' ); ?>);">
+								<aside class="card__image" style="background-image: url(<?php echo listable_get_post_image_src( $post->ID, 'listable-card-image' ) ? listable_get_post_image_src( $post->ID, 'listable-card-image' ) : apply_filters( 'listing_card_placeholer', ''); ?>);">
 									<?php if ( true === $listing_is_featured ): ?>
 									<span class="card__featured-tag"><?php esc_html_e( 'Featured', 'listable' ); ?></span>
 									<?php endif; ?>
@@ -730,7 +742,7 @@ class Front_Page_Listing_Cards_Widget extends WP_Widget {
 								<div class="card__content">
 									<h2 class="card__title" itemprop="name"><?php
 										echo get_the_title();
-										if ( $listing_is_claimed === '1' ) :
+										if ( $listing_is_claimed === '1' && function_exists('wpjmcl_init') ) :
 											echo '<span class="listing-claimed-icon">';
 											get_template_part('assets/svg/checked-icon-small');
 											echo '<span>';
@@ -991,6 +1003,7 @@ class Front_Page_Listing_Categories_Widget extends WP_Widget {
 				if ( strpos( $category, '(' ) !== false ) {
 					$category  = explode( '(', $category );
 					$term_slug = trim( $category[0] );
+					$term_slug = sanitize_title_for_query( $term_slug );
 
 					if ( substr( $category[1], - 1, 1 ) == ')' ) {
 						$custom_category_labels[ $term_slug ] = trim( substr( $category[1], 0, - 1 ) );
@@ -1001,6 +1014,8 @@ class Front_Page_Listing_Categories_Widget extends WP_Widget {
 					}
 				} else {
 					$term_slug = trim( $category );
+					$term_slug = sanitize_title_for_query( $term_slug );
+
 					if ( array_key_exists( $term_slug, $all_categories ) ) {
 						$term_list[] = $all_categories[ $term_slug ];
 					}
@@ -1589,6 +1604,8 @@ class Front_Page_Spotlights_Widget extends WP_Widget {
 								<br/>
 								<textarea data-field="desc" cols="20" rows="5"><?php echo esc_html( $spotlight->desc ); ?></textarea>
 							</p>
+
+							<button class="button-link button-link-delete remove_spotlight" title="<?php esc_html_e( 'Remove spotlight "' . $spotlight->title . '"', 'listable' ) ?>"><?php esc_html_e( 'Remove', 'listable' ); ?></button>
 						</div>
 
 					<?php endforeach;
@@ -1596,7 +1613,7 @@ class Front_Page_Spotlights_Widget extends WP_Widget {
 
 			</div><!-- .group_panel_widget_list -->
 
-			<span class="button button-secondary add_spotlights"><?php esc_html_e( 'Add Spotlight', 'listable' ) ?></span>
+			<span class="button button-secondary add-new-widget add_spotlights"><?php esc_html_e( 'Add Spotlight', 'listable' ) ?></span>
 
 			<div id="spotlight_template" class="hidden">
 				<div class="group_panel_widget_spotlight" data-count="<?php echo $count ?>">
@@ -1621,6 +1638,8 @@ class Front_Page_Spotlights_Widget extends WP_Widget {
 						<br/>
 						<textarea data-field="desc" cols="20" rows="5"></textarea>
 					</p>
+
+					<button class="button-link button-link-delete remove_spotlight" title="<?php esc_html_e( 'Remove spotlight', 'listable' ) ?>" ><?php esc_html_e( 'Remove', 'listable' ); ?></button>
 				</div>
 			</div><!-- #spotlight_template -->
 		</div><!-- .group_panel_widget_wrapper -->
@@ -1722,6 +1741,7 @@ class Front_Page_Listing_Regions_Widget extends WP_Widget {
 				if ( strpos( $region, '(' ) !== false ) {
 					$region    = explode( '(', $region );
 					$term_slug = trim( $region[0] );
+					$term_slug = sanitize_title_for_query( $term_slug );
 
 					if ( substr( $region[1], - 1, 1 ) == ')' ) {
 						$custom_region_labels[ $term_slug ] = trim( substr( $region[1], 0, - 1 ) );
@@ -1732,6 +1752,8 @@ class Front_Page_Listing_Regions_Widget extends WP_Widget {
 					}
 				} else {
 					$term_slug = trim( $region );
+					$term_slug = sanitize_title_for_query( $term_slug );
+
 					if ( array_key_exists( $term_slug, $all_regions ) ) {
 						$term_list[] = $all_regions[ $term_slug ];
 					}

@@ -31,9 +31,9 @@ $twitter = get_post_meta( get_the_ID(), '_company_twitter', true);
 	if ( ! empty( $twitter ) ) {
 		$twitter = preg_replace("[@]", "", $twitter);
 		if ( strlen( $twitter ) > 30 ) : ?>
-			<a class="listing-contact  listing--twitter" href="https://twitter.com/<?php echo $twitter; ?>" itemprop="url"> <?php esc_html_e( 'Twitter', 'listable' ); ?></a>
+			<a class="listing-contact  listing--twitter" href="https://twitter.com/<?php echo $twitter; ?>" target="_blank" itemprop="url"> <?php esc_html_e( 'Twitter', 'listable' ); ?></a>
 		<?php else : ?>
-			<a class="listing-contact  listing--twitter" href="https://twitter.com/<?php echo $twitter; ?>" itemprop="url">@<?php echo $twitter; ?></a>
+			<a class="listing-contact  listing--twitter" href="https://twitter.com/<?php echo $twitter; ?>" target="_blank" itemprop="url">@<?php echo $twitter; ?></a>
 		<?php endif; ?>
 	<?php }
 

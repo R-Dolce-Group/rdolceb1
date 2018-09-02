@@ -118,11 +118,11 @@ class Social_Links {
 	 */
 	public function customize_register( $wp_customize ) {
 		$wp_customize->add_section( 'jetpack_social_links', array(
-			'title'    => __( 'Connect', 'jetpack' ),
+			'title'    => esc_html__( 'Connect', 'jetpack' ),
 			'priority' => 35,
 		) );
 
-		foreach ( array_keys( $this->publicize->get_services() ) as $service ) {
+		foreach ( array_keys( $this->publicize->get_services( 'all' ) ) as $service ) {
 			$choices = $this->get_customize_select( $service );
 
 			if ( empty( $choices ) ) {

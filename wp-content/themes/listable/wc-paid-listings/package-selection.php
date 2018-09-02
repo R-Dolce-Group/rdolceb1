@@ -1,23 +1,25 @@
 <?php if ( $packages || $user_packages ) :
-	function listable_get_woocommerce_price_format_on_paid_listings( $format, $currency_pos  ) {
-		$currency_pos = get_option( 'woocommerce_currency_pos' );
-		$format = '%1$s%2$s';
+	if ( ! function_exists('listable_get_woocommerce_price_format_on_paid_listings') ) {
+		function listable_get_woocommerce_price_format_on_paid_listings( $format, $currency_pos  ) {
+			$currency_pos = get_option( 'woocommerce_currency_pos' );
+			$format = '%1$s%2$s';
 
-		switch ( $currency_pos ) {
-			case 'left' :
-				$format = '<sup class="package__currency">%1$s</sup>%2$s';
-				break;
-			case 'right' :
-				$format = '%2$s<sup class="package__currency">%1$s</sup>';
-				break;
-			case 'left_space' :
-				$format = '<sup class="package__currency">%1$s</sup>&nbsp;%2$s';
-				break;
-			case 'right_space' :
-				$format = '%2$s&nbsp;<sup class="package__currency">%1$s</sup>';
-				break;
+			switch ( $currency_pos ) {
+				case 'left' :
+					$format = '<sup class="package__currency">%1$s</sup>%2$s';
+					break;
+				case 'right' :
+					$format = '%2$s<sup class="package__currency">%1$s</sup>';
+					break;
+				case 'left_space' :
+					$format = '<sup class="package__currency">%1$s</sup>&nbsp;%2$s';
+					break;
+				case 'right_space' :
+					$format = '%2$s&nbsp;<sup class="package__currency">%1$s</sup>';
+					break;
+			}
+			return $format;
 		}
-		return $format;
 	}
 	add_filter( 'woocommerce_price_format', 'listable_get_woocommerce_price_format_on_paid_listings', 10, 2 );
 
@@ -45,7 +47,7 @@
 						$checked = 0;
 					?>
 					</div>
-					<button class="btn package__btn" type="submit" name="job_package" value="user-<?php echo $key; ?>" id="package-<?php echo $product->get_id(); ?>">
+					<button class="btn package__btn" type="submit" name="job_package" value="user-<?php echo $key; ?>" id="package-<?php echo $package->get_id(); ?>">
 						<?php _e('Get Started', 'listable') ?>
 					</button>
 				</div>
@@ -59,12 +61,12 @@
 		<div class="package-list">
 			<?php foreach ( $packages as $key => $package ) :
 				$product = wc_get_product( $package );
-
-				$product_post_data = get_post( $product->get_id() );
-
 				if ( ! $product->is_type( array( 'job_package', 'job_package_subscription' ) ) || ! $product->is_purchasable() ) {
 					continue;
 				}
+
+				$product_post_data = get_post( $product->get_id() );
+
 				$tags = get_the_terms($product->get_id(), 'product_tag');
 				$taggedClass = ( ! is_wp_error( $tags ) && ! empty($tags) ) ? 'package--labeled' : '';
 				$taggedClass = $taggedClass !== '' ? $taggedClass . ' ' . $taggedClass . '-' . $tags[0]->slug : '';
@@ -79,7 +81,7 @@
 					</h2>
 					<div class="package__price">
 						<?php if ( $product->get_price() ){
-							echo wc_price( $product->get_price() );
+							echo $product->get_price_html();
 						} else {
 							esc_html_e('Free', 'listable');
 						} ?>
@@ -87,7 +89,20 @@
 					<?php if ( class_exists( 'WC_Subscriptions_Product' ) ) {
 						$package_billing_period = WC_Subscriptions_Product::get_period( $product );
 						if ( in_array( $package_billing_period, array( 'day', 'week', 'month', 'year' ) ) ) {
-							echo '<span class="package__subscription-period">' . '/' . $package_billing_period . '</span>';
+							switch ( $package_billing_period ) {
+								case 'day':
+									printf('<span class="package__subscription-period">/ %s</span>', esc_html__( 'day', 'listable' ) );
+									break;
+								case 'week' :
+									printf('<span class="package__subscription-period">/ %s</span>', esc_html__( 'week', 'listable' ) );
+									break;
+								case 'month':
+									printf('<span class="package__subscription-period">/ %s</span>', esc_html__( 'month', 'listable' ) );
+									break;
+								case 'year':
+									printf('<span class="package__subscription-period">/ %s</span>', esc_html__( 'year', 'listable' ) );
+									break;
+							}
 						}
 					} ?>
 					<div class="package__description">

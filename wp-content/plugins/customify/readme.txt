@@ -1,13 +1,13 @@
 === Customify - A Theme Customizer Booster ===
-Contributors: pixelgrade, euthelup, babbardel, vlad.olaru, cristianfrumusanu, raduconstantin
-Tags: customizer, css, editor, live, preview, customise
-Requires at least: 4.5.0
-Tested up to: 4.7.3
-Stable tag: 1.5.2
+Contributors: pixelgrade, euthelup, babbardel, vlad.olaru, cristianfrumusanu, raduconstantin, razvanonofrei
+Tags: customizer, css, editor, live, preview, customizer
+Requires at least: 4.7.0
+Tested up to: 4.9.8
+Stable tag: 1.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Customify is a Theme Customizer Booster that you can easily use to add Fonts, Colors, Live CSS Editor and other options to your theme.
+Customify is a Theme Customizer Booster that you can easily use to customizer Fonts, Colors, Live CSS Editor and other options for your site.
 
 == Description ==
 
@@ -35,7 +35,88 @@ With [Customify](https://github.com/pixelgrade/customify), developers can easily
 
 **Made with love by Pixelgrade**
 
+== Credits ==
+
+* [Select2](https://select2.github.io) JavaScript library - License: MIT
+* [CSSOM.js](https://github.com/NV/CSSOM) JavaScript library - License: MIT
+* [Ace Editor](https://ace.c9.io/) JavaScript editor - License: BSD
+* [jQuery React](https://github.com/natedavisolds/jquery-react) JavaScript jQuery plugin - License: MIT
+* Default [image](https://unsplash.com/photos/OgM4RKdr2kY) for Style Manager Color Palette control - License: (Unsplash)[https://unsplash.com/license]
+
 == Changelog ==
+
+= 2.0.0 =
+* Added the much improved and overall awesome **Color Palettes v2.0 styling system** (all modesty aside).
+* Minor improvements that are secondary to the one above. Enjoy.
+
+= 1.9.1 =
+* Fixed the Customizer JS crash due to wrong merge.
+
+= 1.9.0 =
+* Added ability to modify existing Customizer panels, sections, controls
+* Added system for admin notifications
+* Overall enhancements for more performance and stability
+
+= 1.8.0 =
+* Added altered state for colors in the current color palette when any of the controls connected to the color has been modified
+* Added the colors from the current palette to all the color pickers in the Theme Options section
+* Fixed bug where default values were being forced in Customizer Preview at first load
+* Fixed bug preventing CSS output for color controls in the Style Manager section of the Customizer
+
+= 1.7.4 =
+* Reorganized Customizer custom sections and grouped them into Theme Options, thus making the Style Manager panel stand out.
+* Refactored parts for more performance and clarity.
+
+= 1.7.3 =
+* Added HEX field for colors in the current Color Palette
+* Updated Google Webfonts list
+
+= 1.7.2 =
+* Fixed issue with **Color Palettes** working only after choosing one variation
+* Fixed bug preventing some options to live update the Customizer preview
+
+= 1.7.1 =
+* Fixed issue with **Color Palettes** overwriting custom colors in Live Preview
+
+= 1.7.0 =
+* Added **Dynamic Color Palettes** for a smoother experience
+* Fixed issue with the Style Manager crashing the Customizer when not using a theme with support for it.
+
+= 1.6.5 =
+* Added **Color Palettes Variations** to the Style Manager Customizer section
+* Improved Color Palettes logic to better handle differences between various color palettes
+* Improved master color connected fields logic to allow for a smoother experience
+* Updated Google Fonts list
+* Fixed some issues with the connected fields logic
+* Fixed some Customizer preview scaling issues
+* Fixed a potential bug with the options' CSS config (multiple configs with the same property but with different selectors)
+
+= 1.6.0 =
+* Added **Style Manager** Customizer section with theme supports logic
+* Added connected fields logic for easy chaining of Customizer controls
+* Fixed a couple of styling inconsistencies regarding the Customizer
+
+= 1.5.7 =
+* Improved development logic for easier testing
+* Improved and fixed reset settings buttons
+* Fixed a couple of styling inconsistencies regarding the Customizer
+
+= 1.5.6 =
+* New Fields Styling Improvements
+
+= 1.5.5 =
+* Added Compatibility with WordPress 4.9
+
+= 1.5.4 =
+* Allow 0 values for fonts line-height and letter-spacing
+* Improved the plugin loading process and the CSS inline output
+* Fixed small style issues for the Customizer bar
+
+= 1.5.3 =
+* Update Style for WordPress 4.8
+* Updated Google Fonts list
+* Fixed the double output of the custom CSS
+* Fixed Menu Add Button overlap
 
 = 1.5.2 =
 * Fixed Background field output

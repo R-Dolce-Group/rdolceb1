@@ -37,6 +37,8 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 	public function __construct( $manager, $id, $args = array() ) {
 		global $wp_customize;
 
+		parent::__construct( $manager, $id, $args );
+
 		self::$std_fonts = apply_filters( 'customify_filter_standard_fonts_list', array(
 			"Arial, Helvetica, sans-serif"                         => "Arial, Helvetica, sans-serif",
 			"'Arial Black', Gadget, sans-serif"                    => "'Arial Black', Gadget, sans-serif",
@@ -57,41 +59,14 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 			"Verdana, Geneva, sans-serif"                          => "Verdana, Geneva, sans-serif",
 		) );
 
-		$keys = array_keys( get_object_vars( $this ) );
-		foreach ( $keys as $key ) {
-			if ( isset( $args[ $key ] ) ) {
-				$this->$key = $args[ $key ];
-			}
-		}
-
-		$this->manager = $manager;
-		$this->id      = $id;
-		if ( empty( $this->active_callback ) ) {
-			$this->active_callback = array( $this, 'active_callback' );
-		}
-		self::$instance_count += 1;
-		$this->instance_number = self::$instance_count;
-
-		// Process settings.
-		if ( empty( $this->settings ) ) {
-			$this->settings = $id;
-		}
-
-		$settings = array();
-		if ( is_array( $this->settings ) ) {
-			foreach ( $this->settings as $key => $setting ) {
-				$settings[ $key ] = $this->manager->get_setting( $setting );
-			}
-		} else {
-			$this->setting       = $this->manager->get_setting( $this->settings );
-			$settings['default'] = $this->setting;
-		}
-
-		$this->settings = $settings;
 		$this->CSSID    = $this->get_CSS_ID();
 		$this->load_google_fonts();
 
-		// since 4.7 all the customizer data is saved in a post type named changeset this is how we get it.
+		// This is intentionally commented as it is only used in development to refresh the Google Fonts list
+//		$this->generate_google_fonts_json();
+
+		// Since 4.7 all the customizer data is saved in a post type named changeset.
+		// This is how we get it.
 		if ( method_exists( $wp_customize, 'changeset_data' ) ) {
 			$changeset_data = $wp_customize->changeset_data();
 
@@ -128,7 +103,7 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 			}
 		} else {
 			//if we've got a string then it is clear we need to decode it
-			$current_value = json_decode( $current_value );
+			$current_value = json_decode( $current_value, true );
 		}
 
 		$current_value = $this->validate_font_values( $current_value );
@@ -290,15 +265,12 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 	}
 
 	function display_font_weight_field( $current_value ) {
-
 		$display = 'none';
-
 		if ( ! $this->load_all_weights && $this->font_weight ) {
 			$display = 'inline-block';
 		} ?>
-		<li class="customify_weights_wrapper customize-control font-options__option"
-		    style="display: <?php echo $display; ?>">
-			<select class="customify_font_weight" data-field="selected_variants" <?php echo ! empty( $current_value->selected_variants ) ? 'data-default="' . $current_value->selected_variants . '"' : null; ?>>
+		<li class="customify_weights_wrapper customize-control font-options__option" style="display: <?php echo $display; ?>;">
+			<select class="customify_font_weight" data-field="selected_variants" <?php echo ! empty( $current_value->selected_variants ) ? 'data-default="' . $current_value->selected_variants . '"' : ''; echo ( isset( $this->fields['font-weight'] ) && false === $this->fields['font-weight'] ) ? 'data-disabled' : ''; ?>>
 				<?php
 				$selected = array();
 				if ( isset( $current_value->selected_variants ) ) {
@@ -327,9 +299,8 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 		if ( $this->subsets && ! empty( $current_value->subsets ) ) {
 			$display = 'inline-block';
 		} ?>
-		<li class="customify_subsets_wrapper customize-control font-options__option"
-		    style="display: <?php echo $display; ?>">
-			<select multiple class="customify_font_subsets" data-field="selected_subsets">
+		<li class="customify_subsets_wrapper customize-control font-options__option" style="display: <?php echo $display; ?>;">
+			<select multiple class="customify_font_subsets" data-field="selected_subsets" <?php echo ( isset( $this->fields['subsets'] ) && false === $this->fields['subsets'] ) ? 'data-disabled' : ''; ?>>
 				<?php
 				$selected = array();
 				if ( isset( $current_value->selected_subsets ) ) {
@@ -359,7 +330,34 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 
 	function display_font_size_field( $current_value ) {
 		if ( ! empty( $this->fields['font-size'] ) ) {
-			$fs_val = empty( $current_value->font_size ) ? 0 : $current_value->font_size; ?>
+			$fs_val = empty( $current_value->font_size ) ? 0 : $current_value->font_size;
+			// If the current val also contains the unit, we need to take that into account.
+			if ( ! is_numeric( $fs_val ) ) {
+				if ( is_string( $fs_val ) ) {
+					// We will get everything in front that is a valid part of a number (float including).
+					preg_match( "/^([\d.\-+]+)/i", $fs_val, $match );
+
+					if ( ! empty( $match ) && isset( $match[0] ) ) {
+						if ( ! PixCustomifyPlugin()->is_assoc( $this->fields['font-size'] ) ) {
+							$this->fields['font-size'][3] = substr( $fs_val, strlen( $match[0] ) );
+						} else {
+							$this->fields['font-size']['unit'] = substr( $fs_val, strlen( $match[0] ) );
+						}
+						$fs_val = $match[0];
+					}
+				} elseif ( is_array( $fs_val ) ) {
+					if ( isset( $fs_val['unit']) ) {
+						if ( ! PixCustomifyPlugin()->is_assoc( $this->fields['font-size'] ) ) {
+							$this->fields['font-size'][3] = $fs_val['unit'];
+						} else {
+							$this->fields['font-size']['unit'] = $fs_val['unit'];
+						}
+					}
+
+					$fs_val = $fs_val['value'];
+				}
+			}
+			?>
 			<li class="customify_font_size_wrapper customize-control font-options__option">
 				<label><?php esc_html_e( 'Font Size', 'customify' ); ?></label>
 				<input type="range"
@@ -371,7 +369,34 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 
 	function display_line_height_field( $current_value ) {
 		if ( ! empty( $this->fields['line-height'] ) ) {
-			$lh_val = isset( $current_value->line_height ) ? $current_value->line_height : 0 ; ?>
+			$lh_val = isset( $current_value->line_height ) ? $current_value->line_height : 0 ;
+			// If the current val also contains the unit, we need to take that into account.
+			if ( ! is_numeric( $lh_val ) ) {
+				if ( is_string( $lh_val ) ) {
+					// We will get everything in front that is a valid part of a number (float including).
+					preg_match( "/^([\d.\-+]+)/i", $lh_val, $match );
+
+					if ( ! empty( $match ) && isset( $match[0] ) ) {
+						if ( ! PixCustomifyPlugin()->is_assoc( $this->fields['line-height'] ) ) {
+							$this->fields['line-height'][3] = substr( $lh_val, strlen( $match[0] ) );
+						} else {
+							$this->fields['line-height']['unit'] = substr( $lh_val, strlen( $match[0] ) );
+						}
+						$lh_val = $match[0];
+					}
+				} elseif ( is_array( $lh_val ) ) {
+					if ( isset( $lh_val['unit']) ) {
+						if ( ! PixCustomifyPlugin()->is_assoc( $this->fields['line-height'] ) ) {
+							$this->fields['line-height'][3] = $lh_val['unit'];
+						} else {
+							$this->fields['line-height']['unit'] = $lh_val['unit'];
+						}
+					}
+
+					$lh_val = $lh_val['value'];
+				}
+			}
+			?>
 			<li class="customify_line_height_wrapper customize-control font-options__option">
 				<label><?php esc_html_e( 'Line height', 'customify' ); ?></label>
 				<input type="range"
@@ -384,7 +409,34 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 	function display_letter_spacing_field( $current_value ) {
 
 		if ( ! empty( $this->fields['letter-spacing'] ) ) {
-			$ls_val = isset( $current_value->letter_spacing ) ? $current_value->letter_spacing : 0; ?>
+			$ls_val = isset( $current_value->letter_spacing ) ? $current_value->letter_spacing : 0;
+			// If the current val also contains the unit, we need to take that into account.
+			if ( ! is_numeric( $ls_val ) ) {
+				if ( is_string( $ls_val ) ) {
+					// We will get everything in front that is a valid part of a number (float including).
+					preg_match( "/^([\d.\-+]+)/i", $ls_val, $match );
+
+					if ( ! empty( $match ) && isset( $match[0] ) ) {
+						if ( ! PixCustomifyPlugin()->is_assoc( $this->fields['letter-spacing'] ) ) {
+							$this->fields['letter-spacing'][3] = substr( $ls_val, strlen( $match[0] ) );
+						} else {
+							$this->fields['letter-spacing']['unit'] = substr( $ls_val, strlen( $match[0] ) );
+						}
+						$ls_val = $match[0];
+					}
+				} elseif ( is_array( $ls_val ) ) {
+					if ( isset( $ls_val['unit']) ) {
+						if ( ! PixCustomifyPlugin()->is_assoc( $this->fields['letter-spacing'] ) ) {
+							$this->fields['letter-spacing'][3] = $ls_val['unit'];
+						} else {
+							$this->fields['letter-spacing']['unit'] = $ls_val['unit'];
+						}
+					}
+
+					$ls_val = $ls_val['value'];
+				}
+			}
+			?>
 			<li class="customify_letter_spacing_wrapper customize-control font-options__option">
 				<label><?php esc_html_e( 'Letter Spacing', 'customify' ); ?></label>
 				<input type="range"
@@ -553,12 +605,9 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 	 * call this
 	 * the result needs to be put back into google.fonts.php
 	 * remove this call
-	 * before rage about file_get_content + json file thing about the security avoided with this simple call
+	 * before rage about file_get_content + json file think about the security avoided with this simple call
 	 */
 	protected function generate_google_fonts_json() {
-
-		$fonts_path = plugin_dir_path( __FILE__ ) . 'resources/google.fonts.php';
-
 		$new_array = array();
 		foreach ( self::$google_fonts as $key => $font ) {
 			// unset unused data
@@ -578,10 +627,10 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 
 		if ( isset( $this->default ) && is_array( $this->default ) ) {
 
-			//Handle special logic for when the $value array is not an associative array
+			// Handle special logic for when the $value array is not an associative array.
 			if ( ! PixCustomifyPlugin()->is_assoc( $this->default ) ) {
 
-				//Let's determine some type of font
+				// Let's determine some type of font.
 				if ( ! isset( $this->default[2] ) || ( isset( $this->default[2] ) && 'google' == $this->default[2] ) ) {
 					if ( isset( self::$google_fonts[ $this->default[0] ] ) ) {
 						$to_return                = self::$google_fonts[ $this->default[0] ];
@@ -592,13 +641,13 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 					$to_return['type'] = $this->default[2];
 				}
 
-				//The first entry is the font-family
+				// The first entry is the font-family.
 				if ( isset( $this->default[0] ) ) {
 					$to_return['font_family'] = $this->default[0];
 				}
 
-				//In case we don't have an associative array
-				//The second entry is the variants
+				// In case we don't have an associative array.
+				// The second entry is the variants.
 				if ( isset( $this->default[1] ) ) {
 					$to_return['selected_variants'] = $this->default[1];
 				}
@@ -638,7 +687,7 @@ class Pix_Customize_Font_Control extends Pix_Customize_Control {
 			}
 		}
 
-		// rare case when there is a standard font we need to get the custom variants if there are some
+		// Rare case when there is a standard font we need to get the custom variants if there are some.
 		if ( ! isset( $to_return['variants'] ) && isset( $to_return['font_family'] ) && isset( self::$std_fonts[ $to_return['font_family'] ] ) && isset( self::$std_fonts[ $to_return['font_family'] ]['variants'] ) ) {
 			$to_return['variants'] = self::$std_fonts[ $to_return['font_family'] ]['variants'];
 		}

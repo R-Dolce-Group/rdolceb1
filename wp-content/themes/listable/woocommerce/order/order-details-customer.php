@@ -13,12 +13,13 @@
  * @see 	https://docs.woocommerce.com/document/template-structure/
  * @author  WooThemes
  * @package WooCommerce/Templates
- * @version 3.0.0
+ * @version 3.3.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+$show_shipping = ! wc_ship_to_billing_address_only() && $order->needs_shipping_address();
 ?>
 <header><h2><?php _e( 'Customer Details', 'woocommerce' ); ?></h2></header>
 
@@ -47,7 +48,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php do_action( 'woocommerce_order_details_after_customer_details', $order ); ?>
 </table>
 
-<?php if ( ! wc_ship_to_billing_address_only() && $order->needs_shipping_address() ) : ?>
+<?php if ( $show_shipping ) : ?>
 
 <div class="addresses">
 
@@ -62,14 +63,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</address>
 	</div>
 
-<?php if ( ! wc_ship_to_billing_address_only() && $order->needs_shipping_address() ) : ?>
+<?php if ( $show_shipping ) : ?>
 
 	<div class="address">
 		<header class="title">
 			<h3><?php _e( 'Shipping address', 'woocommerce' ); ?></h3>
 		</header>
 		<address>
-			<?php echo ( $address = $order->get_formatted_shipping_address() ) ? $address : __( 'N/A', 'woocommerce' ); ?>
+			<?php echo wp_kses_post( $order->get_formatted_billing_address( __( 'N/A', 'woocommerce' ) ) ); ?>
 		</address>
 	</div>
 

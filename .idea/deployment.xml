@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="bluehost@martidolce" createEmptyFolders="true">
+  <component name="PublishConfigData" serverName="RGD01Content">
     <serverData>
-      <paths name="bluehost@martidolce">
+      <paths name="https://dmipwordpress.azurewebsites.net">
         <serverdata>
           <mappings>
-            <mapping deploy="/public_html" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/wwwroot" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
     </serverData>
-    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>

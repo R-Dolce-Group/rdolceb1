@@ -67,7 +67,7 @@ $listing_is_claimed  = get_post_meta( $post->ID, '_claimed', true );?>
 
 					<h1 class="entry-title" itemprop="name"><?php
 						echo get_the_title();
-						if ( $listing_is_claimed === '1' ) {
+						if ( $listing_is_claimed === '1' && function_exists('wpjmcl_init')) {
 							echo '<span class="listing-claimed-icon">';
 							get_template_part('assets/svg/checked-icon');
 							echo '<span>';

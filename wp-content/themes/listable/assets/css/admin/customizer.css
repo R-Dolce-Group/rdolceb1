@@ -8,7 +8,7 @@
     margin-right: 0; }
     #customize-control-listable_options-mapbox_style_control .customify_radio_image label img {
       max-width: 100%;
-      width: auto !important;
+      width: 90% !important;
       height: auto; }
     #customize-control-listable_options-mapbox_style_control .customify_radio_image label input[type=radio]:checked + img {
       border: 0 !important;

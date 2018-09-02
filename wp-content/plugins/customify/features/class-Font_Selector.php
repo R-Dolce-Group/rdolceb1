@@ -19,7 +19,7 @@ class Customify_Font_Selector {
 		$this->theme_fonts = apply_filters( 'customify_theme_fonts', array() );
 
 		$load_location = PixCustomifyPlugin()->get_plugin_setting( 'style_resources_location', 'wp_head' );
-		add_action( $load_location, array( $this, 'output_font_dynamic_style' ), 999999999 );
+		add_action( $load_location, array( $this, 'output_font_dynamic_style' ), 100 );
 		add_action( 'customify_font_family_before_options', array( $this, 'add_customify_theme_fonts' ), 11, 2 );
 
 		if ( PixCustomifyPlugin()->get_plugin_setting( 'enable_editor_style', true ) ) {
@@ -39,7 +39,7 @@ class Customify_Font_Selector {
 			(function ($) {
 				$(window).load(function () {
 					/**
-					 * @param iframe_id the id of the frame you whant to append the style
+					 * @param iframe_id the id of the frame you want to append the style
 					 * @param style_element the style element you want to append
 					 */
 					var append_script_to_iframe = function (ifrm_id, scriptEl) {
@@ -54,7 +54,10 @@ class Customify_Font_Selector {
 
 					var append_style_to_iframe = function (ifrm_id, styleElment) {
 						var ifrm = window.frames[ifrm_id];
-						ifrm = ( ifrm.contentDocument || ifrm.contentDocument || ifrm.document );
+						if ( typeof ifrm === "undefined" ) {
+						    return;
+						}
+						ifrm = ( ifrm.contentDocument || ifrm.document );
 						var head = ifrm.getElementsByTagName('head')[0];
 
 						if (typeof styleElment !== "undefined") {
@@ -165,7 +168,7 @@ class Customify_Font_Selector {
 
 				//Handle special logic for when the $value array is not an associative array
 				if ( ! $local_plugin->is_assoc( $value ) ) {
-					$value = $local_plugin->process_a_not_associative_font_default( $value );
+					$value = $local_plugin->standardize_non_associative_font_default( $value );
 				}
 
 				if ( isset( $value['font_family'] ) && isset( $value['type'] ) && $value['type'] == 'google' ) {
@@ -238,9 +241,9 @@ class Customify_Font_Selector {
 				$value = array( 'font_family' => $value );
 			}
 
-			//Handle special logic for when the $value array is not an associative array
+			// Handle special logic for when the $value array is not an associative array
 			if ( ! $local_plugin->is_assoc( $value ) ) {
-				$value = $local_plugin->process_a_not_associative_font_default( $value );
+				$value = $local_plugin->standardize_non_associative_font_default( $value );
 			}
 
 			$this->output_font_style( $key, $font, $value );
@@ -313,7 +316,7 @@ class Customify_Font_Selector {
 			$output = call_user_func( $font['callback'], $value, $font );
 			echo $output;
 		} else {
-			echo $font['selector'] . " {";
+			echo $font['selector'] . " {" . PHP_EOL;
 
 			// First handle the case where we have the font-family in the selected variant (usually this means a custom font from our Fonto plugin)
 			if ( ! empty( $selected_variant ) && is_array( $selected_variant ) && ! empty( $selected_variant['font-family'] ) ) {
@@ -373,18 +376,63 @@ class Customify_Font_Selector {
 			}
 
 			if ( ! empty( $value['font_size'] ) ) {
-				$unit = $this->get_field_unit( $font, 'font-size' );
-				$this->display_property( 'font-size', $value['font_size'], $unit );
+				// If the value already contains a unit, go with that.
+				// We also handle receiving the value in a standardized format ( array with 'value' and 'unit').
+				$font_size = $value['font_size'];
+				$unit = '';
+				if ( is_numeric( $value['font_size'] ) ) {
+					$unit = $this->get_field_unit( $font, 'font-size' );
+				} elseif ( is_array( $value['font_size'] ) ) {
+					if ( isset( $value['font_size']['unit'] ) ) {
+						$unit = $value['font_size']['unit'];
+					}
+
+					if ( isset( $value['font_size']['value'] ) ) {
+						$font_size = $value['font_size']['value'];
+					}
+				}
+
+				$this->display_property( 'font-size', $font_size, $unit );
 			}
 
-			if ( ! empty( $value['line_height'] ) ) {
-				$unit = $this->get_field_unit( $font, 'line-height' );
-				$this->display_property( 'line-height', $value['line_height'], $unit );
+			if ( isset( $value['line_height'] ) ) {
+				// If the value already contains a unit, go with that.
+				// We also handle receiving the value in a standardized format ( array with 'value' and 'unit').
+				$line_height = $value['line_height'];
+				$unit = '';
+				if ( is_numeric( $value['line_height'] ) ) {
+					$unit = $this->get_field_unit( $font, 'line-height' );
+				} elseif ( is_array( $value['line_height'] ) ) {
+					if ( isset( $value['line_height']['unit'] ) ) {
+						$unit = $value['line_height']['unit'];
+					}
+
+					if ( isset( $value['line_height']['value'] ) ) {
+						$line_height = $value['line_height']['value'];
+					}
+				}
+
+				$this->display_property( 'line-height', $line_height, $unit );
 			}
 
-			if ( ! empty( $value['letter_spacing'] ) ) {
-				$unit = $this->get_field_unit( $font, 'letter-spacing' );
-				$this->display_property( 'letter-spacing', $value['letter_spacing'], $unit );
+			if ( isset( $value['letter_spacing'] ) ) {
+				// If the value already contains a unit, go with that.
+				// We also handle receiving the value in a standardized format ( array with 'value' and 'unit').
+				$letter_spacing = $value['letter_spacing'];
+				$unit = '';
+				if ( is_numeric( $value['letter_spacing'] ) ) {
+					$unit = $this->get_field_unit( $font, 'letter-spacing' );
+				} elseif ( is_array( $value['letter_spacing'] ) ) {
+					if ( isset( $value['letter_spacing']['unit'] ) ) {
+						$unit = $value['letter_spacing']['unit'];
+					}
+
+					if ( isset( $value['letter_spacing']['value'] ) ) {
+						$letter_spacing = $value['letter_spacing']['value'];
+					}
+				}
+
+				$this->display_property( 'letter-spacing', $letter_spacing, $unit );
 			}
 
 			if ( ! empty( $value['text_align'] ) ) {
@@ -404,7 +452,7 @@ class Customify_Font_Selector {
 		$CSS = ob_get_clean();
 
 		if ( isset( $GLOBALS['wp_customize'] ) ) { ?>
-			<style id="customify_font_output_for_<?php echo $field; ?>">
+			<style id="customify_font_output_for_<?php echo sanitize_html_class( $field ); ?>">
 				<?php echo $CSS ?>
 			</style><?php
 			return;
@@ -455,7 +503,7 @@ class Customify_Font_Selector {
 	}
 
 	function display_property( $property, $value, $unit = '' ) {
-		echo "\n" . $property . ": " . $value . $unit . ";\n";
+		echo $property . ": " . $value . $unit . ";\n";
 	}
 
 	// well weight sometimes comes from google as 600italic which in CSS syntax should come in two separate properties
@@ -465,11 +513,11 @@ class Customify_Font_Selector {
 		if ( strpos( $value, 'italic' ) !== false ) {
 
 			$value = str_replace( 'italic', '', $value );
-			echo "\n" . 'font-weight' . ": " . $value . ";\n";
-			echo "\n" . 'font-style' . ": italic;\n";
+			echo 'font-weight' . ": " . $value . ";\n";
+			echo 'font-style' . ": italic;\n";
 			$has_style = true;
 		} else {
-			echo "\n" . 'font-weight' . ": " . $value . ";\n";
+			echo 'font-weight' . ": " . $value . ";\n";
 		}
 
 
